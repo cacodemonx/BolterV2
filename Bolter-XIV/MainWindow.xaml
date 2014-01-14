@@ -1,0 +1,314 @@
+﻿<Window
+        x:Class="Bolter_XIV.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:bolterXiv="clr-namespace:Bolter_XIV"
+        Title="Bolter-XIV" Icon="favicon.ico" Height="650" Width="317" Loaded="Window_Loaded" Closing="Window_Closing" WindowStyle="None" AllowsTransparency="True" Background="Transparent" Visibility="Visible">
+    <Window.Resources>
+        <LinearGradientBrush x:Key="WindowFrameBrush" StartPoint="0,0.5" EndPoint="1,0.5">
+            <GradientStop Color="CadetBlue" Offset="0.4"/>
+            <GradientStop Color="Gray" Offset="1"/>
+        </LinearGradientBrush>
+    </Window.Resources>
+    <Border Background="Gray" CornerRadius="5" BorderBrush="{StaticResource WindowFrameBrush}" BorderThickness="3,0,3,2">
+        <Grid Margin="0,0,2,-9">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="669" />
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Border Background="{StaticResource WindowFrameBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              CornerRadius="5,5,0,0" Margin="-1,0,-1,1" MouseLeftButtonDown="DragWindow">
+                <Grid>
+                    <TextBlock Foreground="White" FontWeight="Bold" VerticalAlignment="Top" Margin="191,9,-171,0"
+            Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=Title}"/>
+                    <Button Content="X" HorizontalAlignment="Right" VerticalAlignment="Top" FontSize="10"
+                  Width="24" Height="24" Padding="0" Command="ApplicationCommands.Close" RenderTransformOrigin="0.4,0.867"/>
+                    <Button Content="-" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,24,0" FontSize="17"
+                  Width="24" Height="24" Padding="0" Click="Button_Click_1" RenderTransformOrigin="0.4,0.867"/>
+                </Grid>
+            </Border>
+            <TabControl HorizontalAlignment="Left" Height="637" Margin="0,10,-4,0" VerticalAlignment="Top" Width="317">
+                <TabItem Header="Standard">
+                    <Grid Background="#FFE5E5E5" Margin="0,0">
+                        <Label TextElement.FontSize="18" TextElement.FontFamily="Arial" HorizontalAlignment="Center" Margin="55,34,116,0" VerticalAlignment="Top" Width="136" x:Name="label1"/>
+                        <Button Content="Down" Cursor="Hand" HorizontalAlignment="Left" Margin="116,495,0,0" VerticalAlignment="Top" Width="75" Click="button6_Click"/>
+                        <Button Content="South" Cursor="Hand" HorizontalAlignment="Left" Margin="116,468,0,0" VerticalAlignment="Top" Width="75" Click="button2_Click"/>
+                        <Button Content="West" Cursor="Hand" HorizontalAlignment="Left" Margin="41,446,0,0" VerticalAlignment="Top" Width="75" Click="button4_Click"/>
+                        <Button Content="East" Cursor="Hand" HorizontalAlignment="Left" Margin="191,446,0,0" VerticalAlignment="Top" Width="75" Click="button3_Click"/>
+                        <Button Content="North" Cursor="Hand" HorizontalAlignment="Left" Margin="116,424,0,0" VerticalAlignment="Top" Width="75" Click="button1_Click"/>
+                        <Button Content="Up" Cursor="Hand" HorizontalAlignment="Left" Margin="116,397,0,0" VerticalAlignment="Top" Width="75" Click="button5_Click"/>
+                        <Slider HorizontalAlignment="Left" Margin="26,7,0,0" VerticalAlignment="Top" Width="255" ValueChanged="Slider_ValueChanged" x:Name="slider1"/>
+                        <Button Content="Sprint" HorizontalAlignment="Left" Margin="36,84,0,0" VerticalAlignment="Top" Width="75" Click="Sprint_Click"/>
+                        <Button Content="Normal" HorizontalAlignment="Left" Margin="186,84,0,0" VerticalAlignment="Top" Width="75" Click="Normal_Click"/>
+                        <TextBox HorizontalAlignment="Left" Height="23" Margin="92,550,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="40" x:Name="textBox2"/>
+                        <Ellipse Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="250" Margin="28,125,0,0" Stroke="Black" VerticalAlignment="Top" Width="250" x:Name="eclipse1" MouseMove="eclipse1_MouseMove" MouseDown="eclipse1_MouseDown"/>
+                        <Polygon MouseDown="eclipse1_MouseDown" MouseMove="eclipse1_MouseMove"  Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="125" Margin="28,125,0,0" Stroke="Black" VerticalAlignment="Top" Width="125" Points="0,62.5 125,125 62.5,0" Cursor="ScrollNW" Opacity="0"/>
+                        <Polygon MouseDown="eclipse1_MouseDown" MouseMove="eclipse1_MouseMove" Cursor="ScrollN" Opacity="0" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="125" Margin="90,100,0,0" Stroke="Black" VerticalAlignment="Top" Width="125" Points="0,82.5 125,125 82.5,0 60,0 0,60" RenderTransformOrigin="0.5,0.5">
+                            <Polygon.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="45"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Polygon.RenderTransform>
+                        </Polygon>
+                        <Polygon MouseDown="eclipse1_MouseDown" MouseMove="eclipse1_MouseMove" Cursor="ScrollNE" Opacity="0" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="125" Margin="152,125,0,0" Stroke="Black" VerticalAlignment="Top" Width="125" Points="0,62.5 125,125 62.5,0" RenderTransformOrigin="0.5,0.5">
+                            <Polygon.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="90"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Polygon.RenderTransform>
+                        </Polygon>
+                        <Polygon MouseDown="eclipse1_MouseDown" MouseMove="eclipse1_MouseMove"  Cursor="ScrollE" Opacity="0" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="125" Margin="179,187,0,0" Stroke="Black" VerticalAlignment="Top" Width="125" Points="0,82.5 125,125 82.5,0 60,0 0,60" RenderTransformOrigin="0.5,0.5">
+                            <Polygon.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="135"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Polygon.RenderTransform>
+                        </Polygon>
+                        <Polygon MouseDown="eclipse1_MouseDown" MouseMove="eclipse1_MouseMove"  Cursor="ScrollW" Opacity="0" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="125" Margin="2,187,0,0" Stroke="Black" VerticalAlignment="Top" Width="125" Points="0,82.5 125,125 82.5,0 60,0 0,60" RenderTransformOrigin="0.5,0.5">
+                            <Polygon.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="-45"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Polygon.RenderTransform>
+                        </Polygon>
+                        <Polygon MouseDown="eclipse1_MouseDown" MouseMove="eclipse1_MouseMove"  Cursor="ScrollSE" Opacity="0" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="125" Margin="152,248,0,0" Stroke="Black" VerticalAlignment="Top" Width="125" Points="0,62.5 125,125 62.5,0" RenderTransformOrigin="0.5,0.5">
+                            <Polygon.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="180"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Polygon.RenderTransform>
+                        </Polygon>
+                        <Polygon MouseDown="eclipse1_MouseDown" MouseMove="eclipse1_MouseMove"  Cursor="ScrollS" Opacity="0" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="125" Margin="90,275,0,0" Stroke="Black" VerticalAlignment="Top" Width="125" Points="0,82.5 125,125 82.5,0 60,0 0,60" RenderTransformOrigin="0.5,0.5">
+                            <Polygon.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="-135"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Polygon.RenderTransform>
+                        </Polygon>
+                        <Polygon MouseDown="eclipse1_MouseDown" MouseMove="eclipse1_MouseMove"  Cursor="ScrollSW" Opacity="0" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="125" Margin="28,250,0,0" Stroke="Black" VerticalAlignment="Top" Width="125" Points="0,62.5 125,125 62.5,0" RenderTransformOrigin="0.5,0.5">
+                            <Polygon.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="-90"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Polygon.RenderTransform>
+                        </Polygon>
+                        <Polygon MouseDown="eclipse1_MouseDown" Fill="Blue" HorizontalAlignment="Left" Height="100" Margin="153,250,0,0" Stroke="Black" VerticalAlignment="Top" Width="100" Points="1,0 1,1 0,1 -1,1 -1,0 -1,-1 0,-1 1,-1" MouseMove="eclipse1_MouseMove" Cursor="Cross"/>
+                        <Slider HorizontalAlignment="Left" Margin="-110,252,0,0" VerticalAlignment="Top" Width="258" RenderTransformOrigin="0.5,0.5" ValueChanged="Slider_ValueChanged_1">
+                            <Slider.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="-90"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Slider.RenderTransform>
+                        </Slider>
+                        <Label Content="Z Radius Jump" HorizontalAlignment="Left" Margin="24,359,0,0" VerticalAlignment="Top"/>
+                        <Label Content="0 Yalms" HorizontalAlignment="Left" Margin="3,390,0,0" VerticalAlignment="Top" x:Name="label2"/>
+                        <Label MouseMove="eclipse1_MouseMove" Cursor="ScrollN" Content="   N" HorizontalAlignment="Left" Margin="125,116,0,0" VerticalAlignment="Top" TextBlock.FontSize="17"/>
+                        <Label MouseMove="eclipse1_MouseMove" Cursor="ScrollW" Content="W" HorizontalAlignment="Left" Margin="28,232,0,0" VerticalAlignment="Top" TextBlock.FontSize="17"/>
+                        <Label MouseMove="eclipse1_MouseMove" Cursor="ScrollE" Content="    E" HorizontalAlignment="Left" Margin="241,232,0,0" VerticalAlignment="Top" TextBlock.FontSize="17"/>
+                        <Label MouseMove="eclipse1_MouseMove" Cursor="ScrollS" Content=" S" HorizontalAlignment="Left" Margin="138,349,0,0" VerticalAlignment="Top" TextBlock.FontSize="17"/>
+                        <Slider HorizontalAlignment="Left" Margin="163,252,-114,0" VerticalAlignment="Top" Width="258" RenderTransformOrigin="0.5,0.5" ValueChanged="Slider_ValueChanged_2" x:Name="slider3">
+                            <Slider.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="-90"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Slider.RenderTransform>
+                        </Slider>
+                        <Label Content="Button Jump" HorizontalAlignment="Left" Margin="201,359,0,0" VerticalAlignment="Top"/>
+                        <Label Content="0 Yalms" HorizontalAlignment="Left" Margin="247,390,0,0" VerticalAlignment="Top" x:Name="label3"/>
+                        <Button Content="NE" HorizontalAlignment="Left" Margin="196,419,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_7"/>
+                        <Button Content="NW" HorizontalAlignment="Left" Margin="36,419,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_8"/>
+                        <Button Content="SW" HorizontalAlignment="Left" Margin="36,473,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_9"/>
+                        <Button Content="SE" HorizontalAlignment="Left" Margin="196,473,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_10"/>
+                        <Label Content="Raduis X" HorizontalAlignment="Left" Margin="36,547,0,0" VerticalAlignment="Top"/>
+                        <Label Content="Raduis Y" HorizontalAlignment="Left" Margin="138,547,0,0" VerticalAlignment="Top"/>
+                        <TextBox HorizontalAlignment="Left" Height="23" Margin="196,550,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="40" x:Name="textBox3"/>
+                        <CheckBox Content="Hide Sprint" HorizontalAlignment="Left" Margin="36,63,0,0" VerticalAlignment="Top" Checked="CheckBox_Checked_3" Unchecked="CheckBox_Checked_3" x:Name="hidesprint"/>
+                        <CheckBox Content="Disable Radar" HorizontalAlignment="Left" Margin="191,63,0,0" VerticalAlignment="Top" Checked="CheckBox_Checked_4" Unchecked="CheckBox_Checked_4" x:Name="RadarCheckBox"/>
+                        <Rectangle Fill="#FFE5E5E5" HorizontalAlignment="Left" Height="258" Margin="28,107,0,0" Stroke="#FFE5E5E5" VerticalAlignment="Top" Width="256" x:Name="HideRadarMain" Visibility="Hidden"/>
+                        <Rectangle Fill="#FFE5E5E5" HorizontalAlignment="Left" Height="58" Margin="106,334,0,0" Stroke="#FFE5E5E5" VerticalAlignment="Top" Width="95" x:Name="HideRadarSub" Visibility="Hidden"/>
+                        <Rectangle Fill="#FFE5E5E5" HorizontalAlignment="Left" Height="609" Margin="-10,0,0,-7" Stroke="#FFE5E5E5" VerticalAlignment="Top" Width="317" x:Name="Loading" Visibility="Visible"/>
+                        <TextBlock HorizontalAlignment="Left" Margin="3,10,0,0" TextWrapping="Wrap" Text="Loading Please Wait..." VerticalAlignment="Top" Height="48" Width="297" FontSize="30" x:Name="LoadingText" Visibility="Visible"/>
+                            <bolterXiv:BizzySpinner
+                                Spin="True"
+                                SpinRate=".7"
+                                Width="200" 
+                                Height="200" 
+                                HorizontalAlignment="Center" 
+                                VerticalAlignment="Center" Margin="53,84,54,318"
+                                IsEnabled="True"
+                                x:Name="ProgSpin"
+                             />
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Advanced" Height="23" VerticalAlignment="Top">
+                    <Grid Background="#FFE5E5E5" Margin="0,0">
+                        <Slider HorizontalAlignment="Left" VerticalAlignment="Top" Width="278" Margin="10,22,0,0" ValueChanged="Slider_ValueChanged_3"/>
+                        <Label Content="Sprint Parameter #2" HorizontalAlignment="Left" Margin="10,-4,0,0" VerticalAlignment="Top" Height="26"/>
+                        <Label Content="Sprint" HorizontalAlignment="Left" Margin="10,49,0,0" VerticalAlignment="Top"/>
+                        <Label Content="0x00" HorizontalAlignment="Left" Margin="48,49,0,0" VerticalAlignment="Top" x:Name="label4" Width="38"/>
+                        <Label Content="0x00" HorizontalAlignment="Left" Margin="79,49,0,0" VerticalAlignment="Top" x:Name="label5"/>
+                        <Label Content="0x00" HorizontalAlignment="Left" Margin="109,49,0,0" VerticalAlignment="Top" x:Name="label6"/>
+                        <Label Content="0x00" HorizontalAlignment="Left" Margin="138,49,0,0" VerticalAlignment="Top" x:Name="label7"/>
+                        <GroupBox Header="Current POS" HorizontalAlignment="Left" Margin="9,80,0,0" VerticalAlignment="Top" Height="108" Width="105"/>
+                        <TextBox HorizontalAlignment="Left" Height="23" Margin="27,101,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="75" x:Name="textBoxX"/>
+                        <TextBox HorizontalAlignment="Left" Height="23" Margin="27,127,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="75" x:Name="textBoxY"/>
+                        <TextBox HorizontalAlignment="Left" Height="23" Margin="27,155,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="75" x:Name="textBoxZ"/>
+                        <Label Content="X" HorizontalAlignment="Left" Margin="10,99,0,0" VerticalAlignment="Top"/>
+                        <Label Content="Y" HorizontalAlignment="Left" Margin="10,124,0,0" VerticalAlignment="Top"/>
+                        <Label Content="Z" HorizontalAlignment="Left" Margin="10,152,0,0" VerticalAlignment="Top"/>
+                        <Button Content="Get POS" HorizontalAlignment="Left" Margin="27,193,0,0" VerticalAlignment="Top" Width="75" Click="GetPos_Click"/>
+                        <GroupBox Header="New POS" HorizontalAlignment="Left" Margin="195,80,0,0" VerticalAlignment="Top" Height="108" Width="105"/>
+                        <TextBox x:Name="NewPOS_X" HorizontalAlignment="Left" Height="23" Margin="213,101,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="75"/>
+                        <TextBox x:Name="NewPOS_Y" HorizontalAlignment="Left" Height="23" Margin="213,127,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="75"/>
+                        <TextBox x:Name="NewPOS_Z" HorizontalAlignment="Left" Height="23" Margin="213,155,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="75"/>
+                        <Label Content="X" HorizontalAlignment="Left" Margin="196,99,0,0" VerticalAlignment="Top"/>
+                        <Label Content="Y" HorizontalAlignment="Left" Margin="196,124,0,0" VerticalAlignment="Top"/>
+                        <Label Content="Z" HorizontalAlignment="Left" Margin="196,152,0,0" VerticalAlignment="Top"/>
+                        <Button Content="Jump" HorizontalAlignment="Left" Margin="213,193,0,0" VerticalAlignment="Top" Width="75" Click="Jump_Click"/>
+                        <CheckBox Content="Auto Update" HorizontalAlignment="Left" Margin="27,220,0,0" VerticalAlignment="Top" Checked="CheckBox_Checked" Unchecked="checkBox1_Unchecked" x:Name="checkBox1"/>
+                        <TextBox HorizontalAlignment="Left" Height="23" Margin="24,286,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" x:Name="Area_Save"/>
+                        <Label Content="Area" HorizontalAlignment="Left" Margin="24,260,0,0" VerticalAlignment="Top"/>
+                        <Button Click="Save_Click" Content="Save" HorizontalAlignment="Left" Margin="24,363,0,0" VerticalAlignment="Top" Width="75"/>
+                        <GroupBox Header="Save POS" HorizontalAlignment="Left" Margin="10,250,0,0" VerticalAlignment="Top" Height="145" Width="147"/>
+                        <GroupBox Header="Load POS" HorizontalAlignment="Left" Margin="162,250,-2,0" VerticalAlignment="Top" Height="145" Width="147"/>
+                        <ComboBox SelectionChanged="AreaPOS_Box_SelectionChanged" x:Name="AreaPOS_Box" HorizontalAlignment="Left" Margin="168,286,0,0" VerticalAlignment="Top" Width="120"/>
+                        <Button Content="Delete" HorizontalAlignment="Left" Margin="234,363,0,0" VerticalAlignment="Top" Width="63"/>
+                        <Button Click="Load_XML" Content="Load" HorizontalAlignment="Left" Margin="168,363,0,0" VerticalAlignment="Top" Width="60" x:Name="load_button"/>
+                        <Label Content="Name" HorizontalAlignment="Left" Margin="24,309,0,0" VerticalAlignment="Top"/>
+                        <TextBox HorizontalAlignment="Left" Height="23" Margin="24,335,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" x:Name="Name_Save"/>
+                        <Label Content="Area" HorizontalAlignment="Left" Margin="168,260,0,0" VerticalAlignment="Top"/>
+                        <Label Content="Name" HorizontalAlignment="Left" Margin="168,309,0,0" VerticalAlignment="Top"/>
+                        <ComboBox x:Name="NamePOS_Box" SelectionChanged="NamePOS_Box_SelectionChanged" HorizontalAlignment="Left" Margin="168,335,0,0" VerticalAlignment="Top" Width="120"/>
+                        <ComboBox x:Name="POSKbox" HorizontalAlignment="Left" Margin="80,426,0,0" VerticalAlignment="Top" Width="76"/>
+                        <ComboBox x:Name="POSKmodbox" HorizontalAlignment="Left" Margin="156,426,0,0" VerticalAlignment="Top" Width="76"/>
+                        <TextBox x:Name="POSKey_Name" HorizontalAlignment="Left" Height="23" Margin="117,470,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="60"/>
+                        <TextBox x:Name="POSKey_Zone" HorizontalAlignment="Left" Height="23" Margin="213,470,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="60" RenderTransformOrigin="-0.5,0.478"/>
+                        <TextBox x:Name="SpeedKey_Amount" HorizontalAlignment="Left" Height="23" Margin="134,502,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="60"/>
+                        <TextBox x:Name="MoveKey_Dist" HorizontalAlignment="Left" Height="23" Margin="134,538,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="60"/>
+                        <Label Content="Key" HorizontalAlignment="Left" Margin="80,400,0,0" VerticalAlignment="Top"/>
+                        <Label Content="KeyMod" HorizontalAlignment="Left" Margin="156,400,0,0" VerticalAlignment="Top"/>
+                        <Label Content="Name" HorizontalAlignment="Left" Margin="75,470,0,0" VerticalAlignment="Top"/>
+                        <Label Content="Area" HorizontalAlignment="Left" Margin="182,470,0,0" VerticalAlignment="Top"/>
+                        <Label Content="Amount" HorizontalAlignment="Left" Margin="81,499,0,0" VerticalAlignment="Top"/>
+                        <Label Content="Dir" HorizontalAlignment="Left" Margin="194,501,0,0" VerticalAlignment="Top"/>
+                        <Label Content="Distance" HorizontalAlignment="Left" Margin="79,535,0,0" VerticalAlignment="Top"/>
+                        <Label Content="Dir" HorizontalAlignment="Left" Margin="194,535,0,0" VerticalAlignment="Top"/>
+                        <ComboBox HorizontalAlignment="Left" Margin="221,503,0,0" VerticalAlignment="Top" Width="67" x:Name="SpeedKey_Direct"/>
+                        <ComboBox HorizontalAlignment="Left" Margin="221,538,0,0" VerticalAlignment="Top" Width="67" x:Name="MoveKey_Direct"/>
+                        <RadioButton x:Name="POSRadio" Content="POS Key" HorizontalAlignment="Left" Margin="10,475,0,0" VerticalAlignment="Top"/>
+                        <RadioButton x:Name="SpeedRadio" Content="Speed Key" HorizontalAlignment="Left" Margin="10,504,0,0" VerticalAlignment="Top"/>
+                        <RadioButton x:Name="MoveRadio" Content="Move Key" HorizontalAlignment="Left" Margin="9,540,0,0" VerticalAlignment="Top"/>
+                        <Button Content="Save" HorizontalAlignment="Left" Margin="117,573,0,0" VerticalAlignment="Top" Width="75" Click="SaveHotkey"/>
+                        <CheckBox Content="" HorizontalAlignment="Left" Margin="179,108,0,0" VerticalAlignment="Top" Checked="Xbox" Unchecked="Xbox" x:Name="theXbox"/>
+                        <CheckBox Content="" HorizontalAlignment="Left" Margin="179,134,0,0" VerticalAlignment="Top" Checked="Ybox" Unchecked="Ybox" x:Name="theYbox"/>
+                        <CheckBox Content="" HorizontalAlignment="Left" Margin="179,162,0,0" VerticalAlignment="Top" Checked="Zbox" Unchecked="Zbox" x:Name="theZbox"/>
+                        <Label Content="Lock" HorizontalAlignment="Left" Margin="145,101,0,0" VerticalAlignment="Top"/>
+                        <Label Content="Lock" HorizontalAlignment="Left" Margin="145,127,0,0" VerticalAlignment="Top"/>
+                        <Label Content="Lock" HorizontalAlignment="Left" Margin="145,155,0,0" VerticalAlignment="Top"/>
+                        <Button Content="Button" HorizontalAlignment="Left" Margin="117,193,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_3"/>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Window">
+                    <Grid Background="#FFE5E5E5" Margin="0,0">
+                        <Slider HorizontalAlignment="Left" Margin="10,42,0,0" VerticalAlignment="Top" Width="270" ValueChanged="Slider_ValueChanged_4" x:Name="slider4"/>
+                        <Label Content="Transparency" HorizontalAlignment="Left" Margin="10,16,0,0" VerticalAlignment="Top"/>
+                        <CheckBox Content="Always On Top" HorizontalAlignment="Left" Margin="184,21,0,0" VerticalAlignment="Top" Checked="CheckBox_Checked_1" Unchecked="CheckBox_Checked_1" x:Name="aot"/>
+                        <TextBlock HorizontalAlignment="Left" Margin="95,21,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" x:Name="percnt_txt"/>
+                        <Button Background="BlanchedAlmond" Content="Donate" FontWeight="Bold" HorizontalAlignment="Left" Margin="222,573,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
+                        <TextBlock HorizontalAlignment="Left" Margin="132,579,0,0" TextWrapping="Wrap" Text="Bolter© Devnull" VerticalAlignment="Top"/>
+                        <Label Content="2" HorizontalAlignment="Left" Margin="10,123,0,0" VerticalAlignment="Top"/>
+                        <Label Content="1" HorizontalAlignment="Left" Margin="10,97,0,0" VerticalAlignment="Top"/>
+                        <Label Content="3" HorizontalAlignment="Left" Margin="10,149,0,0" VerticalAlignment="Top"/>
+                        <Label Content="4" HorizontalAlignment="Left" Margin="10,175,0,0" VerticalAlignment="Top"/>
+                        <Label Content="5" HorizontalAlignment="Left" Margin="10,201,0,0" VerticalAlignment="Top"/>
+                        <Label Content="6" HorizontalAlignment="Left" Margin="10,227,0,0" VerticalAlignment="Top"/>
+                        <Label Content="7" HorizontalAlignment="Left" Margin="10,253,0,0" VerticalAlignment="Top"/>
+                        <Label Content="8" HorizontalAlignment="Left" Margin="10,279,0,0" VerticalAlignment="Top"/>
+                        <Label Content="9" HorizontalAlignment="Left" Margin="10,305,0,0" VerticalAlignment="Top"/>
+                        <Label Content="10" HorizontalAlignment="Left" Margin="10,331,0,0" VerticalAlignment="Top"/>
+                        <Label Content="11" HorizontalAlignment="Left" Margin="10,357,0,0" VerticalAlignment="Top"/>
+                        <Label Content="12" HorizontalAlignment="Left" Margin="10,383,0,0" VerticalAlignment="Top"/>
+                        <Label Content="13" HorizontalAlignment="Left" Margin="10,409,0,0" VerticalAlignment="Top"/>
+                        <Label Content="14" HorizontalAlignment="Left" Margin="10,435,0,0" VerticalAlignment="Top"/>
+                        <Label Content="15" HorizontalAlignment="Left" Margin="10,461,0,0" VerticalAlignment="Top"/>
+                        <Label Content="16" HorizontalAlignment="Left" Margin="10,487,0,0" VerticalAlignment="Top"/>
+                        <Label Content="17" HorizontalAlignment="Left" Margin="10,513,0,0" VerticalAlignment="Top"/>
+                        <Label Content="18" HorizontalAlignment="Left" Margin="10,539,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff1" Content="" HorizontalAlignment="Left" Margin="26,97,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff2" Content="" HorizontalAlignment="Left" Margin="26,123,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff3" Content="" HorizontalAlignment="Left" Margin="26,149,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff4" Content="" HorizontalAlignment="Left" Margin="26,175,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff5" Content="" HorizontalAlignment="Left" Margin="26,201,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff6" Content="" HorizontalAlignment="Left" Margin="26,227,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff7" Content="" HorizontalAlignment="Left" Margin="26,253,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff8" Content="" HorizontalAlignment="Left" Margin="26,279,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff9" Content="" HorizontalAlignment="Left" Margin="26,305,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff10" Content="" HorizontalAlignment="Left" Margin="26,331,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff11" Content="" HorizontalAlignment="Left" Margin="26,357,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff12" Content="" HorizontalAlignment="Left" Margin="26,383,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff13" Content="" HorizontalAlignment="Left" Margin="26,409,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff14" Content="" HorizontalAlignment="Left" Margin="26,435,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff15" Content="" HorizontalAlignment="Left" Margin="26,461,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff16" Content="" HorizontalAlignment="Left" Margin="26,487,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff17" Content="" HorizontalAlignment="Left" Margin="26,513,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff18" Content="" HorizontalAlignment="Left" Margin="26,539,0,0" VerticalAlignment="Top"/>
+                        <Label Content="19" HorizontalAlignment="Left" Margin="142,97,0,0" VerticalAlignment="Top"/>
+                        <Label Content="20" HorizontalAlignment="Left" Margin="142,123,0,0" VerticalAlignment="Top"/>
+                        <Label Content="21" HorizontalAlignment="Left" Margin="142,149,0,0" VerticalAlignment="Top"/>
+                        <Label Content="22" HorizontalAlignment="Left" Margin="142,175,0,0" VerticalAlignment="Top"/>
+                        <Label Content="23" HorizontalAlignment="Left" Margin="142,201,0,0" VerticalAlignment="Top"/>
+                        <Label Content="24" HorizontalAlignment="Left" Margin="142,227,0,0" VerticalAlignment="Top"/>
+                        <Label Content="25" HorizontalAlignment="Left" Margin="142,253,0,0" VerticalAlignment="Top"/>
+                        <Label Content="26" HorizontalAlignment="Left" Margin="142,279,0,0" VerticalAlignment="Top"/>
+                        <Label Content="27" HorizontalAlignment="Left" Margin="142,305,0,0" VerticalAlignment="Top"/>
+                        <Label Content="28" HorizontalAlignment="Left" Margin="142,331,0,0" VerticalAlignment="Top"/>
+                        <Label Content="29" HorizontalAlignment="Left" Margin="142,357,0,0" VerticalAlignment="Top"/>
+                        <Label Content="30" HorizontalAlignment="Left" Margin="142,383,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff19" Content="" HorizontalAlignment="Left" Margin="165,97,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff20" Content="" HorizontalAlignment="Left" Margin="165,123,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff21" Content="" HorizontalAlignment="Left" Margin="165,149,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff22" Content="" HorizontalAlignment="Left" Margin="165,175,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff24" Content="" HorizontalAlignment="Left" Margin="165,227,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff23" Content="" HorizontalAlignment="Left" Margin="165,201,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff25" Content="" HorizontalAlignment="Left" Margin="165,253,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff26" Content="" HorizontalAlignment="Left" Margin="165,279,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff27" Content="" HorizontalAlignment="Left" Margin="165,305,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff28" Content="" HorizontalAlignment="Left" Margin="165,331,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff29" Content="" HorizontalAlignment="Left" Margin="165,357,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="buff30" Content="" HorizontalAlignment="Left" Margin="165,383,0,0" VerticalAlignment="Top"/>
+                        <CheckBox x:Name="buffloopbox" Content="Monitor Buffs" HorizontalAlignment="Left" Margin="10,75,0,0" VerticalAlignment="Top" Checked="CheckBox_Checked_2"/>
+
+                    </Grid>
+                </TabItem>
+            </TabControl>
+
+        </Grid>
+    </Border>
+</Window>
