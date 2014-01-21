@@ -31,12 +31,12 @@
                 <TabItem Header="Standard">
                     <Grid Background="#FFE5E5E5" Margin="0,0">
                         <Label TextElement.FontSize="18" TextElement.FontFamily="Arial" HorizontalAlignment="Center" Margin="55,34,116,0" VerticalAlignment="Top" Width="136" x:Name="label1"/>
-                        <Button Content="Down" Cursor="Hand" HorizontalAlignment="Left" Margin="116,495,0,0" VerticalAlignment="Top" Width="75" Click="button6_Click"/>
-                        <Button Content="South" Cursor="Hand" HorizontalAlignment="Left" Margin="116,468,0,0" VerticalAlignment="Top" Width="75" Click="button2_Click"/>
-                        <Button Content="West" Cursor="Hand" HorizontalAlignment="Left" Margin="41,446,0,0" VerticalAlignment="Top" Width="75" Click="button4_Click"/>
-                        <Button Content="East" Cursor="Hand" HorizontalAlignment="Left" Margin="191,446,0,0" VerticalAlignment="Top" Width="75" Click="button3_Click"/>
-                        <Button Content="North" Cursor="Hand" HorizontalAlignment="Left" Margin="116,424,0,0" VerticalAlignment="Top" Width="75" Click="button1_Click"/>
-                        <Button Content="Up" Cursor="Hand" HorizontalAlignment="Left" Margin="116,397,0,0" VerticalAlignment="Top" Width="75" Click="button5_Click"/>
+                        <Button Content="Down" Cursor="Hand" HorizontalAlignment="Left" Margin="116,495,0,0" VerticalAlignment="Top" Width="75" Click="PoSButton"/>
+                        <Button Content="South" Cursor="Hand" HorizontalAlignment="Left" Margin="116,468,0,0" VerticalAlignment="Top" Width="75" Click="PoSButton"/>
+                        <Button Content="West" Cursor="Hand" HorizontalAlignment="Left" Margin="41,446,0,0" VerticalAlignment="Top" Width="75" Click="PoSButton"/>
+                        <Button Content="East" Cursor="Hand" HorizontalAlignment="Left" Margin="191,446,0,0" VerticalAlignment="Top" Width="75" Click="PoSButton"/>
+                        <Button Content="North" Cursor="Hand" HorizontalAlignment="Left" Margin="116,424,0,0" VerticalAlignment="Top" Width="75" Click="PoSButton"/>
+                        <Button Content="Up" Cursor="Hand" HorizontalAlignment="Left" Margin="116,397,0,0" VerticalAlignment="Top" Width="75" Click="PoSButton"/>
                         <Slider HorizontalAlignment="Left" Margin="26,7,0,0" VerticalAlignment="Top" Width="255" ValueChanged="Slider_ValueChanged" x:Name="slider1"/>
                         <Button Content="Sprint" HorizontalAlignment="Left" Margin="36,84,0,0" VerticalAlignment="Top" Width="75" Click="Sprint_Click"/>
                         <Button Content="Normal" HorizontalAlignment="Left" Margin="186,84,0,0" VerticalAlignment="Top" Width="75" Click="Normal_Click"/>
@@ -142,12 +142,13 @@
                         </Slider>
                         <Label Content="Button Jump" HorizontalAlignment="Left" Margin="201,359,0,0" VerticalAlignment="Top"/>
                         <Label Content="0 Yalms" HorizontalAlignment="Left" Margin="247,390,0,0" VerticalAlignment="Top" x:Name="label3"/>
-                        <Button Content="NE" HorizontalAlignment="Left" Margin="196,419,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_7"/>
-                        <Button Content="NW" HorizontalAlignment="Left" Margin="36,419,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_8"/>
-                        <Button Content="SW" HorizontalAlignment="Left" Margin="36,473,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_9"/>
-                        <Button Content="SE" HorizontalAlignment="Left" Margin="196,473,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_10"/>
+                        <Button Content="NE" HorizontalAlignment="Left" Margin="196,419,0,0" VerticalAlignment="Top" Width="75" Click="PoSButton"/>
+                        <Button Content="NW" HorizontalAlignment="Left" Margin="36,419,0,0" VerticalAlignment="Top" Width="75" Click="PoSButton"/>
+                        <Button Content="SW" HorizontalAlignment="Left" Margin="36,473,0,0" VerticalAlignment="Top" Width="75" Click="PoSButton"/>
+                        <Button Content="SE" HorizontalAlignment="Left" Margin="196,473,0,0" VerticalAlignment="Top" Width="75" Click="PoSButton"/>
                         <Label Content="Raduis X" HorizontalAlignment="Left" Margin="36,547,0,0" VerticalAlignment="Top"/>
                         <Label Content="Raduis Y" HorizontalAlignment="Left" Margin="138,547,0,0" VerticalAlignment="Top"/>
+                        <CheckBox Content="Dev Options" HorizontalAlignment="Left" Margin="115,64,0,0" VerticalAlignment="Top" FontSize="10" x:Name="DevCheckBox" Unchecked="DevCheckBox_checked" Checked="DevCheckBox_checked"/>
                         <TextBox HorizontalAlignment="Left" Height="23" Margin="196,550,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="40" x:Name="textBox3"/>
                         <CheckBox Content="Hide Sprint" HorizontalAlignment="Left" Margin="36,63,0,0" VerticalAlignment="Top" Checked="CheckBox_Checked_3" Unchecked="CheckBox_Checked_3" x:Name="hidesprint"/>
                         <CheckBox Content="Disable Radar" HorizontalAlignment="Left" Margin="191,63,0,0" VerticalAlignment="Top" Checked="CheckBox_Checked_4" Unchecked="CheckBox_Checked_4" x:Name="RadarCheckBox"/>
@@ -155,7 +156,7 @@
                         <Rectangle Fill="#FFE5E5E5" HorizontalAlignment="Left" Height="58" Margin="106,334,0,0" Stroke="#FFE5E5E5" VerticalAlignment="Top" Width="95" x:Name="HideRadarSub" Visibility="Hidden"/>
                         <Rectangle Fill="#FFE5E5E5" HorizontalAlignment="Left" Height="609" Margin="-10,0,0,-7" Stroke="#FFE5E5E5" VerticalAlignment="Top" Width="317" x:Name="Loading" Visibility="Visible"/>
                         <TextBlock HorizontalAlignment="Left" Margin="3,10,0,0" TextWrapping="Wrap" Text="Loading Please Wait..." VerticalAlignment="Top" Height="48" Width="297" FontSize="30" x:Name="LoadingText" Visibility="Visible"/>
-                            <bolterXiv:BizzySpinner
+                        <bolterXiv:BizzySpinner
                                 Spin="True"
                                 SpinRate=".7"
                                 Width="200" 
@@ -196,8 +197,12 @@
                         <TextBox HorizontalAlignment="Left" Height="23" Margin="24,286,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" x:Name="Area_Save"/>
                         <Label Content="Area" HorizontalAlignment="Left" Margin="24,260,0,0" VerticalAlignment="Top"/>
                         <Button Click="Save_Click" Content="Save" HorizontalAlignment="Left" Margin="24,363,0,0" VerticalAlignment="Top" Width="75"/>
-                        <GroupBox Header="Save POS" HorizontalAlignment="Left" Margin="10,250,0,0" VerticalAlignment="Top" Height="145" Width="147"/>
-                        <GroupBox Header="Load POS" HorizontalAlignment="Left" Margin="162,250,-2,0" VerticalAlignment="Top" Height="145" Width="147"/>
+                        <GroupBox Header="Save POS" HorizontalAlignment="Left" Margin="10,250,0,0" VerticalAlignment="Top" Height="145" Width="147">
+                            <Button Content="Get Zone" HorizontalAlignment="Left" VerticalAlignment="Top" Width="48" FontSize="10" Margin="89,-2,-2,0" Click="ZoneGetOnclick"/>
+                        </GroupBox>
+                        <GroupBox Header="Load POS" HorizontalAlignment="Left" Margin="162,250,-2,0" VerticalAlignment="Top" Height="145" Width="147">
+                            <Button Content="Get Zone" HorizontalAlignment="Left" VerticalAlignment="Top" Width="48" FontSize="10" Margin="77,-2,0,0" Click="ZoneBoxGetOnClick"/>
+                        </GroupBox>
                         <ComboBox SelectionChanged="AreaPOS_Box_SelectionChanged" x:Name="AreaPOS_Box" HorizontalAlignment="Left" Margin="168,286,0,0" VerticalAlignment="Top" Width="120"/>
                         <Button Content="Delete" HorizontalAlignment="Left" Margin="234,363,0,0" VerticalAlignment="Top" Width="63"/>
                         <Button Click="Load_XML" Content="Load" HorizontalAlignment="Left" Margin="168,363,0,0" VerticalAlignment="Top" Width="60" x:Name="load_button"/>

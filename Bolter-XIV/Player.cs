@@ -73,54 +73,22 @@ namespace Player_Bits
         public static int ClientSideLock;
         public static int ServerSideLock;
         public static int BuffLoopAddress;
-        private static readonly byte[] Xopcode = {0xF3, 0x0F, 0x11, 0x40, 0x30}; // movss [eax+34],xmm0
-        private static readonly byte[] Zopcode = {0xF3, 0x0F, 0x11, 0x40, 0x34}; // movss [eax+34],xmm0
-        private static readonly byte[] Yopcode = {0xF3, 0x0F, 0x11, 0x40, 0x38}; // movss [eax+34],xmm0
-        private static readonly byte[] SXopcode = {0xF3, 0x0F, 0x11, 0x81, 0xA0, 0x00, 0x00, 0x00};
-        private static readonly byte[] SZopcode = {0xF3, 0x0F, 0x11, 0x81, 0xA4, 0x00, 0x00, 0x00};
-        private static readonly byte[] SYopcode = {0xF3, 0x0F, 0x11, 0x81, 0xA8, 0x00, 0x00, 0x00};
+        public static int ZoneAddress;
+        public static int CollisionAddress;
+        private static readonly byte[] Xopcode = { 0xF3, 0x0F, 0x11, 0x40, 0x30 }; // movss [eax+34],xmm0
+        private static readonly byte[] Zopcode = { 0xF3, 0x0F, 0x11, 0x40, 0x34 }; // movss [eax+34],xmm0
+        private static readonly byte[] Yopcode = { 0xF3, 0x0F, 0x11, 0x40, 0x38 }; // movss [eax+34],xmm0
+        private static readonly byte[] SXopcode = { 0xF3, 0x0F, 0x11, 0x81, 0xA0, 0x00, 0x00, 0x00 };
+        private static readonly byte[] SZopcode = { 0xF3, 0x0F, 0x11, 0x81, 0xA4, 0x00, 0x00, 0x00 };
+        private static readonly byte[] SYopcode = { 0xF3, 0x0F, 0x11, 0x81, 0xA8, 0x00, 0x00, 0x00 };
 
         //BuffRedirect
-/*
-        private static byte[] _redirectop = {0xEB, 0x27, 0x90, 0x90};
-*/
+        /*
+                private static byte[] _redirectop = {0xEB, 0x27, 0x90, 0x90};
+        */
         //
         //const int PLAYER_OFFSET = 0x10727B0;
-        internal static IntPtr* BasePlayerAddress;
-
-        private static readonly IList<int> PlayerBuffArray = new List<int>
-        {
-            0x2FF8,
-            0x3004,
-            0x3010,
-            0x301C,
-            0x3028,
-            0x3034,
-            0x3040,
-            0x304C,
-            0x3058,
-            0x3064,
-            0x3070,
-            0x307C,
-            0x3088,
-            0x3094,
-            0x30A0,
-            0x30AC,
-            0x30B8,
-            0x30C4,
-            0x30D0,
-            0x30DC,
-            0x30E8,
-            0x30F4,
-            0x3100,
-            0x310C,
-            0x3118,
-            0x3124,
-            0x3130,
-            0x313C,
-            0x3148,
-            0x3154
-        }.AsReadOnly();
+        public static PlayerStructure** BasePlayerAddress;
 
         public static IntPtr EntryPoint;
 
@@ -239,12 +207,12 @@ namespace Player_Bits
             "Haste",
             "Slow",
             "Slow",
-            "0",
-            "0",
+            "00",
+            "00",
             "Bind",
             "Heavy",
             "Blind",
-            "0",
+            "00",
             "Paralysis",
             "Poison",
             "Pollen",
@@ -267,17 +235,17 @@ namespace Player_Bits
             "Healing Potency Down",
             "Magic Defense Up",
             "Magic Defense Down",
-            "0",
-            "0",
-            "0",
-            "0",
+            "00",
+            "00",
+            "00",
+            "00",
             "Weakness",
             "Brink of Death",
             "Crafter's Grace",
             "Gatherer's Grace",
             "Stealth",
             "Food Benefits",
-            "0",
+            "00",
             "Sprint",
             "Strength Down",
             "Vitality Down",
@@ -305,7 +273,7 @@ namespace Player_Bits
             "Sentinel",
             "Tempered Will",
             "Fight or Flight",
-            "Bulwark ",
+            "Bulwark",
             "Sword Oath",
             "Shield Oath",
             "Cover",
@@ -380,8 +348,8 @@ namespace Player_Bits
             "Rebirth",
             "Medica II",
             "Stoneskin",
-            "Some Japanese buff",
-            "Some Japanese buff",
+            "ストンスキン（物理攻撃）",
+            "ストンスキン（魔法攻撃）",
             "Shroud of Saint",
             "Freecure",
             "Overcure",
@@ -455,7 +423,7 @@ namespace Player_Bits
             "Nophica's Ward",
             "Prospect",
             "Haste",
-            "0",
+            "00",
             "Menphina's Ward",
             "Nald'thal's Ward",
             "Llymlaen's Ward",
@@ -463,12 +431,12 @@ namespace Player_Bits
             "Preparation",
             "Arbor Call",
             "Lay of the Land",
-            "0",
+            "00",
             "Choco Beak",
             "Choco Regen",
             "Choco Surge",
             "The Echo",
-            "0",
+            "00",
             "Blessing of Light",
             "Arbor Call II",
             "Lay of the Land II",
@@ -503,10 +471,10 @@ namespace Player_Bits
             "Dropsy",
             "Bleeding",
             "Recuperation",
-            "Poison +",
+            "Poison +1",
             "Voice of Valor",
-            "Some Japanese buff",
-            "0",
+            "堅忍の誉れ：効果",
+            "00",
             "Rehabilitation",
             "Bind",
             "Physical Damage Down",
@@ -536,8 +504,8 @@ namespace Player_Bits
             "The Dragon's Curse",
             "Inner Dragon",
             "Voice of Valor",
-            "Some Japanese buff",
-            "0",
+            "堅忍の誉れ",
+            "00",
             "Curl",
             "Earthen Ward",
             "Earthen Fury",
@@ -564,9 +532,9 @@ namespace Player_Bits
             "Allagan Rot",
             "Allagan Immunit",
             "Firestream",
-            "Sequence ",
-            "Sequence AP",
-            "Sequence AS",
+            "Sequence AB1",
+            "Sequence AP1",
+            "Sequence AS1",
             "Bleeding",
             "Physical Field",
             "Aetherial Field",
@@ -586,8 +554,8 @@ namespace Player_Bits
             "What You See",
             "Eat from the Hand",
             "In Control",
-            "0",
-            "0",
+            "00",
+            "00",
             "Meat and Mead",
             "That Which Binds Us",
             "Proper Care",
@@ -688,14 +656,44 @@ namespace Player_Bits
             int dwSize, FreeType dwFreeType);
 
         //Function for returning Players address in memory (Server Side)
-        private static PlayerStructure* GetPlayer()
+        public static PlayerStructure* GetPlayer()
         {
-            return (PlayerStructure*) *BasePlayerAddress;
+            return *BasePlayerAddress;
         }
 
-        private static SubPlayerStruct* GetPlayerSub()
+        public static SubPlayerStruct* GetPlayerSub()
         {
             return GetPlayer()->subStruct;
+        }
+
+        public static string GetBuff(UInt32 id)
+        {
+            return BuffNames[id];
+        }
+
+        private static bool _prochanged;
+        public static void CollsionToggle(bool on)
+        {
+
+            var collisionFlags = Process.GetCurrentProcess().MainModule.BaseAddress + CollisionAddress;
+            if (!_prochanged)
+            {
+                uint oldProtect;
+                VirtualProtect(collisionFlags, 16, Protection.PAGE_EXECUTE_READWRITE, out oldProtect);
+                _prochanged = true;
+            }
+            switch (on)
+            {
+                case true:
+                    Marshal.WriteByte(collisionFlags, 0x96);
+                    Marshal.WriteByte(collisionFlags + 8, 0x50);
+                    break;
+                case false:
+                    Marshal.WriteByte(collisionFlags, 0x8E);
+                    Marshal.WriteByte(collisionFlags + 8, 0x48);
+                    break;
+            }
+
         }
 
         public static void LockAxis(string axis, bool lockit)
@@ -708,38 +706,38 @@ namespace Player_Bits
             VirtualProtect(subEntryPoint, (uint)asm.Length + 0x1A, Protection.PAGE_EXECUTE_READWRITE, out oldProtect);
             if (lockit)
             {
-                if (axis == "X")
+                switch (axis)
                 {
-                    Marshal.Copy(asm, 3, mainEntryPoint, asm.Length - 3);
-                    Marshal.Copy(asm, 0, subEntryPoint, asm.Length);
-                }
-                else if (axis == "Y")
-                {
-                    Marshal.Copy(asm, 3, mainEntryPoint + 0x14, asm.Length - 3);
-                    Marshal.Copy(asm, 0, subEntryPoint + 0x1A, asm.Length);
-                }
-                else if (axis == "Z")
-                {
-                    Marshal.Copy(asm, 3, mainEntryPoint + 0xA, asm.Length - 3);
-                    Marshal.Copy(asm, 0, subEntryPoint + 0xD, asm.Length);
+                    case "X":
+                        Marshal.Copy(asm, 3, mainEntryPoint, asm.Length - 3);
+                        Marshal.Copy(asm, 0, subEntryPoint, asm.Length);
+                        break;
+                    case "Y":
+                        Marshal.Copy(asm, 3, mainEntryPoint + 0x14, asm.Length - 3);
+                        Marshal.Copy(asm, 0, subEntryPoint + 0x1A, asm.Length);
+                        break;
+                    case "Z":
+                        Marshal.Copy(asm, 3, mainEntryPoint + 0xA, asm.Length - 3);
+                        Marshal.Copy(asm, 0, subEntryPoint + 0xD, asm.Length);
+                        break;
                 }
             }
             else
             {
-                if (axis == "X")
+                switch (axis)
                 {
-                    Marshal.Copy(Xopcode, 0, mainEntryPoint, Xopcode.Length);
-                    Marshal.Copy(SXopcode, 0, subEntryPoint, SXopcode.Length);
-                }
-                else if (axis == "Y")
-                {
-                    Marshal.Copy(Yopcode, 0, mainEntryPoint + 0x14, Yopcode.Length);
-                    Marshal.Copy(SYopcode, 0, subEntryPoint + 0x1A, SYopcode.Length);
-                }
-                else if (axis == "Z")
-                {
-                    Marshal.Copy(Zopcode, 0, mainEntryPoint + 0xA, Zopcode.Length);
-                    Marshal.Copy(SZopcode, 0, subEntryPoint + 0xD, SZopcode.Length);
+                    case "X":
+                        Marshal.Copy(Xopcode, 0, mainEntryPoint, Xopcode.Length);
+                        Marshal.Copy(SXopcode, 0, subEntryPoint, SXopcode.Length);
+                        break;
+                    case "Y":
+                        Marshal.Copy(Yopcode, 0, mainEntryPoint + 0x14, Yopcode.Length);
+                        Marshal.Copy(SYopcode, 0, subEntryPoint + 0x1A, SYopcode.Length);
+                        break;
+                    case "Z":
+                        Marshal.Copy(Zopcode, 0, mainEntryPoint + 0xA, Zopcode.Length);
+                        Marshal.Copy(SZopcode, 0, subEntryPoint + 0xD, SZopcode.Length);
+                        break;
                 }
             }
         }
@@ -753,37 +751,34 @@ namespace Player_Bits
 
         public static float GetPos(string axis)
         {
-            if (axis == "X")
+            switch (axis)
             {
-                return GetPlayer()->ServerX;
-            }
-            if (axis == "Y")
-            {
-                return GetPlayer()->ServerY;
-            }
-            if (axis == "Z")
-            {
-                return GetPlayer()->ServerZ;
+                case "X":
+                    return GetPlayer()->ServerX;
+                case "Y":
+                    return GetPlayer()->ServerY;
+                case "Z":
+                    return GetPlayer()->ServerZ;
             }
             return 0;
         }
 
         public static void WriteToPos(string axis, float value)
         {
-            if (axis == "X")
+            switch (axis)
             {
-                GetPlayer()->ServerX = value;
-                GetPlayerSub()->CliX = value;
-            }
-            if (axis == "Y")
-            {
-                GetPlayer()->ServerY = value;
-                GetPlayerSub()->CliY = value;
-            }
-            if (axis == "Z")
-            {
-                GetPlayer()->ServerZ = value;
-                GetPlayerSub()->CliZ = value;
+                case "X":
+                    GetPlayer()->ServerX = value;
+                    GetPlayerSub()->CliX = value;
+                    break;
+                case "Y":
+                    GetPlayer()->ServerY = value;
+                    GetPlayerSub()->CliY = value;
+                    break;
+                case "Z":
+                    GetPlayer()->ServerZ = value;
+                    GetPlayerSub()->CliZ = value;
+                    break;
             }
         }
 
@@ -791,40 +786,45 @@ namespace Player_Bits
         {
             if (add)
             {
-                if (axis == "X")
+                switch (axis)
                 {
-                    GetPlayer()->ServerX = GetPlayer()->ServerX + value;
-                    GetPlayerSub()->CliX = GetPlayerSub()->CliX + value;
-                }
-                else if (axis == "Y")
-                {
-                    GetPlayer()->ServerY = GetPlayer()->ServerY + value;
-                    GetPlayerSub()->CliY = GetPlayerSub()->CliY + value;
-                }
-                else if (axis == "Z")
-                {
-                    GetPlayer()->ServerZ = GetPlayer()->ServerZ + value;
-                    GetPlayerSub()->CliZ = GetPlayerSub()->CliZ + value;
+                    case "X":
+                        GetPlayer()->ServerX = GetPlayer()->ServerX + value;
+                        GetPlayerSub()->CliX = GetPlayerSub()->CliX + value;
+                        break;
+                    case "Y":
+                        GetPlayer()->ServerY = GetPlayer()->ServerY + value;
+                        GetPlayerSub()->CliY = GetPlayerSub()->CliY + value;
+                        break;
+                    case "Z":
+                        GetPlayer()->ServerZ = GetPlayer()->ServerZ + value;
+                        GetPlayerSub()->CliZ = GetPlayerSub()->CliZ + value;
+                        break;
                 }
             }
             else
             {
-                if (axis == "X")
+                switch (axis)
                 {
-                    GetPlayer()->ServerX = GetPlayer()->ServerX - value;
-                    GetPlayerSub()->CliX = GetPlayerSub()->CliX - value;
-                }
-                else if (axis == "Y")
-                {
-                    GetPlayer()->ServerY = GetPlayer()->ServerY - value;
-                    GetPlayerSub()->CliY = GetPlayerSub()->CliY - value;
-                }
-                else if (axis == "Z")
-                {
-                    GetPlayer()->ServerZ = GetPlayer()->ServerZ - value;
-                    GetPlayerSub()->CliZ = GetPlayerSub()->CliZ - value;
+                    case "X":
+                        GetPlayer()->ServerX = GetPlayer()->ServerX - value;
+                        GetPlayerSub()->CliX = GetPlayerSub()->CliX - value;
+                        break;
+                    case "Y":
+                        GetPlayer()->ServerY = GetPlayer()->ServerY - value;
+                        GetPlayerSub()->CliY = GetPlayerSub()->CliY - value;
+                        break;
+                    case "Z":
+                        GetPlayer()->ServerZ = GetPlayer()->ServerZ - value;
+                        GetPlayerSub()->CliZ = GetPlayerSub()->CliZ - value;
+                        break;
                 }
             }
+        }
+
+        public static Movement* GetMovment()
+        {
+            return (Movement*)MovementAddress;
         }
 
         public static void UpdateSpeed()
@@ -861,8 +861,8 @@ namespace Player_Bits
         {
             uint oldProtect;
             byte[] asm = { 0x83, 0xF8, 0x1D };
-            IntPtr entryPoint = Process.GetCurrentProcess().MainModule.BaseAddress + LockSprintAddress;
-            VirtualProtect(entryPoint, (uint) asm.Length, Protection.PAGE_EXECUTE_READWRITE, out oldProtect);
+            var entryPoint = Process.GetCurrentProcess().MainModule.BaseAddress + LockSprintAddress;
+            VirtualProtect(entryPoint, (uint)asm.Length, Protection.PAGE_EXECUTE_READWRITE, out oldProtect);
             if (lockit)
                 asm[2] = 0x1D;
             else
@@ -873,9 +873,9 @@ namespace Player_Bits
         public static void HideSprint(bool hide)
         {
             uint oldProtect;
-            byte[] asm = {0x83, 0xF8, 0x1D};
-            IntPtr entryPoint = Process.GetCurrentProcess().MainModule.BaseAddress + HideBuffAddress;
-            VirtualProtect(entryPoint, (uint) asm.Length*2 + 0x20, Protection.PAGE_EXECUTE_READWRITE, out oldProtect);
+            byte[] asm = { 0x83, 0xF8, 0x1D };
+            var entryPoint = Process.GetCurrentProcess().MainModule.BaseAddress + HideBuffAddress;
+            VirtualProtect(entryPoint, (uint)asm.Length * 2 + 0x20, Protection.PAGE_EXECUTE_READWRITE, out oldProtect);
             if (hide)
                 asm[2] = 0x1D;
             else
@@ -884,17 +884,17 @@ namespace Player_Bits
             Marshal.Copy(asm, 0, entryPoint + 0x20, asm.Length);
         }
 
-        //Curently in devolopment "stuff" below
+        //Currently in development "stuff" below
 
 
         public static void RedirectBuffOp()
         {
             try
             {
-                EntryPoint = VirtualAlloc((IntPtr) null, (UIntPtr)64, AllocationType.COMMIT | AllocationType.RESERVE, MemoryProtection.EXECUTE_READWRITE);
-                byte[] PA = BitConverter.GetBytes((int) BasePlayerAddress); //Player address bytes
-                byte[] FP = BitConverter.GetBytes((int) EntryPoint + 0x1E); //Pointer to intercepted function
-                byte[] EP = BitConverter.GetBytes((int) EntryPoint); //Pointer to EntryPoint
+                EntryPoint = VirtualAlloc((IntPtr)null, (UIntPtr)64, AllocationType.COMMIT | AllocationType.RESERVE, MemoryProtection.EXECUTE_READWRITE);
+                byte[] PA = BitConverter.GetBytes((int)BasePlayerAddress); //Player address bytes
+                byte[] FP = BitConverter.GetBytes((int)EntryPoint + 0x1E); //Pointer to intercepted function
+                byte[] EP = BitConverter.GetBytes((int)EntryPoint); //Pointer to EntryPoint
                 byte[] FA =
                     BitConverter.GetBytes(
                         (int)Process.GetCurrentProcess().MainModule.BaseAddress +
@@ -911,15 +911,15 @@ namespace Player_Bits
                     EP[0], EP[1], EP[2], EP[3], //Store Root Address here //EntryPoint+0x1A
                     FA[0], FA[1], FA[2], FA[3] //Store Buff function address //EntryPoint+0x1E
                 };
-                Marshal.Copy(ASM,0,EntryPoint,ASM.Length);
+                Marshal.Copy(ASM, 0, EntryPoint, ASM.Length);
                 //Inject redirect routine
-                ASM = new byte[] {0xFF, 0x25}.Concat(BitConverter.GetBytes((int) EntryPoint + 0x1A))
+                ASM = new byte[] { 0xFF, 0x25 }.Concat(BitConverter.GetBytes((int)EntryPoint + 0x1A))
                         .ToArray()
-                        .Concat(new byte[] {0x90})
+                        .Concat(new byte[] { 0x90 })
                         .ToArray();
                 VirtualProtect(Process.GetCurrentProcess().MainModule.BaseAddress + BuffLoopAddress, (uint)ASM.Length,
-                    Protection.PAGE_EXECUTE_READWRITE, out new uint[] {0}[0]);
-                Marshal.Copy(ASM,0,Process.GetCurrentProcess().MainModule.BaseAddress + BuffLoopAddress,ASM.Length);
+                    Protection.PAGE_EXECUTE_READWRITE, out new uint[] { 0 }[0]);
+                Marshal.Copy(ASM, 0, Process.GetCurrentProcess().MainModule.BaseAddress + BuffLoopAddress, ASM.Length);
             }
             catch (Exception e)
             {
@@ -937,7 +937,7 @@ namespace Player_Bits
                     0x8B, 0x01, // mov eax,[ecx] 
                     0x8B, 0x50, 0x04, // mov edx,[eax,+04]
                 };
-                Marshal.Copy(ASM,0,Process.GetCurrentProcess().MainModule.BaseAddress + BuffLoopAddress,ASM.Length);
+                Marshal.Copy(ASM, 0, Process.GetCurrentProcess().MainModule.BaseAddress + BuffLoopAddress, ASM.Length);
             }
             catch (Exception e)
             {
@@ -950,15 +950,15 @@ namespace Player_Bits
 
         public static short DebugR(int buffindex)
         {
-            return (short) GetPlayer()->Buff_30_ID;
+            return (short)GetPlayer()->Buff_30_ID;
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct PlayerStructure
+        public struct PlayerStructure
         {
-            private fixed byte Unknown [0x30]; //Unknown 0x30 bytes
-            public fixed byte Name [0x18];
-            private fixed byte Unknown2 [0x58]; //Unknown 0x58 bytes
+            private fixed byte Unknown[0x30]; //Unknown 0x30 bytes
+            public fixed sbyte Name[0x18];
+            private fixed byte Unknown2[0x58]; //Unknown 0x58 bytes
             public float ServerX; //Server Side X cord
             public float ServerZ; //Server Side Z cord
             public float ServerY; //Server Side Y cord
@@ -968,15 +968,15 @@ namespace Player_Bits
             private float Unknown4; //Unknown float
             private float Unknown5; //Unknown float
             private float Unknown6; //Unknown float
-            private fixed byte Unknown7 [0x28]; //Unknown 0x28 bytes
+            private fixed byte Unknown7[0x28]; //Unknown 0x28 bytes
             public SubPlayerStruct* subStruct;
-            private fixed byte Unknown8 [0x44]; //Unknown 0x44 bytes
+            private fixed byte Unknown8[0x44]; //Unknown 0x44 bytes
             public float CamGlide;
-            private fixed byte Unknown9 [0x3C]; //Unknown 0x3C bytes
+            private fixed byte Unknown9[0x3C]; //Unknown 0x3C bytes
             public float StaticCamGlide;
-            private fixed byte Unknown10 [0x10]; //Unknown 0x10 bytes
+            private fixed byte Unknown10[0x10]; //Unknown 0x10 bytes
             public uint StatusAdjust; //Has something to do with Player status. setting to 2 gives "Return" prompt
-            private fixed byte Unknown11 [0x44]; //Unknown 0x60 bytes
+            private fixed byte Unknown11[0x44]; //Unknown 0x60 bytes
             public float dynamicXCord; //Only updates when you are moving
             public float dynamicZCord; //Only updates when you are moving
             public float dynamicYCord; //Only updates when you are moving
@@ -985,18 +985,18 @@ namespace Player_Bits
             public float dynamicHeading; //Only updates when you change heading
             public float dynamicHeading2; //Only updates when you change heading
             private uint Unknown13; // Unkown value
-            public float SetMoveLock; //Always -1, setting to < -1 incresses speed but moves player backwards.
+            public float SetMoveLock; //Always -1, setting to < -1 increases speed but moves player backwards.
             public float SetMoveLock2; //Always -1, setting to 0 locks player in place.
             public float SetMoveLock3; //Always -1, setting to 0 locks player in place.
             public float SetMoveLock4; //Always -1, setting to 0 locks player in place.
             public float SetMoveLock5; //Always -1, setting to 0 locks player in place.
-            private fixed byte Unknown14 [0x10]; //Unknown 0x10 bytes
+            private fixed byte Unknown14[0x10]; //Unknown 0x10 bytes
             public bool IsMoving2;
-            private fixed byte Unknown15 [0x18]; //Unknown 0x18 bytes
-            public float TimeTraveled; //Stores ammount of secounds travled since you last started moving.
-            private fixed byte Unknown16 [0x2D1C]; //Unknown 0x2D1C bytes
+            private fixed byte Unknown15[0x18]; //Unknown 0x18 bytes
+            public float TimeTraveled; //Stores amount of seconds traveled since you last started moving.
+            private fixed byte Unknown16[0x2D1C]; //Unknown 0x2D1C bytes
             public uint someCounter; // just keeps counting
-            private fixed byte Unknown17 [0xA4]; //Unknown 0x2D1C bytes
+            private fixed byte Unknown17[0xA4]; //Unknown 0x2D1C bytes
             public UInt16 Buff_1_ID;
             public UInt16 Buff_1_Paras;
             public float Buff_1_Timmer;
@@ -1120,33 +1120,231 @@ namespace Player_Bits
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct SubPlayerStruct
+        public struct SubPlayerStruct
         {
-            private fixed byte Unknown [0x30]; //Unknown 0x2C bytes
+            private fixed byte Unknown[0x30]; //Unknown 0x2C bytes
             public float CliX;
             public float CliZ;
             public float CliY;
-            private fixed byte Unknown2 [8];
+            private fixed byte Unknown2[8];
             public float CliHeading;
             private uint Unknown3;
             public float RadiusFromN;
             public float PlayerWidth;
             public float PlayerHieght;
             public float PlayerGirth;
-            private fixed byte Unknown4 [18]; //Unknown 0x2C bytes
+            private fixed byte Unknown4[18]; //Unknown 0x2C bytes
 
             /// <summary>
             /// Values 1-16 Control each body part.
             /// </summary>
             public uint DisplayedBody;
 
-            private fixed byte Unknown5 [0xA8]; //Unknown 0xA8 bytes
+            private fixed byte Unknown5[0xA8]; //Unknown 0xA8 bytes
             public float CliX2;
             public float CliZ2;
             public float CliY2;
-            private fixed byte Unknown6 [0x188]; //Unknown 0xA8 bytes
+            private fixed byte Unknown6[0x188]; //Unknown 0xA8 bytes
             public float PlayerSizeNoCam;
             public float PlayerSize;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Movement
+        {
+            public byte IsMoving;
+            public byte IsHeading;
+            public byte IsWalking;
+            private byte Unknown;
+            public byte IsFollowing;
+            private fixed byte Unknown2[19];
+            public float CurrentSpeed;
+            private fixed byte Unknown3[4];
+            public float ForwardSpeed;
+            private fixed byte Unknown4[4];
+            public float LeftRightSpeed;
+            private fixed byte Unknown5[4];
+            public float BackwardSpeed;
+        }
+
+
+
+        public static string GetZoneByID()
+        {
+            return ((Zone)Marshal.ReadInt32((IntPtr)ZoneAddress)).ToString().Replace("0", "-").Replace("1", " ").Replace("_", "");
+        }
+
+        enum Zone
+        {
+            Default = 1,
+            Collision1Test = 2,
+            Battle1Test = 3,
+            PvP1Test = 4,
+            Cutscene1Test = 5,
+            Central1Thanalan = 6,
+            Central1Shroud = 7,
+            New1Gridania = 8,
+            Central1Shroud_ = 9,
+            Lower1La1Noscea = 10,
+            The1Tam0Tara1Deepcroft = 11,
+            Bayohne1Memorial1Zoo = 13,
+            NPC1Spawn1Test = 14,
+            Retainer1Test = 15,
+            unknown1 = 16,
+            unknown2 = 17,
+            unknown3 = 18,
+            Leve1Test = 19,
+            unknown4 = 20,
+            unknown5 = 21,
+            unknown6 = 22,
+            unknown7 = 24,
+            unknown8 = 25,
+            Limsa1Lominsa1Upper1Decks = 128,
+            Limsa1Lominsa1Lower1Decks = 129,
+            Uldah101Steps1of1Nald = 130,
+            Uldah101Steps1of1Thal = 131,
+            New1Gridania_ = 132,
+            Old1Gridania__ = 133,
+            Middle1La1Noscea = 134,
+            Lower1La1Noscea_ = 135,
+            unknown9 = 136,
+            Eastern1La1Noscea = 137,
+            Western1La1Noscea = 138,
+            Upper1La1Noscea__ = 139,
+            Western1Thanalan = 140,
+            Central1Thanalan_ = 141,
+            Eastern1Thanalan = 145,
+            Southern1Thanalan = 146,
+            Northern1Thanalan = 147,
+            Central1Shroud__ = 148,
+            East1Shroud = 152,
+            South1Shroud = 153,
+            North1Shroud = 154,
+            Coerthas1Central1Highlands = 155,
+            Mor1Dhona = 156,
+            Sastasha = 157,
+            Brayfloxs1Longstop = 158,
+            The1Wanderers1Palace = 159,
+            Japanese1Chars = 160,
+            Copperbell1Mines = 161,
+            Halatali = 162,
+            The1Sunken1Temple1of1Qarn = 163,
+            The1Tam0Tara1Deepcroft_ = 164,
+            Haukke1Manor = 166,
+            Japanese1Chars2 = 167,
+            Japanese1Chars3 = 168,
+            The1Thousand1Maws1of1Toto0Rak = 169,
+            Cutters1Cry = 170,
+            Dzemael1Darkhold = 171,
+            Aurum1Vale = 172,
+            Japanese1Chars4 = 173,
+            unknown10 = 174,
+            The1Floating1Coliseum = 175,
+            Mordion1Gaol = 176,
+            Mizzenmast1Inn = 177,
+            The1Hourglass = 178,
+            The1Roost = 179,
+            Outer1La1Noscea = 180,
+            Limsa1Lominsa = 1181,
+            Uldah101Steps1of1Nald_ = 1182,
+            New1Gridania__ = 1183,
+            unknown__ = 184,
+            unknown12 = 185,
+            unknown13 = 186,
+            unknown14 = 187,
+            unknown15 = 188,
+            unknown16 = 189,
+            Central1Shroud___ = 190,
+            East1Shroud_ = 191,
+            South1Shroud_ = 192,
+            unknown17 = 197,
+            Command1Room = 198,
+            Japanese1Chars5 = 199,
+            Japanese1Chars6 = 200,
+            unknown18 = 201,
+            Bowl1of1Embers = 202,
+            unknown19 = 203,
+            Seat1of1the1First1Bow = 204,
+            Lotus1Stand = 205,
+            Japanese1Chars7 = 206,
+            Japanese1Chars8 = 207,
+            Japanese1Chars9 = 208,
+            unknown20 = 209,
+            Heart1of1the1Sworn = 210,
+            The1Fragrant1Chamber = 211,
+            The1Waking1Sands = 212,
+            unknown2_ = 213,
+            Middle1La1Noscea_ = 214,
+            Western1Thanalan_ = 215,
+            Central1Thanalan__ = 216,
+            Castrum1Meridianum = 217,
+            North1Shroud_ = 218,
+            Central1Shroud____ = 219,
+            South1Shroud__ = 220,
+            Upper1La1Noscea_ = 221,
+            Lower1La1Noscea__ = 222,
+            Coerthas1Central1Highlands_ = 223,
+            Castrum1Meridianum1Baileys = 224,
+            Central1Shroud_____ = 225,
+            Central1Shroud______ = 226,
+            Central1Shroud_______ = 227,
+            North1Shroud__ = 228,
+            South1Shroud___ = 229,
+            Central1Shroud________ = 230,
+            South1Shroud____ = 231,
+            South1Shroud_____ = 232,
+            Central1Shroud_________ = 233,
+            East1Shroud__ = 234,
+            South1Shroud______ = 235,
+            South1Shroud_______ = 236,
+            Central1Shroud__________ = 237,
+            Old1Gridania_ = 238,
+            Central1Shroud___________ = 239,
+            North1Shroud___ = 240,
+            unknown22 = 241,
+            unknown23 = 242,
+            unknown24 = 243,
+            unknown25 = 244,
+            unknown26 = 245,
+            unknown27 = 246,
+            unknown28 = 247,
+            Central1Thanalan___ = 248,
+            Lower1La1Noscea___ = 249,
+            Japanese1Chars10 = 250,
+            Uldah101Steps1of1Nald__ = 251,
+            Middle1La1Noscea__ = 252,
+            Central1Thanalan____ = 253,
+            Uldah101Steps1of1Nald___ = 254,
+            Western1Thanalan__ = 255,
+            Eastern1Thanalan_ = 256,
+            Eastern1Thanalan__ = 257,
+            Central1Thanalan_____ = 258,
+            Uldah101Steps1of1Nald____ = 259,
+            Southern1Thanalan_ = 260,
+            Southern1Thanalan__ = 261,
+            Lower1La1Noscea____ = 262,
+            Western1La1Noscea_ = 263,
+            Lower1La1Noscea_____ = 264,
+            Lower1La1Noscea______ = 265,
+            Eastern1Thanalan___ = 266,
+            Western1Thanalan___ = 267,
+            Eastern1Thanalan____ = 268,
+            Western1Thanalan____ = 269,
+            Central1Thanalan______ = 270,
+            Central1Thanalan_______ = 271,
+            Middle1La1Noscea___ = 272,
+            Western1Thanalan_____ = 273,
+            Uldah101Steps1of1Nald_____ = 274,
+            Eastern1Thanalan_____ = 275,
+            Hall1of1Summoning = 276,
+            East1Shroud___ = 277,
+            Western1Thanalan______ = 278,
+            Lower1La1Noscea_______ = 279,
+            Western1La1Noscea__ = 280,
+            unknown29 = 281,
+            Limsa1Lominsa1Upper1Decks_ = 282,
+            Limsa1Lominsa1Upper1Decks__ = 283,
+            Limsa1Lominsa1Upper1Decks___ = 284
         }
 
     }

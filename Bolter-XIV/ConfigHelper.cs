@@ -5,6 +5,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using System.Xml.Serialization;
+using UnManaged;
 
 namespace ConfigHelper
 {
@@ -97,7 +98,7 @@ namespace ConfigHelper
         [XmlIgnore]
         public KeyModifier KeyMod
         {
-            get { return (KeyModifier)Enum.Parse(typeof(KeyModifier), _KeyMod); }
+            get { return (KeyModifier) Enum.Parse(typeof (KeyModifier), _KeyMod); }
             set { _KeyMod = value.ToString(); }
         }
         [XmlAttribute("Key")]
@@ -131,15 +132,5 @@ namespace ConfigHelper
         public string Direction;
         [XmlAttribute("Distance")]
         public float Distance;
-    }
-    [Flags, Serializable]
-    public enum KeyModifier
-    {
-        None = 0x0000,
-        Alt = 0x0001,
-        Ctrl = 0x0002,
-        NoRepeat = 0x4000,
-        Shift = 0x0004,
-        Win = 0x0008
     }
 }

@@ -106,7 +106,7 @@ namespace UnManaged
         }
     }
 
-    [Flags]
+    [Flags,Serializable]
     public enum KeyModifier
     {
         None = 0x0000,

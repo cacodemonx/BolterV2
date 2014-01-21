@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -8,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -45,7 +42,7 @@ namespace BolterV2
             IntPtr hModule;
             StartButton.IsEnabled = false;
             //Serialize configuration XML.
-            var eradstyle = XmlSerializationHelper.Deserialize<config>("confign.xml");
+            var eradstyle = XmlSerializationHelper.Deserialize<config>("config.xml");
             //Make a List of ffxiv process IDs for later use.
             var pidList = Process.GetProcessesByName("ffxiv").Select(p => p.Id).ToList();
             //Check if we found any ffxiv processes running.
@@ -63,7 +60,7 @@ namespace BolterV2
             if (Process.GetProcessById(pid).Modules.Cast<ProcessModule>().Any(mod => mod.ModuleName == "clr.dll"))
             {
                 //Check if the Bolter Window is open.
-                if (Process.GetProcesses().Any(process => process.MainWindowTitle == "Bolter-XIV"))
+                if (Process.GetProcesses().Where(p => p.MainWindowHandle != IntPtr.Zero).Any(process => process.MainWindowTitle == "Bolter-XIV"))
                 {
                     MessageBox.Show("Bolter is already running.");
                     StartButton.IsEnabled = true;
@@ -97,7 +94,7 @@ namespace BolterV2
             //Add current pid.
             eradstyle.MemInfo.Add(new PastProcess {ID = pid, hModule = hModule});
             //Save configuration.
-            XmlSerializationHelper.Serialize("confign.xml",eradstyle);
+            XmlSerializationHelper.Serialize("config.xml",eradstyle);
             //Create remote thread in the selected ffxiv process starting at the Load Assembly routine.
             //Wait for completion or 2000ms.
             WinAPI.WaitForSingleObject(
@@ -111,24 +108,24 @@ namespace BolterV2
         }
         private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
-           
-            //Process[] ThePs = Process.GetProcessesByName("ffxiv");
-            //foreach (var process in ThePs)
-            //{
-            //    IntPtr hProc = WinAPI.OpenProcess((uint)WinAPI.ProcessAccess.AllAccess, false, process.Id);
-            //    var sigScam = new SigScan.SigScan(process, process.MainModule.BaseAddress + 0x119B000, 0x14B000);
-            //    byte[] playerStructSig = { 0x46, 0x69, 0x72, 0x65, 0x20, 0x53, 0x68, 0x61, 0x72, 0x64, 0x02, 0x13, 0x02, 0xEC, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00 };
-            //    IntPtr NamePtr = sigScam.FindPattern(playerStructSig, "xxxxxxxxxxxxxxxxxxxx", -(int)process.MainModule.BaseAddress) - 0xB56;
-            //    playerName = Encoding.ASCII.GetString(WinAPI.ReadRemoteMemory(hProc, (IntPtr)((int)process.MainModule.BaseAddress + (int)NamePtr), 21).TakeWhile(item => item != 0).ToArray());
-            //    Box.Items.Add(string.Format("{0} - ID {1}",playerName,process.Id));
-            //    WinAPI.CloseHandle(hProc);
-            //    hProc = NamePtr = IntPtr.Zero;
-            //    sigScam = null;
-            //    GC.Collect();
-            //}
-            //ThePs = null;
-            //GC.Collect();
-            //Box.SelectedIndex = 0;
+
+            Process[] ThePs = Process.GetProcessesByName("ffxiv");
+            foreach (var process in ThePs)
+            {
+                var hProc = WinAPI.OpenProcess((uint)WinAPI.ProcessAccess.AllAccess, false, process.Id);
+                var sigScam = new SigScan.SigScan(process, process.MainModule.BaseAddress + 0x119B000, 0x14B000);
+                byte[] playerStructSig = { 0x46, 0x69, 0x72, 0x65, 0x20, 0x53, 0x68, 0x61, 0x72, 0x64, 0x02, 0x13, 0x02, 0xEC, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00 };
+                var NamePtr = sigScam.FindPattern(playerStructSig, "xxxxxxxxxxxxxxxxxxxx", -(int)process.MainModule.BaseAddress) - 0xB56;
+                playerName = Encoding.ASCII.GetString(WinAPI.ReadRemoteMemory(hProc, (IntPtr)((int)process.MainModule.BaseAddress + (int)NamePtr), 21).TakeWhile(item => item != 0).ToArray());
+                var newimg = (ImageSource)CreateBitmapSourceFromBitmap(Properties.Resources.ffxiv);
+                ProcessListBox.Items.Add(new ListImg(string.Format("{0}\nPID - {1}", playerName, process.Id), newimg));
+                WinAPI.CloseHandle(hProc);
+                hProc = NamePtr = IntPtr.Zero;
+                sigScam = null;
+                GC.Collect();
+            }
+            ThePs = null;
+            GC.Collect();
         }
 
         private void DragWindow(object sender, MouseButtonEventArgs e)
@@ -200,16 +197,6 @@ namespace BolterV2
                 IntPtr.Zero,
                 Int32Rect.Empty,
                 BitmapSizeOptions.FromEmptyOptions());
-        }
-
-        private int clicknumber = 0;
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            clicknumber++;
-            var newimg = (ImageSource)CreateBitmapSourceFromBitmap(Properties.Resources.ffxiv);
-            ProcessListBox.Items.Add(clicknumber == 1
-                ? new ListImg("Usagi Tsukino\nPID - 3480", newimg)
-                : new ListImg("Tomoe Hotaru\nPID - 8902", newimg));
         }
 
         private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)

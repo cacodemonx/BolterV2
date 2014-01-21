@@ -95,6 +95,7 @@
       <PreprocessorDefinitions>_WINDLL;%(PreprocessorDefinitions);DLL_EXPORT</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -148,6 +149,7 @@ Copy "C:\Users\Bunny2\Documents\Visual Studio 2012\Projects\Link\Release\Bolter-
   <ItemGroup>
     <ClInclude Include="Bolter.h" />
     <ClInclude Include="DotNetInjection.h" />
+    <ClInclude Include="SigScan.h" />
     <ClInclude Include="Source.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

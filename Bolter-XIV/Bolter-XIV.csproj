@@ -124,9 +124,12 @@
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="BizzySpinner.cs" />
-    <Compile Include="ConfigKeys.cs" />
+    <Compile Include="ConfigHelper.cs" />
     <Compile Include="DevWindow.xaml.cs">
       <DependentUpon>DevWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="EntityWindow.xaml.cs">
+      <DependentUpon>EntityWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="HotKey.cs" />
     <Compile Include="KeyString.cs" />
@@ -134,6 +137,10 @@
     <Compile Include="SigScan.cs" />
     <Compile Include="XMLWrapper.cs" />
     <Page Include="DevWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="EntityWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -220,6 +227,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="cam.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
