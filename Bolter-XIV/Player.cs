@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -88,7 +89,12 @@ namespace Player_Bits
         */
         //
         //const int PLAYER_OFFSET = 0x10727B0;
+
+        public static MenuStruct* Menu;
+
         public static PlayerStructure** BasePlayerAddress;
+
+        public static MasterPointer* MasterPtr;
 
         public static IntPtr EntryPoint;
 
@@ -609,6 +615,9 @@ namespace Player_Bits
         private static extern IntPtr VirtualAlloc(IntPtr lpAddress, UIntPtr dwSize,
             AllocationType flAllocationType, MemoryProtection flProtect);
 
+        
+
+
         [Flags()]
         public enum AllocationType : uint
         {
@@ -658,7 +667,7 @@ namespace Player_Bits
         //Function for returning Players address in memory (Server Side)
         public static PlayerStructure* GetPlayer()
         {
-            return *BasePlayerAddress;
+            return *MasterPtr->Player;
         }
 
         public static SubPlayerStruct* GetPlayerSub()
@@ -762,6 +771,30 @@ namespace Player_Bits
             }
             return 0;
         }
+        public static float GetPos(Axis axis)
+        {
+            switch (axis)
+            {
+                case Axis.X:
+                    return GetPlayer()->ServerX;
+                case Axis.Y:
+                    return GetPlayer()->ServerY;
+                case Axis.Z:
+                    return GetPlayer()->ServerZ;
+            }
+            return 0;
+        }
+
+        public enum Axis
+        {
+            X,
+            Y,
+            Z
+        }
+        public static D3DXVECTOR2 Get2DPos()
+        {
+            return new D3DXVECTOR2((*MasterPtr->Player)->ServerX, (*MasterPtr->Player)->ServerY);
+        }
 
         public static void WriteToPos(string axis, float value)
         {
@@ -835,15 +868,15 @@ namespace Player_Bits
             {
                 try
                 {
-                    if (GetPlayer()->Buff_30_ID == BitConverter.ToUInt16(MainWindow.SetSpeed, 0) &&
-                        GetPlayer()->Buff_30_Paras == BitConverter.ToUInt16(MainWindow.SetSpeed, 2))
+                    if (GetPlayer()->Buffs.Buff30.ID == BitConverter.ToUInt16(MainWindow.SetSpeed, 0) &&
+                        GetPlayer()->Buffs.Buff30.Paras == BitConverter.ToUInt16(MainWindow.SetSpeed, 2))
                     {
                         //Do Nothing
                     }
                     else
                     {
-                        GetPlayer()->Buff_30_ID = BitConverter.ToUInt16(MainWindow.SetSpeed, 0);
-                        GetPlayer()->Buff_30_Paras = BitConverter.ToUInt16(MainWindow.SetSpeed, 2);
+                        GetPlayer()->Buffs.Buff30.ID = BitConverter.ToUInt16(MainWindow.SetSpeed, 0);
+                        GetPlayer()->Buffs.Buff30.Paras = BitConverter.ToUInt16(MainWindow.SetSpeed, 2);
                     }
                 }
                 catch
@@ -852,8 +885,8 @@ namespace Player_Bits
                 Thread.Sleep(1000);
             }
             //if slider value = 0 end thread and remove sprint.
-            GetPlayer()->Buff_30_ID = BitConverter.ToUInt16(MainWindow.SetSpeed, 0);
-            GetPlayer()->Buff_30_Paras = BitConverter.ToUInt16(MainWindow.SetSpeed, 2);
+            GetPlayer()->Buffs.Buff30.ID = BitConverter.ToUInt16(MainWindow.SetSpeed, 0);
+            GetPlayer()->Buffs.Buff30.Paras = BitConverter.ToUInt16(MainWindow.SetSpeed, 2);
             LockLastBuff(false);
         }
 
@@ -904,7 +937,7 @@ namespace Player_Bits
                     0x8B, 0x33, // mov esi,[ebx] //EntryPoint
                     0x8B, 0x01, // mov eax,[ecx] //Entrypoint +0x2
                     0x8B, 0x50, 0x04, // mov edx,[eax,+04] //EntryPoint +0x4
-                    0x66, 0x81, 0xFF, 0xB0, 0x27, // cmp di,27B0 //EntryPoint +0x7
+                    0x66, 0x81, 0xFF, 0xB0, 0x37, // cmp di,37B0 //EntryPoint +0x7
                     0x75, 0x06, // jne 6 bytes //EntryPoint +0xC
                     0x89, 0x35, PA[0], PA[1], PA[2], PA[3], // mov [playeraddress],esi //EntryPoint +0xE
                     0xFF, 0x25, FP[0], FP[1], FP[2], FP[3], // jmp dword ptr [PointerToFunction] //EntryPoint +0x14
@@ -950,7 +983,7 @@ namespace Player_Bits
 
         public static short DebugR(int buffindex)
         {
-            return (short)GetPlayer()->Buff_30_ID;
+            return (short)GetPlayer()->Buffs.Buff30.ID;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -958,13 +991,15 @@ namespace Player_Bits
         {
             private fixed byte Unknown[0x30]; //Unknown 0x30 bytes
             public fixed sbyte Name[0x18];
-            private fixed byte Unknown2[0x58]; //Unknown 0x58 bytes
+            private fixed byte Unknown1[0x2C];
+            public uint ID;
+            private fixed byte Unknown2[0x28]; //Unknown 0x28 bytes
             public float ServerX; //Server Side X cord
             public float ServerZ; //Server Side Z cord
             public float ServerY; //Server Side Y cord
             private float Unknown3; //Unknown float
             public float Heading; //Server Side Heading
-            public float ServerHight; //Cam hight?
+            public float ServerHight; //Cam height?
             private float Unknown4; //Unknown float
             private float Unknown5; //Unknown float
             private float Unknown6; //Unknown float
@@ -980,8 +1015,8 @@ namespace Player_Bits
             public float dynamicXCord; //Only updates when you are moving
             public float dynamicZCord; //Only updates when you are moving
             public float dynamicYCord; //Only updates when you are moving
-            private uint Unknown12; // Unkown value
-            public bool IsMoving;
+            private uint Unknown12; // Unknown value
+            public uint IsMoving;
             public float dynamicHeading; //Only updates when you change heading
             public float dynamicHeading2; //Only updates when you change heading
             private uint Unknown13; // Unkown value
@@ -991,135 +1026,62 @@ namespace Player_Bits
             public float SetMoveLock4; //Always -1, setting to 0 locks player in place.
             public float SetMoveLock5; //Always -1, setting to 0 locks player in place.
             private fixed byte Unknown14[0x10]; //Unknown 0x10 bytes
-            public bool IsMoving2;
+            public uint IsMoving2;
             private fixed byte Unknown15[0x18]; //Unknown 0x18 bytes
             public float TimeTraveled; //Stores amount of seconds traveled since you last started moving.
             private fixed byte Unknown16[0x2D1C]; //Unknown 0x2D1C bytes
             public uint someCounter; // just keeps counting
             private fixed byte Unknown17[0xA4]; //Unknown 0x2D1C bytes
-            public UInt16 Buff_1_ID;
-            public UInt16 Buff_1_Paras;
-            public float Buff_1_Timmer;
-            public uint Buff_1_ExtraInfo;
-            public UInt16 Buff_2_ID;
-            public UInt16 Buff_2_Paras;
-            public float Buff_2_Timmer;
-            public uint Buff_2_ExtraInfo;
-            public UInt16 Buff_3_ID;
-            public UInt16 Buff_3_Paras;
-            public float Buff_3_Timmer;
-            public uint Buff_3_ExtraInfo;
-            public UInt16 Buff_4_ID;
-            public UInt16 Buff_4_Paras;
-            public float Buff_4_Timmer;
-            public uint Buff_4_ExtraInfo;
-            public UInt16 Buff_5_ID;
-            public UInt16 Buff_5_Paras;
-            public float Buff_5_Timmer;
-            public uint Buff_5_ExtraInfo;
-            public UInt16 Buff_6_ID;
-            public UInt16 Buff_6_Paras;
-            public float Buff_6_Timmer;
-            public uint Buff_6_ExtraInfo;
-            public UInt16 Buff_7_ID;
-            public UInt16 Buff_7_Paras;
-            public float Buff_7_Timmer;
-            public uint Buff_7_ExtraInfo;
-            public UInt16 Buff_8_ID;
-            public UInt16 Buff_8_Paras;
-            public float Buff_8_Timmer;
-            public uint Buff_8_ExtraInfo;
-            public UInt16 Buff_9_ID;
-            public UInt16 Buff_9_Paras;
-            public float Buff_9_Timmer;
-            public uint Buff_9_ExtraInfo;
-            public UInt16 Buff_10_ID;
-            public UInt16 Buff_10_Paras;
-            public float Buff_10_Timmer;
-            public uint Buff_10_ExtraInfo;
-            public UInt16 Buff_11_ID;
-            public UInt16 Buff_11_Paras;
-            public float Buff_11_Timmer;
-            public uint Buff_11_ExtraInfo;
-            public UInt16 Buff_12_ID;
-            public UInt16 Buff_12_Paras;
-            public float Buff_12_Timmer;
-            public uint Buff_12_ExtraInfo;
-            public UInt16 Buff_13_ID;
-            public UInt16 Buff_13_Paras;
-            public float Buff_13_Timmer;
-            public uint Buff_13_ExtraInfo;
-            public UInt16 Buff_14_ID;
-            public UInt16 Buff_14_Paras;
-            public float Buff_14_Timmer;
-            public uint Buff_14_ExtraInfo;
-            public UInt16 Buff_15_ID;
-            public UInt16 Buff_15_Paras;
-            public float Buff_15_Timmer;
-            public uint Buff_15_ExtraInfo;
-            public UInt16 Buff_16_ID;
-            public UInt16 Buff_16_Paras;
-            public float Buff_16_Timmer;
-            public uint Buff_16_ExtraInfo;
-            public UInt16 Buff_17_ID;
-            public UInt16 Buff_17_Paras;
-            public float Buff_17_Timmer;
-            public uint Buff_17_ExtraInfo;
-            public UInt16 Buff_18_ID;
-            public UInt16 Buff_18_Paras;
-            public float Buff_18_Timmer;
-            public uint Buff_18_ExtraInfo;
-            public UInt16 Buff_19_ID;
-            public UInt16 Buff_19_Paras;
-            public float Buff_19_Timmer;
-            public uint Buff_19_ExtraInfo;
-            public UInt16 Buff_20_ID;
-            public UInt16 Buff_20_Paras;
-            public float Buff_20_Timmer;
-            public uint Buff_20_ExtraInfo;
-            public UInt16 Buff_21_ID;
-            public UInt16 Buff_21_Paras;
-            public float Buff_21_Timmer;
-            public uint Buff_21_ExtraInfo;
-            public UInt16 Buff_22_ID;
-            public UInt16 Buff_22_Paras;
-            public float Buff_22_Timmer;
-            public uint Buff_22_ExtraInfo;
-            public UInt16 Buff_23_ID;
-            public UInt16 Buff_23_Paras;
-            public float Buff_23_Timmer;
-            public uint Buff_23_ExtraInfo;
-            public UInt16 Buff_24_ID;
-            public UInt16 Buff_24_Paras;
-            public float Buff_24_Timmer;
-            public uint Buff_24_ExtraInfo;
-            public UInt16 Buff_25_ID;
-            public UInt16 Buff_25_Paras;
-            public float Buff_25_Timmer;
-            public uint Buff_25_ExtraInfo;
-            public UInt16 Buff_26_ID;
-            public UInt16 Buff_26_Paras;
-            public float Buff_26_Timmer;
-            public uint Buff_26_ExtraInfo;
-            public UInt16 Buff_27_ID;
-            public UInt16 Buff_27_Paras;
-            public float Buff_27_Timmer;
-            public uint Buff_27_ExtraInfo;
-            public UInt16 Buff_28_ID;
-            public UInt16 Buff_28_Paras;
-            public float Buff_28_Timmer;
-            public uint Buff_28_ExtraInfo;
-            public UInt16 Buff_29_ID;
-            public UInt16 Buff_29_Paras;
-            public float Buff_29_Timmer;
-            public uint Buff_29_ExtraInfo;
-            public UInt16 Buff_30_ID;
-            public UInt16 Buff_30_Paras;
-            public float Buff_30_Timmer;
-            public uint Buff_30_ExtraInfo;
+            public BuffDebuff Buffs;
+            
         }
 
-        [StructLayout(LayoutKind.Sequential)]
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct BuffStuff
+        {
+            public UInt16 ID;
+            public UInt16 Paras;
+            public float Timmer;
+            public uint ExtraInfo;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct BuffDebuff
+        {
+            public BuffStuff Buff1;
+            public BuffStuff Buff2;
+            public BuffStuff Buff3;
+            public BuffStuff Buff4;
+            public BuffStuff Buff5;
+            public BuffStuff Buff6;
+            public BuffStuff Buff7;
+            public BuffStuff Buff8;
+            public BuffStuff Buff9;
+            public BuffStuff Buff10;
+            public BuffStuff Buff11;
+            public BuffStuff Buff12;
+            public BuffStuff Buff13;
+            public BuffStuff Buff14;
+            public BuffStuff Buff15;
+            public BuffStuff Buff16;
+            public BuffStuff Buff17;
+            public BuffStuff Buff18;
+            public BuffStuff Buff19;
+            public BuffStuff Buff20;
+            public BuffStuff Buff21;
+            public BuffStuff Buff22;
+            public BuffStuff Buff23;
+            public BuffStuff Buff24;
+            public BuffStuff Buff25;
+            public BuffStuff Buff26;
+            public BuffStuff Buff27;
+            public BuffStuff Buff28;
+            public BuffStuff Buff29;
+            public BuffStuff Buff30;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct SubPlayerStruct
         {
             private fixed byte Unknown[0x30]; //Unknown 0x2C bytes
@@ -1127,9 +1089,9 @@ namespace Player_Bits
             public float CliZ;
             public float CliY;
             private fixed byte Unknown2[8];
-            public float CliHeading;
+            public float VectorX;
             private uint Unknown3;
-            public float RadiusFromN;
+            public float VectorY;
             public float PlayerWidth;
             public float PlayerHieght;
             public float PlayerGirth;
@@ -1149,13 +1111,10 @@ namespace Player_Bits
             public float PlayerSize;
         }
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Movement
         {
-            public byte IsMoving;
-            public byte IsHeading;
-            public byte IsWalking;
-            private byte Unknown;
+            public WalkingStatus Status;
             public byte IsFollowing;
             private fixed byte Unknown2[19];
             public float CurrentSpeed;
@@ -1167,11 +1126,162 @@ namespace Player_Bits
             public float BackwardSpeed;
         }
 
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct MasterPointer
+        {
+            public IntPtr unknownPtr;
+            public fixed byte spacer[6];
 
+            /* Pointer to Target Structure */
+            public TargetStruct* Target;
 
+            public fixed byte spacer2[6];
+            public IntPtr unknownPtr2;
+            public fixed byte spacer3[16];
+            public IntPtr unknownPtr3;
+            public fixed byte spacer4[6];
+            public IntPtr unknownPtr4;
+            public fixed byte spacer5[6];
+            public IntPtr unknownPtr5;
+            public fixed byte spacer6[6];
+
+            /* Contains many floats. including PI. Maybe something to do with entity geometry/navigation */
+            public IntPtr unknownPtrtoPtr; //Contains many floats.
+
+            public fixed byte spacer7[6];
+            public IntPtr unknownPtr6;
+            public fixed byte spacer8[6];
+            public IntPtr unknownPtr7; //may be PtrtoPtr too.
+            public fixed byte spacer9[6];
+            public IntPtr unknownPtr8;
+            public fixed byte spacer10[6];
+            public IntPtr unknownPtr9;
+            public fixed byte spacer11[6];
+            public IntPtr unknownPtr10;
+            public fixed byte spacer12[6];
+            public IntPtr unknownPtr11; //may be PtrtoPtr too.
+            public fixed byte spacer13[16];
+
+            /* Pointer to Pointer of Player Structure */
+            public PlayerStructure** Player;
+
+            private fixed byte spacer14[6];
+            private IntPtr unknownPtr12;
+            private fixed byte spacer15[7];
+            private IntPtr unknownPtr13;
+            private fixed byte spacer16[2];
+            private IntPtr unknownPtr14;
+            private fixed byte spacer17[6];
+            private IntPtr unknownPtrtoPtr2;
+            private fixed byte spacer18[6];
+
+            /* Pointer to Pointer of Object type NPC entities Structure */
+            public ObjectStruct** NPCObject;
+
+            private fixed byte spacer19[6];
+
+            /* Pointer to Pointer of NPC entity Structure */
+            public NPCStruct** NPC;
+
+            private fixed byte spacer20[6];
+            private IntPtr unknownPtr15;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct TargetStruct
+        {
+            private fixed byte Unknown[0x70];
+            public uint TargetID;
+            private fixed byte Unknown2[0x40];
+            public uint LastTargetID;
+            private fixed byte Unknown3[0x8];
+            public TargetStatus TargetStatus;
+        }
+
+        public static List<ObjectHelper> bloop = new List<ObjectHelper>();
+
+        public class ObjectHelper
+        {
+            private int offset;
+            public ObjectStruct* NPC {
+                get { return (ObjectStruct*)(((uint)*MasterPtr->NPCObject) + offset); }
+            }
+            public ObjectHelper(int pOffest)
+            {
+                offset = pOffest;
+            }
+        }
+
+        public static void FillObjectList()
+        {
+            for (var i = 0; i < 22; i++)
+            {
+                bloop.Add(new ObjectHelper(i*0x200));
+            }
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct ObjectStruct
+        {
+            private fixed byte Unknown[0x30]; //Unknown 0x30 bytes
+            public fixed sbyte Name[0x18];
+            private fixed byte Unknown1[0x2C];
+            public uint ID;
+            private fixed byte Unknown2[0x28]; //Unknown 0x28 bytes
+            public float X; //Server Side X cord
+            public float Z; //Server Side Z cord
+            public float Y; //Server Side Y cord
+            private float Unknown3; //Unknown float
+            public float Heading; //Server Side Heading
+            public float ServerHight; //Cam height?
+            private float Unknown4; //Unknown float
+            private float Unknown5; //Unknown float
+            private float Unknown6; //Unknown float
+            private fixed byte Unknown7[0x28]; //Unknown 0x28 bytes
+            public SubPlayerStruct* subStruct;
+            private fixed byte Unknown8[0x2C];
+            public uint IsActive;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct MenuStruct
+        {
+            private fixed byte Unknown[0xD48];
+            public MenuItem* SelectedItem;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct MenuItem
+        {
+            private fixed byte Unknown[0x90];
+            public uint ID;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct NPCStruct
+        {
+            //Contains names at every 0x2FD0 offset starting at 0x30.
+        }
         public static string GetZoneByID()
         {
             return ((Zone)Marshal.ReadInt32((IntPtr)ZoneAddress)).ToString().Replace("0", "-").Replace("1", " ").Replace("_", "");
+        }
+
+        public enum TargetStatus : uint
+        {
+            NoTarget = 0x00010001,
+            HasTarget = 0x00010000,
+            Locked = 0x01010000
+        }
+
+        [Flags]
+        public enum WalkingStatus
+        {
+            Standing = 0x00000000,
+            Running = 0x00000001,
+            Heading = 0x00000100,
+            Walking = 0x00010000,
+            Autorun = 0x01000000
         }
 
         enum Zone

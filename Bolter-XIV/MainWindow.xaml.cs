@@ -15,7 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.IO.Pipes;
+using System.IO;
+using ConfigHelper;
 #pragma warning disable 0618
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Player_Bits;
-using ConfigHelper;
 using HotKey = UnManaged.HotKey;
 
 namespace Bolter_XIV
@@ -42,12 +42,12 @@ namespace Bolter_XIV
         [MarshalAs(UnmanagedType.AnsiBStr, SizeConst = 200)]
         public static string ConfigPath;
     }
-    public class STAThread
+    unsafe public class STAThread
     {
 
         public STAThread()
         {
-            new Thread(LoadBolter) {ApartmentState = ApartmentState.STA}.Start();
+            new Thread(LoadBolter) { ApartmentState = ApartmentState.STA }.Start();
         }
         private Window w;
 
@@ -58,12 +58,14 @@ namespace Bolter_XIV
             w = null;
             GC.Collect();
         }
-        public int PassInfo(int collisionSig, int movementSig, int playerStructSig, int hideBuffSig, int lockAxisS, int lockAxisC, int lockBuff, int zoneAddress, string path)
+        public int PassInfo(int menuSig, int masterSig, int collisionSig, int movementSig, int playerStructSig, int hideBuffSig, int lockAxisS, int lockAxisC, int lockBuff, int zoneAddress, string path)
         {
+            var mainAddress = Process.GetCurrentProcess().MainModule.BaseAddress;
             InterProcessCom.ConfigPath = path;
+
             Player.ZoneAddress = Marshal.ReadInt32(
                 (IntPtr)zoneAddress +
-                Process.GetCurrentProcess().MainModule.BaseAddress.ToInt32() +
+                mainAddress.ToInt32() +
                 12);
             Player.HideBuffAddress = hideBuffSig + 3;
             Player.LockSprintAddress = lockBuff + 6;
@@ -73,8 +75,10 @@ namespace Bolter_XIV
             Player.CollisionAddress = collisionSig + 8;
             Player.MovementAddress = Marshal.ReadInt32(
                 (IntPtr)movementSig +
-                Process.GetCurrentProcess().MainModule.BaseAddress.ToInt32() +
+                mainAddress.ToInt32() +
                 6);
+            Player.MasterPtr = (Player.MasterPointer*)(mainAddress + masterSig + 0x30);
+            Player.Menu = (Player.MenuStruct*)Marshal.ReadInt32(mainAddress + menuSig + 0xC);
             return 1;
         }
     }
@@ -100,9 +104,8 @@ namespace Bolter_XIV
 
         #region Open/Close
 
-        unsafe public MainWindow()
+        public MainWindow()
         {
-            
             InitializeComponent();
             //Make a pseudo close button.
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Close,
@@ -122,29 +125,30 @@ namespace Bolter_XIV
         {
             //logic for Setting Hotkeys from XML
             if (Config.HotKeys.POSKeys.Count > 0)
-            foreach (var posKey in Config.HotKeys.POSKeys)
-            {
-                _hotKeys.Add(new HotKey(posKey.Key, posKey.KeyMod, PosOnKey));
-            }
+                foreach (var posKey in Config.HotKeys.POSKeys)
+                {
+                    _hotKeys.Add(new HotKey(posKey.Key, posKey.KeyMod, PosOnKey));
+                }
             if (Config.HotKeys.SpeedKeys.Count > 0)
-            foreach (var speedKey in Config.HotKeys.SpeedKeys)
-            {
-                _hotKeys.Add(new HotKey(speedKey.Key, speedKey.KeyMod, SpeedOnKey));
-            }
+                foreach (var speedKey in Config.HotKeys.SpeedKeys)
+                {
+                    _hotKeys.Add(new HotKey(speedKey.Key, speedKey.KeyMod, SpeedOnKey));
+                }
             if (Config.HotKeys.MoveKeys.Count > 0)
-            foreach (var moveKey in Config.HotKeys.MoveKeys)
-            {
-                _hotKeys.Add(new HotKey(moveKey.Key, moveKey.KeyMod, MoveOnKey));
-            }
+                foreach (var moveKey in Config.HotKeys.MoveKeys)
+                {
+                    _hotKeys.Add(new HotKey(moveKey.Key, moveKey.KeyMod, MoveOnKey));
+                }
         }
-
+        [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
+        static extern bool FreeConsole();
         //on Window Load
         unsafe private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            XMLWrapper.Load();
-            RegHotKeys();
+
             Player.BasePlayerAddress = (Player.PlayerStructure**)Marshal.AllocHGlobal(4);
             Player.RedirectBuffOp();
+            Thread.Sleep(2000);
             //Some load finishing stuff, to be cleaned.
             SpeedKey_Direct.ItemsSource = Speedstrings;
             MoveKey_Direct.ItemsSource = Compass;
@@ -164,17 +168,15 @@ namespace Bolter_XIV
             slider4.Minimum = 1;
             slider4.Maximum = 10;
             slider4.Value = 10;
-            w2 = new DevWindow { Visibility = Visibility.Hidden };
-            w2.Show();
-            while (*Player.BasePlayerAddress == (Player.PlayerStructure*)0)
-                Thread.Sleep(100);
-            new Thread(EntityWinThread) { ApartmentState = ApartmentState.STA }.Start();
-            
+            ConfigWrapper.Load();
+            RegHotKeys();
+            Player.FillObjectList();
+            FreeConsole();
         }
 
         void DevWinThread()
         {
-            
+
         }
 
         static void EntityWinThread()
@@ -198,8 +200,6 @@ namespace Bolter_XIV
                 _hotKeys[i].Dispose();
             }
             _hotKeys.Clear();
-            w2.Close();
-            w2 = null;
             unsafe
             {
                 Marshal.FreeHGlobal((IntPtr)Player.BasePlayerAddress);
@@ -221,7 +221,7 @@ namespace Bolter_XIV
             var coordIndex =
                 Config.saved_cords.FindIndex(
                     c => c.Name == Config.HotKeys.POSKeys[keyIndex].POSName && c.ZoneID == Config.HotKeys.POSKeys[keyIndex].ZoneName);
-            
+
             //Set the new XYZ values.
             Player.WriteToPos("Z", Config.saved_cords[coordIndex].Z);
             Player.WriteToPos("X", Config.saved_cords[coordIndex].X);
@@ -319,7 +319,7 @@ namespace Bolter_XIV
 
         private void PoSButton(object sender, RoutedEventArgs e)
         {
-            switch (((Button) e.Source).Content.ToString())
+            switch (((Button)e.Source).Content.ToString())
             {
                 case "Down":
                     Player.AddToPos("Z", _buttonJumpVal, false);
@@ -529,25 +529,25 @@ namespace Bolter_XIV
         private void Load_XML(object sender, RoutedEventArgs e)
         {
             Config = XmlSerializationHelper.Deserialize<config>(InterProcessCom.ConfigPath);
-            XMLWrapper.RefreshAreaBox(AreaPOS_Box);
+            ConfigWrapper.RefreshAreaBox(AreaPOS_Box);
         }
 
         //Handler for changing the area
         private void AreaPOS_Box_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            XMLWrapper.RefreshNameBox(NamePOS_Box, AreaPOS_Box);
+            ConfigWrapper.RefreshNameBox(NamePOS_Box, AreaPOS_Box);
         }
 
         //Handler for changing the POS name
         private void NamePOS_Box_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            XMLWrapper.RefreshPOSBoxes(NamePOS_Box, AreaPOS_Box, NewPOS_X, NewPOS_Y, NewPOS_Z, POSKey_Zone, POSKey_Name);
+            ConfigWrapper.RefreshPOSBoxes(NamePOS_Box, AreaPOS_Box, NewPOS_X, NewPOS_Y, NewPOS_Z, POSKey_Zone, POSKey_Name);
         }
 
         //Handler for saving new cords
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            XMLWrapper.SaveCord(Area_Save, Name_Save, load_button);
+            ConfigWrapper.SaveCord(Area_Save, Name_Save, load_button);
         }
 
         //Handler for jumping
@@ -563,15 +563,15 @@ namespace Bolter_XIV
         {
             if ((bool)POSRadio.IsChecked)
             {
-                XMLWrapper.SaveHotKey(POSKbox, POSKmodbox, POSKey_Name, POSKey_Zone, XMLWrapper.KeyType.POSKey);
+                ConfigWrapper.SaveHotKey(POSKbox, POSKmodbox, POSKey_Name, POSKey_Zone, ConfigWrapper.KeyType.POSKey);
             }
             else if ((bool)SpeedRadio.IsChecked)
             {
-                XMLWrapper.SaveHotKey(POSKbox, POSKmodbox, SpeedKey_Amount, SpeedKey_Direct, XMLWrapper.KeyType.SpeedKey);
+                ConfigWrapper.SaveHotKey(POSKbox, POSKmodbox, SpeedKey_Amount, SpeedKey_Direct, ConfigWrapper.KeyType.SpeedKey);
             }
             else if ((bool)MoveRadio.IsChecked)
             {
-                XMLWrapper.SaveHotKey(POSKbox, POSKmodbox, MoveKey_Dist, MoveKey_Direct, XMLWrapper.KeyType.MoveKey);
+                ConfigWrapper.SaveHotKey(POSKbox, POSKmodbox, MoveKey_Dist, MoveKey_Direct, ConfigWrapper.KeyType.MoveKey);
             }
         }
 
@@ -601,65 +601,65 @@ namespace Bolter_XIV
         //Donation button
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-
+            try
+            {
+                Process.Start("http://goo.gl/VbcSxW");
+            }
+            catch
+            {
+            }
         }
 
         #endregion
 
         private bool boxcheck;
 
-        private void Updatebuffslots()
+        public static EntityWindow EWindow;
+        public static GatherWindow GWindow;
+        public static DevWindow DWindow;
+      
+        private void ExtraWindowsToggle(object sender, RoutedEventArgs e)
         {
-            while (boxcheck)
+            var cbox = (CheckBox) e.Source;
+            var isChecked = cbox.IsChecked == true;
+            switch (cbox.Content.ToString())
             {
-                Dispatcher.BeginInvoke(new Action(delegate { buff1.Content = Player.BuffNames[Player.DebugR(0)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff2.Content = Player.BuffNames[Player.DebugR(1)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff3.Content = Player.BuffNames[Player.DebugR(2)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff4.Content = Player.BuffNames[Player.DebugR(3)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff5.Content = Player.BuffNames[Player.DebugR(4)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff6.Content = Player.BuffNames[Player.DebugR(5)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff7.Content = Player.BuffNames[Player.DebugR(6)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff8.Content = Player.BuffNames[Player.DebugR(7)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff9.Content = Player.BuffNames[Player.DebugR(8)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff10.Content = Player.BuffNames[Player.DebugR(9)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff11.Content = Player.BuffNames[Player.DebugR(10)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff12.Content = Player.BuffNames[Player.DebugR(11)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff13.Content = Player.BuffNames[Player.DebugR(12)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff14.Content = Player.BuffNames[Player.DebugR(13)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff15.Content = Player.BuffNames[Player.DebugR(14)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff16.Content = Player.BuffNames[Player.DebugR(15)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff17.Content = Player.BuffNames[Player.DebugR(16)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff18.Content = Player.BuffNames[Player.DebugR(17)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff19.Content = Player.BuffNames[Player.DebugR(18)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff20.Content = Player.BuffNames[Player.DebugR(19)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff21.Content = Player.BuffNames[Player.DebugR(20)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff22.Content = Player.BuffNames[Player.DebugR(21)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff23.Content = Player.BuffNames[Player.DebugR(22)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff24.Content = Player.BuffNames[Player.DebugR(23)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff25.Content = Player.BuffNames[Player.DebugR(24)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff26.Content = Player.BuffNames[Player.DebugR(25)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff27.Content = Player.BuffNames[Player.DebugR(26)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff28.Content = Player.BuffNames[Player.DebugR(27)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff29.Content = Player.BuffNames[Player.DebugR(28)]; }));
-                Dispatcher.BeginInvoke(new Action(delegate { buff30.Content = Player.BuffNames[Player.DebugR(29)]; }));
-                Thread.Sleep(500);
+                case "Dev Speed Window":
+                    if (isChecked)
+                        new Thread(new ThreadStart(delegate
+                        {
+                            DWindow = new DevWindow();
+                            DWindow.ShowDialog();
+                        })) {ApartmentState = ApartmentState.STA}.Start();
+                    else
+                        DWindow.Dispatcher.BeginInvoke(new Action(() => DWindow.Close()));
+                    break;
+                case "Entity Window":
+                    if (isChecked)
+                        new Thread(new ThreadStart(delegate
+                        {
+                            EWindow = new EntityWindow();
+                            EWindow.ShowDialog();
+                        })) {ApartmentState = ApartmentState.STA}.Start();
+                    else
+                        EWindow.Dispatcher.BeginInvoke(new Action(() => EWindow.Close()));
+                    break;
+                case "Gather/Nav Window":
+                    if (isChecked)
+                        new Thread(new ThreadStart(delegate
+                        {
+                            GWindow = new GatherWindow();
+                            GWindow.ShowDialog();
+                        })) {ApartmentState = ApartmentState.STA}.Start();
+                    else
+                        GWindow.Dispatcher.BeginInvoke(new Action(() => GWindow.Close()));
+                    break;
             }
-        }
-
-        private void CheckBox_Checked_2(object sender, RoutedEventArgs e)
-        {
-            if ((bool) buffloopbox.IsChecked)
-            {
-                boxcheck = true;
-                new Thread(Updatebuffslots).Start();
-            }
-            else
-                boxcheck = false;
         }
 
         private void Xbox(object sender, RoutedEventArgs e)
         {
-            if ((bool) theXbox.IsChecked)
+            if ((bool)theXbox.IsChecked)
                 Player.LockAxis("X", true);
             else
                 Player.LockAxis("X", false);
@@ -667,7 +667,7 @@ namespace Bolter_XIV
 
         private void Ybox(object sender, RoutedEventArgs e)
         {
-            if ((bool) theYbox.IsChecked)
+            if ((bool)theYbox.IsChecked)
                 Player.LockAxis("Y", true);
             else
                 Player.LockAxis("Y", false);
@@ -675,7 +675,7 @@ namespace Bolter_XIV
 
         private void Zbox(object sender, RoutedEventArgs e)
         {
-            if ((bool) theZbox.IsChecked)
+            if ((bool)theZbox.IsChecked)
                 Player.LockAxis("Z", true);
             else
                 Player.LockAxis("Z", false);
@@ -696,14 +696,15 @@ namespace Bolter_XIV
 
         private void CheckBox_Checked_4(object sender, RoutedEventArgs e)
         {
-            HideRadarMain.Visibility = (bool) RadarCheckBox.IsChecked
+            HideRadarMain.Visibility = (bool)RadarCheckBox.IsChecked
                 ? (HideRadarSub.Visibility = Visibility.Visible)
                 : (HideRadarSub.Visibility = Visibility.Hidden);
         }
 
+        private bool clicked = false;
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("");
+            
         }
 
         private void ZoneGetOnclick(object sender, RoutedEventArgs e)
@@ -713,7 +714,7 @@ namespace Bolter_XIV
 
         private void DevCheckBox_checked(object sender, RoutedEventArgs e)
         {
-            var vis = (bool) DevCheckBox.IsChecked ? Visibility.Visible : Visibility.Hidden;
+            var vis = (bool)DevCheckBox.IsChecked ? Visibility.Visible : Visibility.Hidden;
             try
             {
                 w2.Dispatcher.BeginInvoke(new Action(delegate { w2.Visibility = vis; }));

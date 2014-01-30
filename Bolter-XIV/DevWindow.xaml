@@ -9,7 +9,7 @@
         <LinearGradientBrush x:Key="WindowFrameBrush2" StartPoint="0,0.5" EndPoint="1,0.5">
             <GradientStop Color="CadetBlue" Offset="0.4"/>
         </LinearGradientBrush>
-        <Style TargetType="Button" x:Key="ButtonStyle">
+        <Style TargetType="Button" x:Key="ButtonStyle" x:Shared="True">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="TextBlock.TextAlignment" Value="Left" />
             <Setter Property="TextBlock.FontSize" Value="12" />
@@ -91,7 +91,6 @@
                 <Grid>
                     <TextBlock Foreground="White"  VerticalAlignment="Top" Margin="5,2,15,0"
             Text="Dev Options" FontSize="15"/>
-                    <Image Source="Icon.ico" HorizontalAlignment="Left"></Image>
                     <Button Style="{StaticResource MinCloseStyle}" Content="x" HorizontalAlignment="Right" VerticalAlignment="Top" FontSize="18" 
                             FontFamily="Razer Header Light" Foreground="White" BorderThickness="0" BorderBrush="CadetBlue" MouseEnter="CloseBottonAnimation"
                             MouseLeave="CloseBottonAnimation"
@@ -175,9 +174,9 @@
                         <TextBlock HorizontalAlignment="Left" Margin="212,68,0,0" VerticalAlignment="Top" Width="90" Height="20" Text="X" FontSize="17" FontFamily="Segoe UI Light"/>
                         <TextBox HorizontalAlignment="Left" Margin="224,66,0,0" VerticalAlignment="Top" Width="40" Height="20" FontSize="10" Text=""/>
                         <Button Style="{StaticResource ButtonStyle}" HorizontalAlignment="Left" Margin="267,66,0,0" VerticalAlignment="Top" Width="40" Height="20" Content="SET" />
-                        <CheckBox HorizontalAlignment="Left" Margin="167,100,0,0" VerticalAlignment="Top" Content="Collision Detection Off" FontSize="12"/>
-                        <CheckBox HorizontalAlignment="Left" Margin="167,124,0,0" VerticalAlignment="Top" Content="Collision Detection Off" FontSize="12"/>
-                        <CheckBox HorizontalAlignment="Left" Margin="167,148,0,0" VerticalAlignment="Top" Content="Collision Detection Off" FontSize="12"/>
+                        <CheckBox HorizontalAlignment="Left" Margin="167,100,0,0" VerticalAlignment="Top" Content="Collision Detection Off" FontSize="12" Checked="CheckBoxHandler" Unchecked="CheckBoxHandler"/>
+                        <CheckBox HorizontalAlignment="Left" Margin="167,124,0,0" VerticalAlignment="Top" Content="N/A" FontSize="12"/>
+                        <CheckBox HorizontalAlignment="Left" Margin="167,148,0,0" VerticalAlignment="Top" Content="N/A" FontSize="12"/>
                     </Grid>
                 </TabItem>
             </TabControl>

@@ -248,68 +248,9 @@
                         <TextBlock HorizontalAlignment="Left" Margin="95,21,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" x:Name="percnt_txt"/>
                         <Button Background="BlanchedAlmond" Content="Donate" FontWeight="Bold" HorizontalAlignment="Left" Margin="222,573,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
                         <TextBlock HorizontalAlignment="Left" Margin="132,579,0,0" TextWrapping="Wrap" Text="Bolter© Devnull" VerticalAlignment="Top"/>
-                        <Label Content="2" HorizontalAlignment="Left" Margin="10,123,0,0" VerticalAlignment="Top"/>
-                        <Label Content="1" HorizontalAlignment="Left" Margin="10,97,0,0" VerticalAlignment="Top"/>
-                        <Label Content="3" HorizontalAlignment="Left" Margin="10,149,0,0" VerticalAlignment="Top"/>
-                        <Label Content="4" HorizontalAlignment="Left" Margin="10,175,0,0" VerticalAlignment="Top"/>
-                        <Label Content="5" HorizontalAlignment="Left" Margin="10,201,0,0" VerticalAlignment="Top"/>
-                        <Label Content="6" HorizontalAlignment="Left" Margin="10,227,0,0" VerticalAlignment="Top"/>
-                        <Label Content="7" HorizontalAlignment="Left" Margin="10,253,0,0" VerticalAlignment="Top"/>
-                        <Label Content="8" HorizontalAlignment="Left" Margin="10,279,0,0" VerticalAlignment="Top"/>
-                        <Label Content="9" HorizontalAlignment="Left" Margin="10,305,0,0" VerticalAlignment="Top"/>
-                        <Label Content="10" HorizontalAlignment="Left" Margin="10,331,0,0" VerticalAlignment="Top"/>
-                        <Label Content="11" HorizontalAlignment="Left" Margin="10,357,0,0" VerticalAlignment="Top"/>
-                        <Label Content="12" HorizontalAlignment="Left" Margin="10,383,0,0" VerticalAlignment="Top"/>
-                        <Label Content="13" HorizontalAlignment="Left" Margin="10,409,0,0" VerticalAlignment="Top"/>
-                        <Label Content="14" HorizontalAlignment="Left" Margin="10,435,0,0" VerticalAlignment="Top"/>
-                        <Label Content="15" HorizontalAlignment="Left" Margin="10,461,0,0" VerticalAlignment="Top"/>
-                        <Label Content="16" HorizontalAlignment="Left" Margin="10,487,0,0" VerticalAlignment="Top"/>
-                        <Label Content="17" HorizontalAlignment="Left" Margin="10,513,0,0" VerticalAlignment="Top"/>
-                        <Label Content="18" HorizontalAlignment="Left" Margin="10,539,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff1" Content="" HorizontalAlignment="Left" Margin="26,97,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff2" Content="" HorizontalAlignment="Left" Margin="26,123,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff3" Content="" HorizontalAlignment="Left" Margin="26,149,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff4" Content="" HorizontalAlignment="Left" Margin="26,175,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff5" Content="" HorizontalAlignment="Left" Margin="26,201,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff6" Content="" HorizontalAlignment="Left" Margin="26,227,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff7" Content="" HorizontalAlignment="Left" Margin="26,253,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff8" Content="" HorizontalAlignment="Left" Margin="26,279,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff9" Content="" HorizontalAlignment="Left" Margin="26,305,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff10" Content="" HorizontalAlignment="Left" Margin="26,331,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff11" Content="" HorizontalAlignment="Left" Margin="26,357,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff12" Content="" HorizontalAlignment="Left" Margin="26,383,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff13" Content="" HorizontalAlignment="Left" Margin="26,409,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff14" Content="" HorizontalAlignment="Left" Margin="26,435,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff15" Content="" HorizontalAlignment="Left" Margin="26,461,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff16" Content="" HorizontalAlignment="Left" Margin="26,487,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff17" Content="" HorizontalAlignment="Left" Margin="26,513,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff18" Content="" HorizontalAlignment="Left" Margin="26,539,0,0" VerticalAlignment="Top"/>
-                        <Label Content="19" HorizontalAlignment="Left" Margin="142,97,0,0" VerticalAlignment="Top"/>
-                        <Label Content="20" HorizontalAlignment="Left" Margin="142,123,0,0" VerticalAlignment="Top"/>
-                        <Label Content="21" HorizontalAlignment="Left" Margin="142,149,0,0" VerticalAlignment="Top"/>
-                        <Label Content="22" HorizontalAlignment="Left" Margin="142,175,0,0" VerticalAlignment="Top"/>
-                        <Label Content="23" HorizontalAlignment="Left" Margin="142,201,0,0" VerticalAlignment="Top"/>
-                        <Label Content="24" HorizontalAlignment="Left" Margin="142,227,0,0" VerticalAlignment="Top"/>
-                        <Label Content="25" HorizontalAlignment="Left" Margin="142,253,0,0" VerticalAlignment="Top"/>
-                        <Label Content="26" HorizontalAlignment="Left" Margin="142,279,0,0" VerticalAlignment="Top"/>
-                        <Label Content="27" HorizontalAlignment="Left" Margin="142,305,0,0" VerticalAlignment="Top"/>
-                        <Label Content="28" HorizontalAlignment="Left" Margin="142,331,0,0" VerticalAlignment="Top"/>
-                        <Label Content="29" HorizontalAlignment="Left" Margin="142,357,0,0" VerticalAlignment="Top"/>
-                        <Label Content="30" HorizontalAlignment="Left" Margin="142,383,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff19" Content="" HorizontalAlignment="Left" Margin="165,97,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff20" Content="" HorizontalAlignment="Left" Margin="165,123,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff21" Content="" HorizontalAlignment="Left" Margin="165,149,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff22" Content="" HorizontalAlignment="Left" Margin="165,175,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff24" Content="" HorizontalAlignment="Left" Margin="165,227,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff23" Content="" HorizontalAlignment="Left" Margin="165,201,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff25" Content="" HorizontalAlignment="Left" Margin="165,253,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff26" Content="" HorizontalAlignment="Left" Margin="165,279,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff27" Content="" HorizontalAlignment="Left" Margin="165,305,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff28" Content="" HorizontalAlignment="Left" Margin="165,331,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff29" Content="" HorizontalAlignment="Left" Margin="165,357,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="buff30" Content="" HorizontalAlignment="Left" Margin="165,383,0,0" VerticalAlignment="Top"/>
-                        <CheckBox x:Name="buffloopbox" Content="Monitor Buffs" HorizontalAlignment="Left" Margin="10,75,0,0" VerticalAlignment="Top" Checked="CheckBox_Checked_2"/>
-
+                        <CheckBox Margin="10,111,122,468" Content="Dev Speed Window" Checked="ExtraWindowsToggle" Unchecked="ExtraWindowsToggle"/>
+                        <CheckBox Margin="10,157,122,422" Content="Entity Window" Checked="ExtraWindowsToggle" Unchecked="ExtraWindowsToggle"/>
+                        <CheckBox Margin="10,134,122,445" Content="Gather/Nav Window" Checked="ExtraWindowsToggle" Unchecked="ExtraWindowsToggle"/>
                     </Grid>
                 </TabItem>
             </TabControl>

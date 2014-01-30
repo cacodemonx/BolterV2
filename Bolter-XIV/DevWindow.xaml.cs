@@ -161,7 +161,7 @@ namespace Bolter_XIV
 
         private void LockSpeed_Changed(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            
         }
 
         private void Slider_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -189,6 +189,18 @@ namespace Bolter_XIV
                         Player.GetMovment()->LeftRightSpeed = (float)SideSlider.Value;
                         break;
                 }
+            }
+        }
+
+        private void CheckBoxHandler(object sender, RoutedEventArgs e)
+        {
+            var cbox = (CheckBox) e.Source;
+            var isChecked = cbox.IsChecked == true;
+            switch (cbox.Content.ToString())
+            {
+                case "Collision Detection Off":
+                    Player.CollsionToggle(isChecked);
+                    break;
             }
         }
     }

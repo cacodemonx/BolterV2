@@ -67,6 +67,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <LibraryPath>$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86);</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Fixed|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
@@ -103,14 +104,14 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
+      <CLRUnmanagedCodeCheck>true</CLRUnmanagedCodeCheck>
     </Link>
     <PostBuildEvent>
       <Command>
       </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>"$(SolutionDir)DllToHeader.exe" "$(SolutionDir)Bolter-XIV\bin\x86\Release\Bolter-XIV.dll" "$(SolutionDir)Link\Bolter.h"</Command>
     </PreBuildEvent>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>

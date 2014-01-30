@@ -1,10 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Markup;
+using System.Windows.Navigation;
 using System.Xml.Serialization;
+using Bolter_XIV;
+using Player_Bits;
 using UnManaged;
 
 namespace ConfigHelper
@@ -15,7 +23,7 @@ namespace ConfigHelper
         {
             var xs = new XmlSerializer(typeof(T));
 
-            string dir = Path.GetDirectoryName(filename);
+            var dir = Path.GetDirectoryName(filename);
 
             if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
             {
@@ -46,6 +54,8 @@ namespace ConfigHelper
             }
         }
     }
+
+    #region Config XML
     [Serializable]
     public class config
     {
@@ -98,7 +108,7 @@ namespace ConfigHelper
         [XmlIgnore]
         public KeyModifier KeyMod
         {
-            get { return (KeyModifier) Enum.Parse(typeof (KeyModifier), _KeyMod); }
+            get { return (KeyModifier)Enum.Parse(typeof(KeyModifier), _KeyMod); }
             set { _KeyMod = value.ToString(); }
         }
         [XmlAttribute("Key")]
@@ -133,4 +143,103 @@ namespace ConfigHelper
         [XmlAttribute("Distance")]
         public float Distance;
     }
+    #endregion
+
+    [Serializable]
+    public class Waypoints
+    {
+        [XmlElement("Zone")]
+        public List<Zones> Zone = new List<Zones>();
+
+        public void AddPathToZone(int zoneId, string pathName)
+        {
+            Zone.First(p => p.ID == zoneId).Path.Add(new Paths(pathName));
+        }
+
+    }
+
+    [Serializable]
+    public class Zones
+    {
+        public Zones()
+        {
+
+        }
+        public Zones(int id)
+        {
+            ID = id;
+            Name = Player.GetZoneByID();
+        }
+
+        public void AddPoints(string pathName, int interval, GatherWindow Gwindow)
+        {
+            if (Path.All(p => p.Name != pathName))
+            {
+                Path.Add(new Paths(pathName));
+                Path.Last().AddPoints(interval, Gwindow);
+            }
+            else
+                Path.First(p => p.Name == pathName).AddPoints(interval, Gwindow);
+        }
+
+        [XmlAttribute("ID")]
+        public int ID;
+        [XmlAttribute("Name")]
+        public string Name;
+        [XmlElement("Path")]
+        public List<Paths> Path = new List<Paths>();
+    }
+
+    [Serializable]
+    public class Paths
+    {
+        public Paths()
+        {
+
+        }
+
+        public Paths(string pathName)
+        {
+            Name = pathName;
+        }
+
+        public void AddPoints(int interval, GatherWindow Gwindow)
+        {
+
+            // Loop while record flag is true.
+            while (Navigation.RecordFlag)
+            {
+                // Get current position.
+                var currentPos = Player.Get2DPos();
+
+                // Get last saved position, or null if there are none.
+                var lastPos = Point.LastOrDefault();
+
+                // Check if this is a new entry, or if we have moved from our last position.
+                if (lastPos == null || lastPos.x != currentPos.x || lastPos.y != currentPos.y)
+                {
+                    // Add the saved waypoint information to the log.
+                    if (Gwindow != null)
+                        Gwindow.AddText(Point.Count, Player.GetZoneByID(), Name, currentPos.x, currentPos.y);
+                    // Add the new waypoint.
+                    Point.Add(new D3DXVECTOR2(currentPos.x, currentPos.y));
+                }
+                // End if this is a single add.
+                if (interval == 0)
+                    return;
+                // Hold for the given interval.
+                Thread.Sleep(interval);
+            }
+
+
+        }
+
+
+
+        [XmlAttribute("Name")]
+        public string Name;
+        [XmlElement("Point")]
+        public List<D3DXVECTOR2> Point = new List<D3DXVECTOR2>();
+    }
+
 }

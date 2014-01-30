@@ -28,7 +28,12 @@ unsigned char playerStructSig[18] =
 ,0x8B,0x01, 0x8B, 0x50, 0x04, 0x56};
 
 unsigned char movementSig[11] =
-{0x84, 0xC0, 0x74, 0x09, 0x80 ,0x3D, 0x00, 0x00, 0x00, 0x00, 0x00};
+{0x84, 0xC0, 0x74, 0x09, 0x80 ,
+0x3D, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+unsigned char targetSig[14] = 
+{0x00, 0x51, 0x8B, 0x4E, 0x10, 0xD9, 0x1C, 
+0x24, 0x51, 0x8D, 0x55, 0xEC, 0x52, 0xB9};
 
 unsigned char zoneSig[17] = 
 {0xC3, 0xCC, 0xCC, 0xCC, 0xCC, 
@@ -39,6 +44,16 @@ unsigned char collision[15] =
 {0x89, 0x45, 0xFC, 0x3B, 0xC1, 
 0x74, 0x6C, 0x38, 0x8E, 0xCC, 
 0x01, 0x00, 0x00, 0x74, 0x38};
+
+unsigned char masterSig[13] = 
+{0x84, 0xC0, 0x0F, 0x95, 0xC0, 0x88, 
+0x06, 0x8B, 0x46, 0x04, 0x48, 0x75, 0x22};
+
+unsigned char menuSig[12] = 
+{0x00, 0x57, 0x8B, 0xCE, 0xFF, 0xD2, 
+0x84, 0xC0, 0x74, 0x6A, 0x84, 0x1D};
+
+void render();
 
 INT APIENTRY DllMain(HMODULE hDLL, DWORD Reason, LPVOID Reserved) {
 
@@ -77,6 +92,9 @@ extern "C"
 			sigPoints[5] = FindPatternEx(playerStructSig,"xxxxxxxxxxxxxxxxxx");
 			sigPoints[6] = FindPatternEx(movementSig,"xxxxxx????x");
 			sigPoints[7] = FindPatternEx(collision,"xxxxxxxxxxxxxxx");
+			sigPoints[8] = FindPatternEx(masterSig,"xxxxxxxxxxxxx");
+			sigPoints[9] = FindPatternEx(menuSig,"xxxxxxxxxxxx");
+
 			// Close all the handles.
 			for (int i = 0;i < THREADCOUNT;i++)
 				CloseHandle(scanThreads[i]);
@@ -87,7 +105,7 @@ extern "C"
 			ManagedData[0].vt = VT_BSTR;
 
 			// Sig Addresses.
-			for (int i = 0;i < 8;i++)
+			for (int i = 0;i < 10;i++)
 			{
 				ManagedData[i+1].intVal = sigPoints[i];
 				ManagedData[i+1].vt = VT_INT;
@@ -95,6 +113,7 @@ extern "C"
 			/*Start up the CLR and instantiate the main Bolter class 
 			(starts a new thread with the STA attribute, to satisfy WPF)*/
 			BolterBytes->Launch("Bolter_XIV.STAThread", ManagedData);
+			AllocConsole();
 		}
 		else
 			//Re-instantiate the class.
@@ -146,7 +165,7 @@ DWORD FindPatternEx(unsigned char * lpPattern, const char * lpMask)
 	patternParas[i].pszMask = lpMask;
 	patternParas[i].sigNumber = i;
 	patternParas[i].startIndex = dataChuck * i;
-	patternParas[i].stopIndex = dataChuck * (i+1);
+	patternParas[i].stopIndex = dataChuck * (i+1) - 20;
 	scanThreads[i] = CreateThread(NULL,0,(FUNC)&FindPattern,&patternParas[i],0,&dwThreadID);
 
 	WaitForMultipleObjects(THREADCOUNT,scanThreads,TRUE,1000);
@@ -155,6 +174,7 @@ DWORD FindPatternEx(unsigned char * lpPattern, const char * lpMask)
 }
 DWORD GetFirstAddress()
 {
+
 	for (int i = 0;i < THREADCOUNT;i++)
 	{
 		if (retData[i] != 0)
@@ -164,3 +184,5 @@ DWORD GetFirstAddress()
 	}
 	return 0;
 }
+
+

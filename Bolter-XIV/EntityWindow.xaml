@@ -2,12 +2,19 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:bolterXiv="clr-namespace:Bolter_XIV"
-        Title="EntityWindow" Height="323" Width="347" WindowStyle="None" AllowsTransparency="True" Loaded="EntityWindow_OnLoaded">
+        Title="EntityWindow" Height="323" Width="691" WindowStyle="None" AllowsTransparency="True" Loaded="EntityWindow_OnLoaded" Closing="EntityWindow_OnClosing">
     <Window.Resources>
 
     </Window.Resources>
     <Grid>
         <ListBox HorizontalAlignment="Left" Height="303" Margin="10,10,0,0" VerticalAlignment="Top" Width="118" x:Name="EListBox" SelectionChanged="EListBox_OnSelectionChanged">
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="{x:Type bolterXiv:EntityListBoxItem}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Name}" FontSize="10" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
         </ListBox>
         <TextBox HorizontalAlignment="Left" Height="23" Margin="237,10,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="76" x:Name="XposBox"/>
         <TextBox HorizontalAlignment="Left" Height="23" Margin="237,66,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="76" x:Name="ZposBox"/>
@@ -15,7 +22,7 @@
         <Label Content="X" HorizontalAlignment="Left" Margin="312,9,0,0" VerticalAlignment="Top"/>
         <Label Content="Y" HorizontalAlignment="Left" Margin="312,35,0,0" VerticalAlignment="Top"/>
         <Label Content="Z" HorizontalAlignment="Left" Margin="312,63,0,0" VerticalAlignment="Top"/>
-        <GroupBox Header="Buffs/Debuffs" HorizontalAlignment="Left" Margin="133,94,0,0" VerticalAlignment="Top" Height="219" Width="210" >
+        <GroupBox Header="Buffs/Debuffs" HorizontalAlignment="Left" Margin="133,94,0,0" VerticalAlignment="Top" Height="219" Width="202" >
             <StackPanel x:Name="BuffsBox">
                 <TextBlock HorizontalAlignment="Left" Height="13" TextWrapping="Wrap" Text="Really Long Buff" VerticalAlignment="Top" Width="74" FontSize="10"/>
                 <TextBlock HorizontalAlignment="Left" Height="13" TextWrapping="Wrap" Text="Really Long Buff" VerticalAlignment="Top" Width="74" FontSize="10"/>
@@ -33,7 +40,7 @@
                 <TextBlock HorizontalAlignment="Left" Height="13" TextWrapping="Wrap" Text="Really Long Buff" VerticalAlignment="Top" Width="74" FontSize="10"/>
                 <TextBlock HorizontalAlignment="Left" Height="13" TextWrapping="Wrap" Text="Really Long Buff" VerticalAlignment="Top" Width="74" FontSize="10"/>
 
-                
+
 
                 <TextBlock HorizontalAlignment="Left" Margin="100,-195,0,0" Height="13" TextWrapping="Wrap" Text="Really Long Buff" VerticalAlignment="Top" Width="74" FontSize="10"/>
                 <TextBlock HorizontalAlignment="Left" Margin="100,-182,0,0" Height="13" TextWrapping="Wrap" Text="Really Long Buff" VerticalAlignment="Top" Width="74" FontSize="10"/>
@@ -85,16 +92,16 @@
 
             </StackPanel>
         </GroupBox>
-        <Line Width="10" X1="1" X2="1" Y1="200" Y2="1" StrokeThickness="1" Stroke="Black" Margin="236,106,99,-106" />
-        <Line X1="1" X2="200" Y1="1" Y2="1" StrokeThickness="1" Stroke="Black" Margin="138,304,19,10" />
-        <Button Content="Get List" HorizontalAlignment="Left" Margin="133,13,0,0" VerticalAlignment="Top" Width="40" Height="20" FontSize="10" VerticalContentAlignment="Top" Click="ClickHandler"/>
-        <Button Content="Jump To" HorizontalAlignment="Left" Margin="192,13,0,0" VerticalAlignment="Top" Width="40" Height="20" FontSize="9" VerticalContentAlignment="Top" Click="ClickHandler"/>
-        <CheckBox Content="List" HorizontalAlignment="Left" Margin="138,50,0,0" VerticalAlignment="Top"/>
+        <Line Width="10" X1="1" X2="1" Y1="200" Y2="1" StrokeThickness="1" Stroke="Black" Margin="237,104,444,-104" />
+        <Line X1="1" X2="196" Y1="1" Y2="1" StrokeThickness="1" Stroke="Black" Margin="138,304,19,10" />
+        <Button Content="Get List" HorizontalAlignment="Left" Margin="128,13,0,0" VerticalAlignment="Top" Width="40" Height="20" FontSize="10" VerticalContentAlignment="Top" Click="ClickHandler"/>
+        <Button Content="Jump To" HorizontalAlignment="Left" Margin="197,13,0,0" VerticalAlignment="Top" Width="40" Height="20" FontSize="9" VerticalContentAlignment="Top" Click="ClickHandler"/>
+        <CheckBox Content="List" HorizontalAlignment="Left" Margin="133,50,0,0" VerticalAlignment="Top"/>
         <TextBlock HorizontalAlignment="Left" Margin="143,33,0,0" TextWrapping="Wrap" Text="Auto Update" VerticalAlignment="Top"/>
-        <CheckBox Content="Buffs" HorizontalAlignment="Left" Margin="178,50,0,0" VerticalAlignment="Top"/>
-        <CheckBox Content="XYZ" HorizontalAlignment="Left" Margin="159,71,0,0" VerticalAlignment="Top"/>
-        <Button Content="X" HorizontalAlignment="Left" Margin="334,0,0,0" VerticalAlignment="Top"  FontSize="8" Click="ClickHandler" />
-        <Button Content="--" HorizontalAlignment="Left" Margin="323,0,0,0" VerticalAlignment="Top" Width="11" FontSize="8" Click="ClickHandler"/>
+        <CheckBox Content="Buffs" HorizontalAlignment="Left" Margin="189,50,0,0" VerticalAlignment="Top"/>
+        <CheckBox Content="XYZ" HorizontalAlignment="Left" Margin="189,66,0,0" VerticalAlignment="Top"/>
+        <Button Content="X" HorizontalAlignment="Left" Margin="680,0,0,0" VerticalAlignment="Top"  FontSize="8" Click="ClickHandler" />
+        <Button Content="--" HorizontalAlignment="Left" Margin="680,17,0,0" VerticalAlignment="Top" Width="11" FontSize="8" Click="ClickHandler"/>
         <Rectangle HorizontalAlignment="Left" Height="10" Stroke="White" Fill="White"  VerticalAlignment="Top" Width="323" MouseDown="DragWindow"/>
         <Rectangle HorizontalAlignment="Left" Height="10" Stroke="White" Fill="White"  VerticalAlignment="Top" Width="322" RenderTransformOrigin="0.5,0.5" Margin="-157,156,0,0" MouseDown="DragWindow">
             <Rectangle.RenderTransform>
@@ -106,6 +113,31 @@
                 </TransformGroup>
             </Rectangle.RenderTransform>
         </Rectangle>
+        <ListBox HorizontalAlignment="Left" Height="303" Margin="340,10,0,0" VerticalAlignment="Top" Width="332" x:Name="NPCObjectListBox" SelectionChanged="EListBox_OnSelectionChanged">
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="{x:Type bolterXiv:NPCObjectListBoxItem}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Name}" FontSize="10" Foreground="Brown" />
+                        <TextBlock Text="{Binding Coords}" FontSize="10" Foreground="DarkGoldenrod" />
+                        <TextBlock Text="{Binding IsActive}" FontSize="10" Foreground="{Binding IsActiveColor}"/>
+                        <TextBlock Text="{Binding ID}" FontSize="10" Foreground="Black" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Button Content="Update" HorizontalAlignment="Left" Margin="644,83,-28,0" VerticalAlignment="Top" Width="75" Height="17" FontSize="9" RenderTransformOrigin="0.5,0.5" Click="ClickHandler">
+            <Button.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="90"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Button.RenderTransform>
+        </Button>
+        <CheckBox Content="Target" HorizontalAlignment="Left" Margin="133,66,0,0" VerticalAlignment="Top" x:Name="TargetCheckBox"/>
+        <TextBlock HorizontalAlignment="Left" Margin="220,88,0,0" TextWrapping="Wrap" Text="Entity No Longer Valid" VerticalAlignment="Top" Foreground="Red" Visibility="Hidden" x:Name="ValidBlock"/>
+        <Button Content="Face" HorizontalAlignment="Left" Margin="171,13,0,0" VerticalAlignment="Top" FontSize="9" VerticalContentAlignment="Stretch" Click="ClickHandler"/>
 
     </Grid>
 </Window>

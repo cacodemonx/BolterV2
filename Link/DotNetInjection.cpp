@@ -23,10 +23,10 @@ unsigned int DotNetInjection::Launch(const char * classtoInstance, VARIANTARG FA
 	
 	//Create instance of the Common Language Runtime
 	hr = CLRCreateInstance(CLSID_CLRMetaHost, IID_PPV_ARGS(&pMetaHost));
-
+	
 	//Get latest runtime
 	hr = pMetaHost->GetRuntime(L"v4.0.30319", IID_PPV_ARGS(&pRuntimeInfo));
-
+	//pRuntimeInfo->BindAsLegacyV2Runtime();
 	//Get host interface
 	hr = pRuntimeInfo->GetInterface(CLSID_CorRuntimeHost, IID_PPV_ARGS(&pHost));
 
@@ -58,6 +58,7 @@ unsigned int DotNetInjection::Launch(const char * classtoInstance, VARIANTARG FA
 
 	//Instantiate Main Bolter-XIV Class 
 	hr = assembly->CreateInstance(_bstr_t(classtoInstance), launcher);
+	
 	IDispatch *disp = NULL;
 	//Setup dispather to pass the config file path 
 	disp = launcher->pdispVal;
@@ -68,7 +69,7 @@ unsigned int DotNetInjection::Launch(const char * classtoInstance, VARIANTARG FA
 	hr = disp->GetIDsOfNames(IID_NULL, &methodName, 1, LOCALE_SYSTEM_DEFAULT, &dispid);
 
 	//Set as dispatcher parameters
-	DISPPARAMS _disArgs = {args, NULL, 9, 0};
+	DISPPARAMS _disArgs = {args, NULL, 11, 0};
 
 	//Invoke GetPath() and pass the config path string, to the managed library.
 	hr = disp->Invoke(dispid, IID_NULL, LOCALE_SYSTEM_DEFAULT, DISPATCH_METHOD, &_disArgs, NULL, NULL, NULL);

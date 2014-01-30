@@ -67,9 +67,12 @@
     </DocumentationFile>
     <DefineConstants>
     </DefineConstants>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Prefer32Bit>false</Prefer32Bit>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <RegisterForComInterop>false</RegisterForComInterop>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>2859A9634495B915EE2945CEE0B4A1FFE979CE72</ManifestCertificateThumbprint>
@@ -98,9 +101,7 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
-  <PropertyGroup>
-    <NoWin32Manifest>true</NoWin32Manifest>
-  </PropertyGroup>
+  <PropertyGroup />
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
@@ -119,19 +120,25 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="App.xaml">
+    <None Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
+    </None>
     <Compile Include="BizzySpinner.cs" />
     <Compile Include="ConfigHelper.cs" />
+    <Compile Include="D3DXmath.cs" />
     <Compile Include="DevWindow.xaml.cs">
       <DependentUpon>DevWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="EntityWindow.xaml.cs">
       <DependentUpon>EntityWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GatherHelper.cs" />
+    <Compile Include="GatherWindow.xaml.cs">
+      <DependentUpon>GatherWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="HotKey.cs" />
+    <Compile Include="Input.cs" />
     <Compile Include="KeyString.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="SigScan.cs" />
@@ -141,6 +148,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="EntityWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GatherWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -233,8 +244,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>cd $(SolutionDir)
-DllToHeader.exe "$(TargetPath)" "$(SolutionDir)Link\Bolter.h"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>

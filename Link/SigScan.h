@@ -6,13 +6,13 @@
 #define FUNC LPTHREAD_START_ROUTINE
 
 HANDLE scanThreads[THREADCOUNT];
-DWORD sigPoints[8];
+DWORD sigPoints[10];
 MODULEINFO modinfo = { 0 };
 DWORD retData[THREADCOUNT];
 
 DWORD clearData[THREADCOUNT];
 
-VARIANTARG FAR ManagedData[9];
+VARIANTARG FAR ManagedData[11];
 
 struct PatternParas
 {

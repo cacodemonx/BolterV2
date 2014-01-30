@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using Player_Bits;
 
 namespace Bolter_XIV
@@ -40,7 +35,8 @@ namespace Bolter_XIV
                     {EListBox.Items.Clear();}
                     catch{}
                     for (var i = 0; i < 64; i++)
-                        EListBox.Items.Add(new ListBoxItem {Content = entities[i].Name, FontSize = 10});
+                        if (entities[i].Name != "")
+                            EListBox.Items.Add(new EntityListBoxItem(entities[i].Name, entities[i].ID));
                     break;
                 case "Jump To":
                     Player.GetPlayer()->ServerX = float.Parse(XposBox.Text);
@@ -51,6 +47,18 @@ namespace Bolter_XIV
 
                     Player.GetPlayer()->ServerZ = float.Parse(ZposBox.Text);
                     Player.GetPlayerSub()->CliZ = float.Parse(ZposBox.Text);
+                    break;
+                case "Update":
+                    try
+                    { NPCObjectListBox.Items.Clear(); }
+                    catch { }
+                    for (var i = 0; i < 22; i++)
+                        if (new string(Player.bloop[i].NPC->Name) != "")
+                        NPCObjectListBox.Items.Add(new NPCObjectListBoxItem(new string(Player.bloop[i].NPC->Name),
+                            Player.bloop[i].NPC->X, Player.bloop[i].NPC->Y, Player.bloop[i].NPC->Z,
+                            Player.bloop[i].NPC->IsActive == 0 ? "Up " : "Down ", Player.bloop[i].NPC->ID));
+                    break;
+                case "Face":
                     break;
             }
             
@@ -75,10 +83,11 @@ namespace Bolter_XIV
 
         void RefreshBuffs()
         {
+            ValidBlock.Visibility = Visibility.Hidden;
             try
             {
                 var selectedEnt =
-                    entities.FindIndex(p => p.Name == ((ListBoxItem) EListBox.SelectedItem).Content.ToString());
+                    entities.FindIndex(p => p.ID == ((EntityListBoxItem)EListBox.SelectedItem).ID);
                 var N = 0;
                 foreach (var bloop in BuffsBox.Children.Cast<TextBlock>())
                 {
@@ -270,15 +279,21 @@ namespace Bolter_XIV
                 XposBox.Text = entities[selectedEnt].X.ToString();
                 YposBox.Text = entities[selectedEnt].Y.ToString();
                 ZposBox.Text = entities[selectedEnt].Z.ToString();
+                if (TargetCheckBox.IsChecked == true)
+                    Player.MasterPtr->Target->TargetID = entities[selectedEnt].EntityID;
             }
             catch
             {
-                return;
+                ValidBlock.Visibility = Visibility.Visible;
             }
         }
         List<Entity> entities = new List<Entity>();
         class Entity
         {
+            public uint EntityID
+            {
+                get { return (uint) baseStructure; }
+            }
             private Player.PlayerStructure* baseStructure {
                 get { return (Player.PlayerStructure*) (((int) *Player.BasePlayerAddress) + offset); }
             }
@@ -286,7 +301,6 @@ namespace Bolter_XIV
             public Entity(int Offset)
             {
                 offset = Offset;
-                //baseStructure = baseStructure;
             }
 
             public string Name
@@ -305,71 +319,107 @@ namespace Bolter_XIV
             {
                 get { return baseStructure->ServerZ; }
             }
-            public UInt16 Buff_1_ID {get { return baseStructure->Buff_1_ID; }}
-            public float Buff_1_Timmer { get { return baseStructure->Buff_1_Timmer; } }
-            public UInt16 Buff_2_ID { get { return baseStructure->Buff_2_ID; } }
-            public float Buff_2_Timmer { get { return baseStructure->Buff_2_Timmer; } }
-            public UInt16 Buff_3_ID { get { return baseStructure->Buff_3_ID; } }
-            public float Buff_3_Timmer { get { return baseStructure->Buff_3_Timmer; } }
-            public UInt16 Buff_4_ID { get { return baseStructure->Buff_4_ID; } }
-            public float Buff_4_Timmer { get { return baseStructure->Buff_4_Timmer; } }
-            public UInt16 Buff_5_ID { get { return baseStructure->Buff_5_ID; } }
-            public float Buff_5_Timmer { get { return baseStructure->Buff_5_Timmer; } }
-            public UInt16 Buff_6_ID { get { return baseStructure->Buff_6_ID; } }
-            public float Buff_6_Timmer { get { return baseStructure->Buff_6_Timmer; } }
-            public UInt16 Buff_7_ID { get { return baseStructure->Buff_7_ID; } }
-            public float Buff_7_Timmer { get { return baseStructure->Buff_7_Timmer; } }
-            public UInt16 Buff_8_ID { get { return baseStructure->Buff_8_ID; } }
-            public float Buff_8_Timmer { get { return baseStructure->Buff_8_Timmer; } }
-            public UInt16 Buff_9_ID { get { return baseStructure->Buff_9_ID; } }
-            public float Buff_9_Timmer { get { return baseStructure->Buff_9_Timmer; } }
-            public UInt16 Buff_10_ID { get { return baseStructure->Buff_10_ID; } }
-            public float Buff_10_Timmer { get { return baseStructure->Buff_10_Timmer; } }
-            public UInt16 Buff_11_ID { get { return baseStructure->Buff_11_ID; } }
-            public float Buff_11_Timmer { get { return baseStructure->Buff_11_Timmer; } }
-            public UInt16 Buff_12_ID { get { return baseStructure->Buff_12_ID; } }
-            public float Buff_12_Timmer { get { return baseStructure->Buff_12_Timmer; } }
-            public UInt16 Buff_13_ID { get { return baseStructure->Buff_13_ID; } }
-            public float Buff_13_Timmer { get { return baseStructure->Buff_13_Timmer; } }
-            public UInt16 Buff_14_ID { get { return baseStructure->Buff_14_ID; } }
-            public float Buff_14_Timmer { get { return baseStructure->Buff_14_Timmer; } }
-            public UInt16 Buff_15_ID { get { return baseStructure->Buff_15_ID; } }
-            public float Buff_15_Timmer { get { return baseStructure->Buff_15_Timmer; } }
-            public UInt16 Buff_16_ID { get { return baseStructure->Buff_16_ID; } }
-            public float Buff_16_Timmer { get { return baseStructure->Buff_16_Timmer; } }
-            public UInt16 Buff_17_ID { get { return baseStructure->Buff_17_ID; } }
-            public float Buff_17_Timmer { get { return baseStructure->Buff_17_Timmer; } }
-            public UInt16 Buff_18_ID { get { return baseStructure->Buff_18_ID; } }
-            public float Buff_18_Timmer { get { return baseStructure->Buff_18_Timmer; } }
-            public UInt16 Buff_19_ID { get { return baseStructure->Buff_19_ID; } }
-            public float Buff_19_Timmer { get { return baseStructure->Buff_19_Timmer; } }
-            public UInt16 Buff_20_ID { get { return baseStructure->Buff_20_ID; } }
-            public float Buff_20_Timmer { get { return baseStructure->Buff_20_Timmer; } }
-            public UInt16 Buff_21_ID { get { return baseStructure->Buff_21_ID; } }
-            public float Buff_21_Timmer { get { return baseStructure->Buff_21_Timmer; } }
-            public UInt16 Buff_22_ID { get { return baseStructure->Buff_22_ID; } }
-            public float Buff_22_Timmer { get { return baseStructure->Buff_22_Timmer; } }
-            public UInt16 Buff_23_ID { get { return baseStructure->Buff_23_ID; } }
-            public float Buff_23_Timmer { get { return baseStructure->Buff_23_Timmer; } }
-            public UInt16 Buff_24_ID { get { return baseStructure->Buff_24_ID; } }
-            public float Buff_24_Timmer { get { return baseStructure->Buff_24_Timmer; } }
-            public UInt16 Buff_25_ID { get { return baseStructure->Buff_25_ID; } }
-            public float Buff_25_Timmer { get { return baseStructure->Buff_25_Timmer; } }
-            public UInt16 Buff_26_ID { get { return baseStructure->Buff_26_ID; } }
-            public float Buff_26_Timmer { get { return baseStructure->Buff_26_Timmer; } }
-            public UInt16 Buff_27_ID { get { return baseStructure->Buff_27_ID; } }
-            public float Buff_27_Timmer { get { return baseStructure->Buff_27_Timmer; } }
-            public UInt16 Buff_28_ID { get { return baseStructure->Buff_28_ID; } }
-            public float Buff_28_Timmer { get { return baseStructure->Buff_28_Timmer; } }
-            public UInt16 Buff_29_ID { get { return baseStructure->Buff_29_ID; } }
-            public float Buff_29_Timmer { get { return baseStructure->Buff_29_Timmer; } }
-            public UInt16 Buff_30_ID { get { return baseStructure->Buff_30_ID; } }
-            public float Buff_30_Timmer { get { return baseStructure->Buff_30_Timmer; } }
+            public uint ID
+            {
+                get { return baseStructure->ID; }
+            }
+            public UInt16 Buff_1_ID {get { return baseStructure->Buffs.Buff1.ID; }}
+            public float Buff_1_Timmer { get { return baseStructure->Buffs.Buff1.Timmer; } }
+            public UInt16 Buff_2_ID { get { return baseStructure->Buffs.Buff2.ID; } }
+            public float Buff_2_Timmer { get { return baseStructure->Buffs.Buff2.Timmer; } }
+            public UInt16 Buff_3_ID { get { return baseStructure->Buffs.Buff3.ID; } }
+            public float Buff_3_Timmer { get { return baseStructure->Buffs.Buff3.Timmer; } }
+            public UInt16 Buff_4_ID { get { return baseStructure->Buffs.Buff4.ID; } }
+            public float Buff_4_Timmer { get { return baseStructure->Buffs.Buff4.Timmer; } }
+            public UInt16 Buff_5_ID { get { return baseStructure->Buffs.Buff5.ID; } }
+            public float Buff_5_Timmer { get { return baseStructure->Buffs.Buff5.Timmer; } }
+            public UInt16 Buff_6_ID { get { return baseStructure->Buffs.Buff6.ID; } }
+            public float Buff_6_Timmer { get { return baseStructure->Buffs.Buff6.Timmer; } }
+            public UInt16 Buff_7_ID { get { return baseStructure->Buffs.Buff7.ID; } }
+            public float Buff_7_Timmer { get { return baseStructure->Buffs.Buff7.Timmer; } }
+            public UInt16 Buff_8_ID { get { return baseStructure->Buffs.Buff8.ID; } }
+            public float Buff_8_Timmer { get { return baseStructure->Buffs.Buff8.Timmer; } }
+            public UInt16 Buff_9_ID { get { return baseStructure->Buffs.Buff9.ID; } }
+            public float Buff_9_Timmer { get { return baseStructure->Buffs.Buff9.Timmer; } }
+            public UInt16 Buff_10_ID { get { return baseStructure->Buffs.Buff10.ID; } }
+            public float Buff_10_Timmer { get { return baseStructure->Buffs.Buff10.Timmer; } }
+            public UInt16 Buff_11_ID { get { return baseStructure->Buffs.Buff11.ID; } }
+            public float Buff_11_Timmer { get { return baseStructure->Buffs.Buff11.Timmer; } }
+            public UInt16 Buff_12_ID { get { return baseStructure->Buffs.Buff12.ID; } }
+            public float Buff_12_Timmer { get { return baseStructure->Buffs.Buff12.Timmer; } }
+            public UInt16 Buff_13_ID { get { return baseStructure->Buffs.Buff13.ID; } }
+            public float Buff_13_Timmer { get { return baseStructure->Buffs.Buff13.Timmer; } }
+            public UInt16 Buff_14_ID { get { return baseStructure->Buffs.Buff14.ID; } }
+            public float Buff_14_Timmer { get { return baseStructure->Buffs.Buff14.Timmer; } }
+            public UInt16 Buff_15_ID { get { return baseStructure->Buffs.Buff15.ID; } }
+            public float Buff_15_Timmer { get { return baseStructure->Buffs.Buff15.Timmer; } }
+            public UInt16 Buff_16_ID { get { return baseStructure->Buffs.Buff16.ID; } }
+            public float Buff_16_Timmer { get { return baseStructure->Buffs.Buff16.Timmer; } }
+            public UInt16 Buff_17_ID { get { return baseStructure->Buffs.Buff17.ID; } }
+            public float Buff_17_Timmer { get { return baseStructure->Buffs.Buff17.Timmer; } }
+            public UInt16 Buff_18_ID { get { return baseStructure->Buffs.Buff18.ID; } }
+            public float Buff_18_Timmer { get { return baseStructure->Buffs.Buff18.Timmer; } }
+            public UInt16 Buff_19_ID { get { return baseStructure->Buffs.Buff19.ID; } }
+            public float Buff_19_Timmer { get { return baseStructure->Buffs.Buff19.Timmer; } }
+            public UInt16 Buff_20_ID { get { return baseStructure->Buffs.Buff20.ID; } }
+            public float Buff_20_Timmer { get { return baseStructure->Buffs.Buff20.Timmer; } }
+            public UInt16 Buff_21_ID { get { return baseStructure->Buffs.Buff21.ID; } }
+            public float Buff_21_Timmer { get { return baseStructure->Buffs.Buff21.Timmer; } }
+            public UInt16 Buff_22_ID { get { return baseStructure->Buffs.Buff22.ID; } }
+            public float Buff_22_Timmer { get { return baseStructure->Buffs.Buff22.Timmer; } }
+            public UInt16 Buff_23_ID { get { return baseStructure->Buffs.Buff23.ID; } }
+            public float Buff_23_Timmer { get { return baseStructure->Buffs.Buff23.Timmer; } }
+            public UInt16 Buff_24_ID { get { return baseStructure->Buffs.Buff24.ID; } }
+            public float Buff_24_Timmer { get { return baseStructure->Buffs.Buff24.Timmer; } }
+            public UInt16 Buff_25_ID { get { return baseStructure->Buffs.Buff25.ID; } }
+            public float Buff_25_Timmer { get { return baseStructure->Buffs.Buff25.Timmer; } }
+            public UInt16 Buff_26_ID { get { return baseStructure->Buffs.Buff26.ID; } }
+            public float Buff_26_Timmer { get { return baseStructure->Buffs.Buff26.Timmer; } }
+            public UInt16 Buff_27_ID { get { return baseStructure->Buffs.Buff27.ID; } }
+            public float Buff_27_Timmer { get { return baseStructure->Buffs.Buff27.Timmer; } }
+            public UInt16 Buff_28_ID { get { return baseStructure->Buffs.Buff28.ID; } }
+            public float Buff_28_Timmer { get { return baseStructure->Buffs.Buff28.Timmer; } }
+            public UInt16 Buff_29_ID { get { return baseStructure->Buffs.Buff29.ID; } }
+            public float Buff_29_Timmer { get { return baseStructure->Buffs.Buff29.Timmer; } }
+            public UInt16 Buff_30_ID { get { return baseStructure->Buffs.Buff30.ID; } }
+            public float Buff_30_Timmer { get { return baseStructure->Buffs.Buff30.Timmer; } }
         }
 
         private void EListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             RefreshBuffs();
         }
+
+        private void EntityWindow_OnClosing(object sender, CancelEventArgs e)
+        {
+            entities.Clear();
+            entities = null;
+        }
+    }
+    public class NPCObjectListBoxItem
+    {
+        public NPCObjectListBoxItem(string oName, float oX, float oY, float oZ, string oActive, uint oID)
+        {
+            Name = oName; 
+            Coords = string.Format(" X: {0} Y: {1} Z: {2} ",oX,oY,oZ);
+            IsActive = oActive;
+            ID = oID.ToString("X");
+            IsActiveColor = IsActive == "Up " ? new SolidColorBrush(Colors.Blue) : new SolidColorBrush(Colors.Red);
+        }
+        public string Name { get; set; }
+        public string Coords { get; set; }
+        public string IsActive { get; set; }
+        public string ID { get; set; }
+        public SolidColorBrush IsActiveColor { get; set; }
+    }
+    public class EntityListBoxItem
+    {
+        public EntityListBoxItem(string oName, uint ID)
+        {
+            Name = oName;
+            this.ID = ID;
+        }
+        public string Name { get; set; }
+        public uint ID { get; set; }
     }
 }

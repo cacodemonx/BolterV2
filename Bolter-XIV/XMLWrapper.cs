@@ -9,7 +9,7 @@ using UnManaged;
 
 namespace Bolter_XIV
 {
-    public static class XMLWrapper
+    public static class ConfigWrapper
     {
 
         //Load XML
@@ -162,5 +162,23 @@ namespace Bolter_XIV
             SpeedKey,
             MoveKey
         }
+    }
+    public static class WaypointsWrapper
+    {
+
+        //Load XML
+        public static void Load()
+        {
+            Navigation._Waypoints = XmlSerializationHelper.Deserialize<Waypoints>(InterProcessCom.ConfigPath.Replace("config.xml","waypoints.xml"));
+        }
+
+        //Save XML
+        public static void Save()
+        {
+            XmlSerializationHelper.Serialize<Waypoints>(InterProcessCom.ConfigPath.Replace("config.xml", "waypoints.xml"), Navigation._Waypoints);
+        }
+
+
+       
     }
 }
