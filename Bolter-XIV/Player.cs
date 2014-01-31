@@ -22,51 +22,17 @@ namespace Player_Bits
         [Flags]
         public enum ProcessAccess
         {
-            /// <summary>Specifies all possible access flags for the process object.</summary>
             AllAccess =
                 CreateThread | DuplicateHandle | QueryInformation | SetInformation | Terminate | VMOperation | VMRead |
                 VMWrite | Synchronize,
-
-            /// <summary>Enables usage of the process handle in the CreateRemoteThread function to create a thread in the process.</summary>
             CreateThread = 0x2,
-
-            /// <summary>
-            ///     Enables usage of the process handle as either the source or target process in the DuplicateHandle function to
-            ///     duplicate a handle.
-            /// </summary>
             DuplicateHandle = 0x40,
-
-            /// <summary>
-            ///     Enables usage of the process handle in the GetExitCodeProcess and GetPriorityClass functions to read
-            ///     information from the process object.
-            /// </summary>
             QueryInformation = 0x400,
-
-            /// <summary>Enables usage of the process handle in the SetPriorityClass function to set the priority class of the process.</summary>
             SetInformation = 0x200,
-
-            /// <summary>Enables usage of the process handle in the TerminateProcess function to terminate the process.</summary>
             Terminate = 0x1,
-
-            /// <summary>
-            ///     Enables usage of the process handle in the VirtualProtectEx and WriteProcessMemory functions to modify the
-            ///     virtual memory of the process.
-            /// </summary>
             VMOperation = 0x8,
-
-            /// <summary>
-            ///     Enables usage of the process handle in the ReadProcessMemory function to' read from the virtual memory of the
-            ///     process.
-            /// </summary>
             VMRead = 0x10,
-
-            /// <summary>
-            ///     Enables usage of the process handle in the WriteProcessMemory function to write to the virtual memory of the
-            ///     process.
-            /// </summary>
             VMWrite = 0x20,
-
-            /// <summary>Enables usage of the process handle in any of the wait functions to wait for the process to terminate.</summary>
             Synchronize = 0x100000
         }
         public static int HideBuffAddress;
@@ -602,8 +568,8 @@ namespace Player_Bits
         [StructLayout(LayoutKind.Sequential)]
         public struct MEMORY_BASIC_INFORMATION
         {
-            public UIntPtr BaseAddress;
-            public UIntPtr AllocationBase;
+            public IntPtr BaseAddress;
+            public IntPtr AllocationBase;
             public uint AllocationProtect;
             public IntPtr RegionSize;
             public uint State;
@@ -707,12 +673,14 @@ namespace Player_Bits
 
         public static void LockAxis(string axis, bool lockit)
         {
+            var meminfo = new MEMORY_BASIC_INFORMATION();
             uint oldProtect;
             byte[] asm = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
             IntPtr mainEntryPoint = Process.GetCurrentProcess().MainModule.BaseAddress + ClientSideLock;
             IntPtr subEntryPoint = Process.GetCurrentProcess().MainModule.BaseAddress + ServerSideLock;
-            VirtualProtect(mainEntryPoint, (uint)asm.Length - 0x14 - 3, Protection.PAGE_EXECUTE_READWRITE, out oldProtect);
-            VirtualProtect(subEntryPoint, (uint)asm.Length + 0x1A, Protection.PAGE_EXECUTE_READWRITE, out oldProtect);
+            VirtualQuery(mainEntryPoint, ref meminfo, (IntPtr)sizeof (MEMORY_BASIC_INFORMATION));
+            VirtualProtect(meminfo.AllocationBase, (uint)meminfo.RegionSize, Protection.PAGE_EXECUTE_READWRITE, out oldProtect);
+            //VirtualProtect(subEntryPoint - 1, (uint)asm.Length + 0x1A + 4, Protection.PAGE_EXECUTE_READWRITE, out oldProtect);
             if (lockit)
             {
                 switch (axis)
@@ -1042,7 +1010,7 @@ namespace Player_Bits
         {
             public UInt16 ID;
             public UInt16 Paras;
-            public float Timmer;
+            public float Timer;
             public uint ExtraInfo;
         }
 

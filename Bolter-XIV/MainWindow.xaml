@@ -148,10 +148,9 @@
                         <Button Content="SE" HorizontalAlignment="Left" Margin="196,473,0,0" VerticalAlignment="Top" Width="75" Click="PoSButton"/>
                         <Label Content="Raduis X" HorizontalAlignment="Left" Margin="36,547,0,0" VerticalAlignment="Top"/>
                         <Label Content="Raduis Y" HorizontalAlignment="Left" Margin="138,547,0,0" VerticalAlignment="Top"/>
-                        <CheckBox Content="Dev Options" HorizontalAlignment="Left" Margin="115,64,0,0" VerticalAlignment="Top" FontSize="10" x:Name="DevCheckBox" Unchecked="DevCheckBox_checked" Checked="DevCheckBox_checked"/>
                         <TextBox HorizontalAlignment="Left" Height="23" Margin="196,550,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="40" x:Name="textBox3"/>
-                        <CheckBox Content="Hide Sprint" HorizontalAlignment="Left" Margin="36,63,0,0" VerticalAlignment="Top" Checked="CheckBox_Checked_3" Unchecked="CheckBox_Checked_3" x:Name="hidesprint"/>
-                        <CheckBox Content="Disable Radar" HorizontalAlignment="Left" Margin="191,63,0,0" VerticalAlignment="Top" Checked="CheckBox_Checked_4" Unchecked="CheckBox_Checked_4" x:Name="RadarCheckBox"/>
+                        <CheckBox Content="Hide Sprint" HorizontalAlignment="Left" Margin="36,63,0,0" VerticalAlignment="Top" Checked="CheckBoxHandler" Unchecked="CheckBoxHandler" x:Name="hidesprint"/>
+                        <CheckBox Content="Disable Radar" HorizontalAlignment="Left" Margin="191,63,0,0" VerticalAlignment="Top" Checked="CheckBoxHandler" Unchecked="CheckBoxHandler" x:Name="RadarCheckBox"/>
                         <Rectangle Fill="#FFE5E5E5" HorizontalAlignment="Left" Height="258" Margin="28,107,0,0" Stroke="#FFE5E5E5" VerticalAlignment="Top" Width="256" x:Name="HideRadarMain" Visibility="Hidden"/>
                         <Rectangle Fill="#FFE5E5E5" HorizontalAlignment="Left" Height="58" Margin="106,334,0,0" Stroke="#FFE5E5E5" VerticalAlignment="Top" Width="95" x:Name="HideRadarSub" Visibility="Hidden"/>
                         <Rectangle Fill="#FFE5E5E5" HorizontalAlignment="Left" Height="609" Margin="-10,0,0,-7" Stroke="#FFE5E5E5" VerticalAlignment="Top" Width="317" x:Name="Loading" Visibility="Visible"/>
@@ -193,7 +192,7 @@
                         <Label Content="Y" HorizontalAlignment="Left" Margin="196,124,0,0" VerticalAlignment="Top"/>
                         <Label Content="Z" HorizontalAlignment="Left" Margin="196,152,0,0" VerticalAlignment="Top"/>
                         <Button Content="Jump" HorizontalAlignment="Left" Margin="213,193,0,0" VerticalAlignment="Top" Width="75" Click="Jump_Click"/>
-                        <CheckBox Content="Auto Update" HorizontalAlignment="Left" Margin="27,220,0,0" VerticalAlignment="Top" Checked="CheckBox_Checked" Unchecked="checkBox1_Unchecked" x:Name="checkBox1"/>
+                        <CheckBox Content="Auto Update" HorizontalAlignment="Left" Margin="27,220,0,0" VerticalAlignment="Top" Checked="CheckBoxHandler" Unchecked="CheckBoxHandler" />
                         <TextBox HorizontalAlignment="Left" Height="23" Margin="24,286,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" x:Name="Area_Save"/>
                         <Label Content="Area" HorizontalAlignment="Left" Margin="24,260,0,0" VerticalAlignment="Top"/>
                         <Button Click="Save_Click" Content="Save" HorizontalAlignment="Left" Margin="24,363,0,0" VerticalAlignment="Top" Width="75"/>
@@ -231,13 +230,12 @@
                         <RadioButton x:Name="SpeedRadio" Content="Speed Key" HorizontalAlignment="Left" Margin="10,504,0,0" VerticalAlignment="Top"/>
                         <RadioButton x:Name="MoveRadio" Content="Move Key" HorizontalAlignment="Left" Margin="9,540,0,0" VerticalAlignment="Top"/>
                         <Button Content="Save" HorizontalAlignment="Left" Margin="117,573,0,0" VerticalAlignment="Top" Width="75" Click="SaveHotkey"/>
-                        <CheckBox Content="" HorizontalAlignment="Left" Margin="179,108,0,0" VerticalAlignment="Top" Checked="Xbox" Unchecked="Xbox" x:Name="theXbox"/>
-                        <CheckBox Content="" HorizontalAlignment="Left" Margin="179,134,0,0" VerticalAlignment="Top" Checked="Ybox" Unchecked="Ybox" x:Name="theYbox"/>
-                        <CheckBox Content="" HorizontalAlignment="Left" Margin="179,162,0,0" VerticalAlignment="Top" Checked="Zbox" Unchecked="Zbox" x:Name="theZbox"/>
+                        <CheckBox Content="XLock" Foreground="Transparent" HorizontalAlignment="Left" Margin="179,108,0,0" VerticalAlignment="Top" Checked="CheckBoxHandler" Unchecked="CheckBoxHandler" />
+                        <CheckBox Content="YLock" Foreground="Transparent" HorizontalAlignment="Left" Margin="179,134,0,0" VerticalAlignment="Top" Checked="CheckBoxHandler" Unchecked="CheckBoxHandler" />
+                        <CheckBox Content="ZLock" Foreground="Transparent" HorizontalAlignment="Left" Margin="179,162,0,0" VerticalAlignment="Top" Checked="CheckBoxHandler" Unchecked="CheckBoxHandler" />
                         <Label Content="Lock" HorizontalAlignment="Left" Margin="145,101,0,0" VerticalAlignment="Top"/>
                         <Label Content="Lock" HorizontalAlignment="Left" Margin="145,127,0,0" VerticalAlignment="Top"/>
                         <Label Content="Lock" HorizontalAlignment="Left" Margin="145,155,0,0" VerticalAlignment="Top"/>
-                        <Button Content="Button" HorizontalAlignment="Left" Margin="117,193,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_3"/>
                     </Grid>
                 </TabItem>
                 <TabItem Header="Window">
@@ -248,9 +246,14 @@
                         <TextBlock HorizontalAlignment="Left" Margin="95,21,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" x:Name="percnt_txt"/>
                         <Button Background="BlanchedAlmond" Content="Donate" FontWeight="Bold" HorizontalAlignment="Left" Margin="222,573,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
                         <TextBlock HorizontalAlignment="Left" Margin="132,579,0,0" TextWrapping="Wrap" Text="Bolter© Devnull" VerticalAlignment="Top"/>
-                        <CheckBox Margin="10,111,122,468" Content="Dev Speed Window" Checked="ExtraWindowsToggle" Unchecked="ExtraWindowsToggle"/>
-                        <CheckBox Margin="10,157,122,422" Content="Entity Window" Checked="ExtraWindowsToggle" Unchecked="ExtraWindowsToggle"/>
-                        <CheckBox Margin="10,134,122,445" Content="Gather/Nav Window" Checked="ExtraWindowsToggle" Unchecked="ExtraWindowsToggle"/>
+                        <GroupBox Header="Command Center" HorizontalAlignment="Left" Margin="10,69,0,0" VerticalAlignment="Top" Height="92" Width="142">
+                            <StackPanel>
+                                <CheckBox Content="Dev Speed Window" Checked="CheckBoxHandler" Unchecked="CheckBoxHandler" Height="23"/>
+                                <CheckBox Content="Gather/Nav Window" Checked="CheckBoxHandler" Unchecked="CheckBoxHandler" Height="23"/>
+                                <CheckBox Content="Entity Window" Checked="CheckBoxHandler" Unchecked="CheckBoxHandler" Height="23"/>
+
+                            </StackPanel>
+                        </GroupBox>
                     </Grid>
                 </TabItem>
             </TabControl>

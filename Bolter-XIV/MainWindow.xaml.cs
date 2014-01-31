@@ -174,24 +174,12 @@ namespace Bolter_XIV
             FreeConsole();
         }
 
-        void DevWinThread()
-        {
-
-        }
-
-        static void EntityWinThread()
-        {
-            w3 = new EntityWindow();
-            w3.ShowDialog();
-        }
-
         //on window close
         private void Window_Closing(object sender, CancelEventArgs e)
         {
             //Clean up
             Array.Clear(SetSpeed, 0, 4);
             _uchecked = false;
-            boxcheck = false;
             Player.UndoRedirectBuffOp();
             Player.VirtualFreeEx(Process.GetCurrentProcess().Handle, Player.EntryPoint, 0, Player.FreeType.Release);
             for (var i = 0; i < _hotKeys.Count; i++)
@@ -362,15 +350,6 @@ namespace Bolter_XIV
 
         #region Speed Adjustment
 
-        //Adjust Speed
-        /* The method in witch FFXIV handles player speed is entirely different from FFXI
-         * As of yet I have not found a value in memory that stores player speed
-         * Instead player speed can only be increased by the buff "sprint", but that's ok
-         * FFXIV Handles buffs like this; Read from 4 byte array, First 2 bytes = Buff ID, 
-         * next 2 bytes = Parameters.
-         * example: Sprint Buff ID = 0x32 Parameter1 = Speed, Parameter 2 = Gravity. & More Speed?.
-         * 0x32 0x00 0x1E 0x00 is normal sprint speed. This slider changes parameter 1
-         */
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
@@ -483,19 +462,6 @@ namespace Bolter_XIV
             _lastSpeedByte = (byte)Math.Truncate(12.7 * e.NewValue);
             label7.Content = String.Format("0x{0:X2}", _lastSpeedByte);
             SpeedBytes(SetSpeed[0], SetSpeed[1], SetSpeed[2], _lastSpeedByte);
-        }
-
-        //Checkbox for Updating POS
-
-        private void CheckBox_Checked(object sender, RoutedEventArgs e)
-        {
-            _uchecked = true;
-            new Thread(UpdatedPosThread).Start();
-        }
-
-        private void checkBox1_Unchecked(object sender, RoutedEventArgs e)
-        {
-            _uchecked = false;
         }
 
         //Method for updating the POS
@@ -612,13 +578,11 @@ namespace Bolter_XIV
 
         #endregion
 
-        private bool boxcheck;
-
         public static EntityWindow EWindow;
         public static GatherWindow GWindow;
         public static DevWindow DWindow;
       
-        private void ExtraWindowsToggle(object sender, RoutedEventArgs e)
+        private void CheckBoxHandler(object sender, RoutedEventArgs e)
         {
             var cbox = (CheckBox) e.Source;
             var isChecked = cbox.IsChecked == true;
@@ -654,31 +618,34 @@ namespace Bolter_XIV
                     else
                         GWindow.Dispatcher.BeginInvoke(new Action(() => GWindow.Close()));
                     break;
+                case "XLock":
+                    Player.LockAxis("X", isChecked);
+                    break;
+                case "YLock":
+                    Player.LockAxis("Y", isChecked);
+                    break;
+                case "ZLock":
+                    Player.LockAxis("Z", isChecked);
+                    break;
+                case "Auto Update":
+                    if (isChecked)
+                    {
+                        _uchecked = true;
+                        new Thread(UpdatedPosThread).Start();
+                    }
+                    else
+                        _uchecked = false;
+                    break;
+                case "Hide Sprint":
+                    Player.HideSprint(isChecked);
+                    break;
+                case "Disable Radar":
+                    HideRadarMain.Visibility = isChecked
+                        ? (HideRadarSub.Visibility = Visibility.Visible)
+                        : (HideRadarSub.Visibility = Visibility.Hidden);
+                    break;
+
             }
-        }
-
-        private void Xbox(object sender, RoutedEventArgs e)
-        {
-            if ((bool)theXbox.IsChecked)
-                Player.LockAxis("X", true);
-            else
-                Player.LockAxis("X", false);
-        }
-
-        private void Ybox(object sender, RoutedEventArgs e)
-        {
-            if ((bool)theYbox.IsChecked)
-                Player.LockAxis("Y", true);
-            else
-                Player.LockAxis("Y", false);
-        }
-
-        private void Zbox(object sender, RoutedEventArgs e)
-        {
-            if ((bool)theZbox.IsChecked)
-                Player.LockAxis("Z", true);
-            else
-                Player.LockAxis("Z", false);
         }
 
         private static float StringToFloat(string theString)
@@ -689,40 +656,9 @@ namespace Bolter_XIV
                     : theString.Replace(",", NumberFormatInfo.CurrentInfo.NumberDecimalSeparator));
         }
 
-        private void CheckBox_Checked_3(object sender, RoutedEventArgs e)
-        {
-            Player.HideSprint(hidesprint.IsChecked == true);
-        }
-
-        private void CheckBox_Checked_4(object sender, RoutedEventArgs e)
-        {
-            HideRadarMain.Visibility = (bool)RadarCheckBox.IsChecked
-                ? (HideRadarSub.Visibility = Visibility.Visible)
-                : (HideRadarSub.Visibility = Visibility.Hidden);
-        }
-
-        private bool clicked = false;
-        private void Button_Click_3(object sender, RoutedEventArgs e)
-        {
-            
-        }
-
         private void ZoneGetOnclick(object sender, RoutedEventArgs e)
         {
             Area_Save.Text = Player.GetZoneByID();
-        }
-
-        private void DevCheckBox_checked(object sender, RoutedEventArgs e)
-        {
-            var vis = (bool)DevCheckBox.IsChecked ? Visibility.Visible : Visibility.Hidden;
-            try
-            {
-                w2.Dispatcher.BeginInvoke(new Action(delegate { w2.Visibility = vis; }));
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
         }
 
         private void ZoneBoxGetOnClick(object sender, RoutedEventArgs e)

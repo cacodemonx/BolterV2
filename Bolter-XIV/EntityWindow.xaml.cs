@@ -96,181 +96,181 @@ namespace Bolter_XIV
                         case 0:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_1_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_1_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_1_Timer.ToString("N1");
                             N++;
                             break;
                         case 1:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_2_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_2_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_2_Timer.ToString("N1");
                             N++;
                             break;
                         case 2:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_3_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_3_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_3_Timer.ToString("N1");
                             N++;
                             break;
                         case 3:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_4_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_4_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_4_Timer.ToString("N1");
                             N++;
                             break;
                         case 4:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_5_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_5_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_5_Timer.ToString("N1");
                             N++;
                             break;
                         case 5:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_6_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_6_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_6_Timer.ToString("N1");
                             N++;
                             break;
                         case 6:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_7_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_7_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_7_Timer.ToString("N1");
                             N++;
                             break;
                         case 7:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_8_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_8_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_8_Timer.ToString("N1");
                             N++;
                             break;
                         case 8:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_9_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_9_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_9_Timer.ToString("N1");
                             N++;
                             break;
                         case 9:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_10_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_10_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_10_Timer.ToString("N1");
                             N++;
                             break;
                         case 10:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_11_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_11_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_11_Timer.ToString("N1");
                             N++;
                             break;
                         case 11:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_12_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_12_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_12_Timer.ToString("N1");
                             N++;
                             break;
                         case 12:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_13_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_13_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_13_Timer.ToString("N1");
                             N++;
                             break;
                         case 13:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_14_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_14_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_14_Timer.ToString("N1");
                             N++;
                             break;
                         case 14:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_15_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_15_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_15_Timer.ToString("N1");
                             N++;
                             break;
                         case 15:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_16_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_16_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_16_Timer.ToString("N1");
                             N++;
                             break;
                         case 16:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_17_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_17_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_17_Timer.ToString("N1");
                             N++;
                             break;
                         case 17:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_18_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_18_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_18_Timer.ToString("N1");
                             N++;
                             break;
                         case 18:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_19_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_19_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_19_Timer.ToString("N1");
                             N++;
                             break;
                         case 19:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_20_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_20_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_20_Timer.ToString("N1");
                             N++;
                             break;
                         case 20:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_21_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_21_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_21_Timer.ToString("N1");
                             N++;
                             break;
                         case 21:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_22_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_22_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_22_Timer.ToString("N1");
                             N++;
                             break;
                         case 22:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_23_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_23_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_23_Timer.ToString("N1");
                             N++;
                             break;
                         case 23:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_24_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_24_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_24_Timer.ToString("N1");
                             N++;
                             break;
                         case 24:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_25_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_25_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_25_Timer.ToString("N1");
                             N++;
                             break;
                         case 25:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_26_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_26_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_26_Timer.ToString("N1");
                             N++;
                             break;
                         case 26:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_27_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_27_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_27_Timer.ToString("N1");
                             N++;
                             break;
                         case 27:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_28_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_28_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_28_Timer.ToString("N1");
                             N++;
                             break;
                         case 28:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_29_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_29_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_29_Timer.ToString("N1");
                             N++;
                             break;
                         case 29:
                             bloop.Text = Player.GetBuff(entities[selectedEnt].Buff_30_ID);
                             BuffsBox.Children.Cast<TextBlock>().ElementAt(N + 30).Text =
-                                entities[selectedEnt].Buff_30_Timmer.ToString("N1");
+                                entities[selectedEnt].Buff_30_Timer.ToString("N1");
                             N++;
                             break;
                     }
@@ -324,65 +324,65 @@ namespace Bolter_XIV
                 get { return baseStructure->ID; }
             }
             public UInt16 Buff_1_ID {get { return baseStructure->Buffs.Buff1.ID; }}
-            public float Buff_1_Timmer { get { return baseStructure->Buffs.Buff1.Timmer; } }
+            public float Buff_1_Timer { get { return baseStructure->Buffs.Buff1.Timer; } }
             public UInt16 Buff_2_ID { get { return baseStructure->Buffs.Buff2.ID; } }
-            public float Buff_2_Timmer { get { return baseStructure->Buffs.Buff2.Timmer; } }
+            public float Buff_2_Timer { get { return baseStructure->Buffs.Buff2.Timer; } }
             public UInt16 Buff_3_ID { get { return baseStructure->Buffs.Buff3.ID; } }
-            public float Buff_3_Timmer { get { return baseStructure->Buffs.Buff3.Timmer; } }
+            public float Buff_3_Timer { get { return baseStructure->Buffs.Buff3.Timer; } }
             public UInt16 Buff_4_ID { get { return baseStructure->Buffs.Buff4.ID; } }
-            public float Buff_4_Timmer { get { return baseStructure->Buffs.Buff4.Timmer; } }
+            public float Buff_4_Timer { get { return baseStructure->Buffs.Buff4.Timer; } }
             public UInt16 Buff_5_ID { get { return baseStructure->Buffs.Buff5.ID; } }
-            public float Buff_5_Timmer { get { return baseStructure->Buffs.Buff5.Timmer; } }
+            public float Buff_5_Timer { get { return baseStructure->Buffs.Buff5.Timer; } }
             public UInt16 Buff_6_ID { get { return baseStructure->Buffs.Buff6.ID; } }
-            public float Buff_6_Timmer { get { return baseStructure->Buffs.Buff6.Timmer; } }
+            public float Buff_6_Timer { get { return baseStructure->Buffs.Buff6.Timer; } }
             public UInt16 Buff_7_ID { get { return baseStructure->Buffs.Buff7.ID; } }
-            public float Buff_7_Timmer { get { return baseStructure->Buffs.Buff7.Timmer; } }
+            public float Buff_7_Timer { get { return baseStructure->Buffs.Buff7.Timer; } }
             public UInt16 Buff_8_ID { get { return baseStructure->Buffs.Buff8.ID; } }
-            public float Buff_8_Timmer { get { return baseStructure->Buffs.Buff8.Timmer; } }
+            public float Buff_8_Timer { get { return baseStructure->Buffs.Buff8.Timer; } }
             public UInt16 Buff_9_ID { get { return baseStructure->Buffs.Buff9.ID; } }
-            public float Buff_9_Timmer { get { return baseStructure->Buffs.Buff9.Timmer; } }
+            public float Buff_9_Timer { get { return baseStructure->Buffs.Buff9.Timer; } }
             public UInt16 Buff_10_ID { get { return baseStructure->Buffs.Buff10.ID; } }
-            public float Buff_10_Timmer { get { return baseStructure->Buffs.Buff10.Timmer; } }
+            public float Buff_10_Timer { get { return baseStructure->Buffs.Buff10.Timer; } }
             public UInt16 Buff_11_ID { get { return baseStructure->Buffs.Buff11.ID; } }
-            public float Buff_11_Timmer { get { return baseStructure->Buffs.Buff11.Timmer; } }
+            public float Buff_11_Timer { get { return baseStructure->Buffs.Buff11.Timer; } }
             public UInt16 Buff_12_ID { get { return baseStructure->Buffs.Buff12.ID; } }
-            public float Buff_12_Timmer { get { return baseStructure->Buffs.Buff12.Timmer; } }
+            public float Buff_12_Timer { get { return baseStructure->Buffs.Buff12.Timer; } }
             public UInt16 Buff_13_ID { get { return baseStructure->Buffs.Buff13.ID; } }
-            public float Buff_13_Timmer { get { return baseStructure->Buffs.Buff13.Timmer; } }
+            public float Buff_13_Timer { get { return baseStructure->Buffs.Buff13.Timer; } }
             public UInt16 Buff_14_ID { get { return baseStructure->Buffs.Buff14.ID; } }
-            public float Buff_14_Timmer { get { return baseStructure->Buffs.Buff14.Timmer; } }
+            public float Buff_14_Timer { get { return baseStructure->Buffs.Buff14.Timer; } }
             public UInt16 Buff_15_ID { get { return baseStructure->Buffs.Buff15.ID; } }
-            public float Buff_15_Timmer { get { return baseStructure->Buffs.Buff15.Timmer; } }
+            public float Buff_15_Timer { get { return baseStructure->Buffs.Buff15.Timer; } }
             public UInt16 Buff_16_ID { get { return baseStructure->Buffs.Buff16.ID; } }
-            public float Buff_16_Timmer { get { return baseStructure->Buffs.Buff16.Timmer; } }
+            public float Buff_16_Timer { get { return baseStructure->Buffs.Buff16.Timer; } }
             public UInt16 Buff_17_ID { get { return baseStructure->Buffs.Buff17.ID; } }
-            public float Buff_17_Timmer { get { return baseStructure->Buffs.Buff17.Timmer; } }
+            public float Buff_17_Timer { get { return baseStructure->Buffs.Buff17.Timer; } }
             public UInt16 Buff_18_ID { get { return baseStructure->Buffs.Buff18.ID; } }
-            public float Buff_18_Timmer { get { return baseStructure->Buffs.Buff18.Timmer; } }
+            public float Buff_18_Timer { get { return baseStructure->Buffs.Buff18.Timer; } }
             public UInt16 Buff_19_ID { get { return baseStructure->Buffs.Buff19.ID; } }
-            public float Buff_19_Timmer { get { return baseStructure->Buffs.Buff19.Timmer; } }
+            public float Buff_19_Timer { get { return baseStructure->Buffs.Buff19.Timer; } }
             public UInt16 Buff_20_ID { get { return baseStructure->Buffs.Buff20.ID; } }
-            public float Buff_20_Timmer { get { return baseStructure->Buffs.Buff20.Timmer; } }
+            public float Buff_20_Timer { get { return baseStructure->Buffs.Buff20.Timer; } }
             public UInt16 Buff_21_ID { get { return baseStructure->Buffs.Buff21.ID; } }
-            public float Buff_21_Timmer { get { return baseStructure->Buffs.Buff21.Timmer; } }
+            public float Buff_21_Timer { get { return baseStructure->Buffs.Buff21.Timer; } }
             public UInt16 Buff_22_ID { get { return baseStructure->Buffs.Buff22.ID; } }
-            public float Buff_22_Timmer { get { return baseStructure->Buffs.Buff22.Timmer; } }
+            public float Buff_22_Timer { get { return baseStructure->Buffs.Buff22.Timer; } }
             public UInt16 Buff_23_ID { get { return baseStructure->Buffs.Buff23.ID; } }
-            public float Buff_23_Timmer { get { return baseStructure->Buffs.Buff23.Timmer; } }
+            public float Buff_23_Timer { get { return baseStructure->Buffs.Buff23.Timer; } }
             public UInt16 Buff_24_ID { get { return baseStructure->Buffs.Buff24.ID; } }
-            public float Buff_24_Timmer { get { return baseStructure->Buffs.Buff24.Timmer; } }
+            public float Buff_24_Timer { get { return baseStructure->Buffs.Buff24.Timer; } }
             public UInt16 Buff_25_ID { get { return baseStructure->Buffs.Buff25.ID; } }
-            public float Buff_25_Timmer { get { return baseStructure->Buffs.Buff25.Timmer; } }
+            public float Buff_25_Timer { get { return baseStructure->Buffs.Buff25.Timer; } }
             public UInt16 Buff_26_ID { get { return baseStructure->Buffs.Buff26.ID; } }
-            public float Buff_26_Timmer { get { return baseStructure->Buffs.Buff26.Timmer; } }
+            public float Buff_26_Timer { get { return baseStructure->Buffs.Buff26.Timer; } }
             public UInt16 Buff_27_ID { get { return baseStructure->Buffs.Buff27.ID; } }
-            public float Buff_27_Timmer { get { return baseStructure->Buffs.Buff27.Timmer; } }
+            public float Buff_27_Timer { get { return baseStructure->Buffs.Buff27.Timer; } }
             public UInt16 Buff_28_ID { get { return baseStructure->Buffs.Buff28.ID; } }
-            public float Buff_28_Timmer { get { return baseStructure->Buffs.Buff28.Timmer; } }
+            public float Buff_28_Timer { get { return baseStructure->Buffs.Buff28.Timer; } }
             public UInt16 Buff_29_ID { get { return baseStructure->Buffs.Buff29.ID; } }
-            public float Buff_29_Timmer { get { return baseStructure->Buffs.Buff29.Timmer; } }
+            public float Buff_29_Timer { get { return baseStructure->Buffs.Buff29.Timer; } }
             public UInt16 Buff_30_ID { get { return baseStructure->Buffs.Buff30.ID; } }
-            public float Buff_30_Timmer { get { return baseStructure->Buffs.Buff30.Timmer; } }
+            public float Buff_30_Timer { get { return baseStructure->Buffs.Buff30.Timer; } }
         }
 
         private void EListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
