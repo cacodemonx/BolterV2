@@ -109,71 +109,87 @@ namespace Bolter_XIV
                 StopRecord();
         }
 
-        private void PlayPath(string pathName, GatherWindow Gwindow, Pathing pType)
+        private void PlayPath(string pathName, GatherWindow Gwindow, Pathing pType, bool forawrd, int index)
         {
             if (Moving)
                 return;
             Moving = true;
-            var zoneId = Marshal.ReadInt32((IntPtr) Player.ZoneAddress);
+            var zoneId = Marshal.ReadInt32((IntPtr)Player.ZoneAddress);
             HaltFlag = false;
-            switch (pType)
+
+            var PList =
+                new List<D3DXVECTOR2>(
+                    _Waypoints.Zone.First(p => p.ID == zoneId).Path.First(i => i.Name == pathName).Point);
+
+            if (!forawrd)
+                PList.Reverse();
+
+            int localIndex;
+            if (pType == Pathing.Normal)
+                localIndex = 0;
+            else
+                localIndex = pType == Pathing.At_Index ? index : GetClosestIndex(PList, Player.Get2DPos());
+
+            foreach (var waypoint in PList.Skip(localIndex))
             {
-                    case Pathing.Normal:
-                    foreach (var waypoint in _Waypoints.Zone.First(p => p.ID == zoneId).Path.First(i => i.Name == pathName).Point)
-                    {
-                        if (CorDelay)
-                            Player.GetMovment()->Status = Player.WalkingStatus.Standing;
-
-                        ModelRotation(new D3DXVECTOR2(waypoint.x, waypoint.y));
-                        
-                        SendKeyPress(KeyStates.Toggled, Key.End);
-
-                        if (CorDelay)
-                            Thread.Sleep(HeadToll);
-
-                        var decX = (Player.GetPos(Player.Axis.X) > waypoint.x);
-
-                        Player.GetMovment()->Status = Player.WalkingStatus.Autorun | Player.WalkingStatus.Running;
-
-                        if (decX)
-                        {
-                            while (Player.GetPos(Player.Axis.X) > waypoint.x)
-                            {
-                                if (HaltFlag)
-                                {
-                                    Player.GetMovment()->Status = Player.WalkingStatus.Standing;
-                                    Moving = false;
-                                    return;
-                                }
-                                Thread.Sleep(1);
-                            }
-                        }
-                        else
-                        {
-                            while (Player.GetPos(Player.Axis.X) < waypoint.x)
-                            {
-                                if (HaltFlag)
-                                {
-                                    Player.GetMovment()->Status = Player.WalkingStatus.Standing;
-                                    Moving = false;
-                                    return;
-                                }
-                                Thread.Sleep(1);
-                            }
-                        }
-                        if (Gwindow != null)
-                            Gwindow.AddText(0, "", pathName, waypoint.x, waypoint.y);
-                    }
+                if (CorDelay)
                     Player.GetMovment()->Status = Player.WalkingStatus.Standing;
-                    Moving = false;
-                    break;
-                    case Pathing.At_Index:
 
-                    break;
-                    case Pathing.Closest:
+                ModelRotation(new D3DXVECTOR2(waypoint.x, waypoint.y));
 
-                    break;
+                SendKeyPress(KeyStates.Toggled, Key.End);
+
+                if (CorDelay)
+                    Thread.Sleep(HeadToll);
+
+                var decX = (Player.GetPos(Player.Axis.X) > waypoint.x);
+
+                Player.GetMovment()->Status = Player.WalkingStatus.Autorun | Player.WalkingStatus.Running;
+
+                if (decX)
+                {
+                    while (Player.GetPos(Player.Axis.X) > waypoint.x)
+                    {
+                        if (HaltFlag)
+                        {
+                            Player.GetMovment()->Status = Player.WalkingStatus.Standing;
+                            Moving = false;
+                            PList.Clear();
+                            return;
+                        }
+                        Thread.Sleep(1);
+                    }
+                }
+                else
+                {
+                    while (Player.GetPos(Player.Axis.X) < waypoint.x)
+                    {
+                        if (HaltFlag)
+                        {
+                            Player.GetMovment()->Status = Player.WalkingStatus.Standing;
+                            Moving = false;
+                            PList.Clear();
+                            return;
+                        }
+                        Thread.Sleep(1);
+                    }
+                }
+                if (Gwindow != null)
+                    Gwindow.AddText(0, "", pathName, waypoint.x, waypoint.y);
             }
+            Player.GetMovment()->Status = Player.WalkingStatus.Standing;
+            Moving = false;
+            PList.Clear();
+
+        }
+
+        private int GetClosestIndex(List<D3DXVECTOR2> PList, D3DXVECTOR2 curPos)
+        {
+            var n = 0;
+
+            PList.ForEach(p => n = Distance(curPos, p) < Distance(curPos, PList[n]) ? PList.IndexOf(p) : n);
+
+            return n;
         }
 
         /// <summary>
@@ -187,9 +203,9 @@ namespace Bolter_XIV
             new Thread(() => RecordWaypoint(interval, pathName, Gwindow)).Start();
         }
 
-        public void Play(string pathName, GatherWindow Gwindow, Pathing pType)
+        public void Play(string pathName, GatherWindow Gwindow, Pathing pType, bool forward = true, int index = 0)
         {
-            new Thread(() => PlayPath(pathName, Gwindow, pType)).Start();
+            new Thread(() => PlayPath(pathName, Gwindow, pType, forward, index)).Start();
         }
 
         /// <summary>
@@ -220,7 +236,7 @@ namespace Bolter_XIV
         }
         public void test(float x, float y)
         {
-            Record(500,"DebugPath",null);
+            Record(500, "DebugPath", null);
         }
     }
 }

@@ -40,11 +40,14 @@ namespace Bolter_XIV
                     break;
                 case "Normal":
                     _helper.Play(SaveedPathsBox.SelectedItem.ToString(), NavLogTog.IsChecked == true ? this : null,
-                        Pathing.Normal);
+                        Pathing.Normal, ForwardTog.IsChecked == true);
                     break;
                 case "At Index":
+                    _helper.Play(SaveedPathsBox.SelectedItem.ToString(), this, Pathing.At_Index, ForwardTog.IsChecked == true,
+                        int.Parse(IndexBox.Text));
                     break;
                 case "Closest":
+                    _helper.Play(SaveedPathsBox.SelectedItem.ToString(), this, Pathing.Closest, ForwardTog.IsChecked == true);
                     break;
                 case "Halt":
                     Navigation.HaltFlag = true;
