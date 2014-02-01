@@ -41,7 +41,11 @@ namespace Bolter_XIV
 
         public static bool Moving;
 
-        public static bool CorDelay = true;
+        public static bool CorDelay = false;
+
+        public static bool TurnFilter = true;
+
+        public static bool AICorrection = true;
 
         /// <summary>
         /// A recipe for PI
@@ -114,23 +118,14 @@ namespace Bolter_XIV
             if (Moving)
                 return;
             Moving = true;
-            var zoneId = Marshal.ReadInt32((IntPtr)Player.ZoneAddress);
+            var zoneId = Marshal.ReadInt32((IntPtr) Player.ZoneAddress);
             HaltFlag = false;
-
-            var PList =
-                new List<D3DXVECTOR2>(
-                    _Waypoints.Zone.First(p => p.ID == zoneId).Path.First(i => i.Name == pathName).Point);
-
-            if (!forawrd)
-                PList.Reverse();
-
-            int localIndex;
-            if (pType == Pathing.Normal)
-                localIndex = 0;
-            else
-                localIndex = pType == Pathing.At_Index ? index : GetClosestIndex(PList, Player.Get2DPos());
-
-            foreach (var waypoint in PList.Skip(localIndex))
+            var heading = 0f;
+            var tobeHeading = 0f;
+            foreach (
+                var waypoint in
+                    RebuildList(_Waypoints.Zone.First(p => p.ID == zoneId).Path.First(i => i.Name == pathName).Point,
+                        forawrd, pType, index))
             {
                 if (CorDelay)
                     Player.GetMovment()->Status = Player.WalkingStatus.Standing;
@@ -145,7 +140,7 @@ namespace Bolter_XIV
                 var decX = (Player.GetPos(Player.Axis.X) > waypoint.x);
 
                 Player.GetMovment()->Status = Player.WalkingStatus.Autorun | Player.WalkingStatus.Running;
-
+                
                 if (decX)
                 {
                     while (Player.GetPos(Player.Axis.X) > waypoint.x)
@@ -154,10 +149,18 @@ namespace Bolter_XIV
                         {
                             Player.GetMovment()->Status = Player.WalkingStatus.Standing;
                             Moving = false;
-                            PList.Clear();
                             return;
                         }
-                        Thread.Sleep(1);
+                        if (AICorrection)
+                        {
+                            heading = (*Player.MasterPtr->Player)->Heading;
+                            tobeHeading = HeadingToRad(Player.Get2DPos(), waypoint);
+
+                            // Check if our heading is within our tolerance.
+                            if (tobeHeading - heading < 0 ? tobeHeading - heading < -0.1f : tobeHeading - heading > 0.1f)
+                                ModelRotation(waypoint);
+                        }
+                        Thread.Sleep(10);
                     }
                 }
                 else
@@ -168,19 +171,25 @@ namespace Bolter_XIV
                         {
                             Player.GetMovment()->Status = Player.WalkingStatus.Standing;
                             Moving = false;
-                            PList.Clear();
                             return;
                         }
-                        Thread.Sleep(1);
+                        if (AICorrection)
+                        {
+                            heading = (*Player.MasterPtr->Player)->Heading;
+                            tobeHeading = HeadingToRad(Player.Get2DPos(), waypoint);
+
+                            // Check if our heading is within our tolerance.
+                            if (tobeHeading - heading < 0 ? tobeHeading - heading < -0.1f : tobeHeading - heading > 0.1f)
+                                ModelRotation(waypoint);
+                        }
+                        Thread.Sleep(10);
                     }
                 }
                 if (Gwindow != null)
-                    Gwindow.AddText(0, "", pathName, waypoint.x, waypoint.y);
+                    Gwindow.AddTextNav(0, "", pathName, waypoint.x, waypoint.y);
             }
             Player.GetMovment()->Status = Player.WalkingStatus.Standing;
             Moving = false;
-            PList.Clear();
-
         }
 
         private int GetClosestIndex(List<D3DXVECTOR2> PList, D3DXVECTOR2 curPos)
@@ -190,6 +199,23 @@ namespace Bolter_XIV
             PList.ForEach(p => n = Distance(curPos, p) < Distance(curPos, PList[n]) ? PList.IndexOf(p) : n);
 
             return n;
+        }
+
+        private IEnumerable<D3DXVECTOR2> RebuildList(IEnumerable<D3DXVECTOR2> pList, bool forward, Pathing pType, int index = 0)
+        {
+            var rPlist = new List<D3DXVECTOR2>(pList);
+
+            if (!forward)
+                rPlist.Reverse();
+
+            int localIndex;
+
+            if (pType == Pathing.Normal)
+                localIndex = 0;
+            else
+                localIndex = pType == Pathing.At_Index ? index : GetClosestIndex(rPlist, Player.Get2DPos());
+
+            return rPlist.Skip(localIndex);
         }
 
         /// <summary>
@@ -234,9 +260,10 @@ namespace Bolter_XIV
             var filepath = InterProcessCom.ConfigPath.Replace("config.xml", "waypoints.xml");
             _Waypoints = !File.Exists(filepath) ? new Waypoints() : XmlSerializationHelper.Deserialize<Waypoints>(filepath);
         }
-        public void test(float x, float y)
+        unsafe public void test(float x, float y)
         {
-            Record(500, "DebugPath", null);
+            var o = Player.Menu->SelectedItem->ID;
+            Console.WriteLine("{0} {1}",o,(uint)Player.Menu->SelectedItem);
         }
     }
 }

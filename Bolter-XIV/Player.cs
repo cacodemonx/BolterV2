@@ -673,49 +673,56 @@ namespace Player_Bits
 
         public static void LockAxis(string axis, bool lockit)
         {
-            var meminfo = new MEMORY_BASIC_INFORMATION();
-            uint oldProtect;
-            byte[] asm = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
-            IntPtr mainEntryPoint = Process.GetCurrentProcess().MainModule.BaseAddress + ClientSideLock;
-            IntPtr subEntryPoint = Process.GetCurrentProcess().MainModule.BaseAddress + ServerSideLock;
-            VirtualQuery(mainEntryPoint, ref meminfo, (IntPtr)sizeof (MEMORY_BASIC_INFORMATION));
-            VirtualProtect(meminfo.AllocationBase, (uint)meminfo.RegionSize, Protection.PAGE_EXECUTE_READWRITE, out oldProtect);
-            //VirtualProtect(subEntryPoint - 1, (uint)asm.Length + 0x1A + 4, Protection.PAGE_EXECUTE_READWRITE, out oldProtect);
-            if (lockit)
+            try
             {
-                switch (axis)
+                var meminfo = new MEMORY_BASIC_INFORMATION();
+                uint oldProtect;
+                byte[] asm = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
+                IntPtr mainEntryPoint = Process.GetCurrentProcess().MainModule.BaseAddress + ClientSideLock;
+                IntPtr subEntryPoint = Process.GetCurrentProcess().MainModule.BaseAddress + ServerSideLock;
+                VirtualQuery(mainEntryPoint, ref meminfo, (IntPtr) sizeof (MEMORY_BASIC_INFORMATION));
+                VirtualProtect(meminfo.AllocationBase, (uint) meminfo.RegionSize, Protection.PAGE_EXECUTE_READWRITE,
+                    out oldProtect);
+                if (lockit)
                 {
-                    case "X":
-                        Marshal.Copy(asm, 3, mainEntryPoint, asm.Length - 3);
-                        Marshal.Copy(asm, 0, subEntryPoint, asm.Length);
-                        break;
-                    case "Y":
-                        Marshal.Copy(asm, 3, mainEntryPoint + 0x14, asm.Length - 3);
-                        Marshal.Copy(asm, 0, subEntryPoint + 0x1A, asm.Length);
-                        break;
-                    case "Z":
-                        Marshal.Copy(asm, 3, mainEntryPoint + 0xA, asm.Length - 3);
-                        Marshal.Copy(asm, 0, subEntryPoint + 0xD, asm.Length);
-                        break;
+                    switch (axis)
+                    {
+                        case "X":
+                            Marshal.Copy(asm, 3, mainEntryPoint, asm.Length - 3);
+                            Marshal.Copy(asm, 0, subEntryPoint, asm.Length);
+                            break;
+                        case "Y":
+                            Marshal.Copy(asm, 3, mainEntryPoint + 0x14, asm.Length - 3);
+                            Marshal.Copy(asm, 0, subEntryPoint + 0x1A, asm.Length);
+                            break;
+                        case "Z":
+                            Marshal.Copy(asm, 3, mainEntryPoint + 0xA, asm.Length - 3);
+                            Marshal.Copy(asm, 0, subEntryPoint + 0xD, asm.Length);
+                            break;
+                    }
+                }
+                else
+                {
+                    switch (axis)
+                    {
+                        case "X":
+                            Marshal.Copy(Xopcode, 0, mainEntryPoint, Xopcode.Length);
+                            Marshal.Copy(SXopcode, 0, subEntryPoint, SXopcode.Length);
+                            break;
+                        case "Y":
+                            Marshal.Copy(Yopcode, 0, mainEntryPoint + 0x14, Yopcode.Length);
+                            Marshal.Copy(SYopcode, 0, subEntryPoint + 0x1A, SYopcode.Length);
+                            break;
+                        case "Z":
+                            Marshal.Copy(Zopcode, 0, mainEntryPoint + 0xA, Zopcode.Length);
+                            Marshal.Copy(SZopcode, 0, subEntryPoint + 0xD, SZopcode.Length);
+                            break;
+                    }
                 }
             }
-            else
+            catch (Exception ex)
             {
-                switch (axis)
-                {
-                    case "X":
-                        Marshal.Copy(Xopcode, 0, mainEntryPoint, Xopcode.Length);
-                        Marshal.Copy(SXopcode, 0, subEntryPoint, SXopcode.Length);
-                        break;
-                    case "Y":
-                        Marshal.Copy(Yopcode, 0, mainEntryPoint + 0x14, Yopcode.Length);
-                        Marshal.Copy(SYopcode, 0, subEntryPoint + 0x1A, SYopcode.Length);
-                        break;
-                    case "Z":
-                        Marshal.Copy(Zopcode, 0, mainEntryPoint + 0xA, Zopcode.Length);
-                        Marshal.Copy(SZopcode, 0, subEntryPoint + 0xD, SZopcode.Length);
-                        break;
-                }
+                Console.WriteLine(ex.Message);
             }
         }
 

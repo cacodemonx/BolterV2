@@ -11,6 +11,7 @@
 extern "C"
 {
 	DECLDIR void LoadIt(const char * xmlpath);
+	
 }
-
+void UnloadIt();
 #endif

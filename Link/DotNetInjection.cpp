@@ -10,30 +10,31 @@ DotNetInjection::DotNetInjection()
 
 _Assembly *assembly = NULL;
 VARIANT *launcher = new VARIANT();
+ICorRuntimeHost *pHost = NULL;
+_AppDomain *appDomain = NULL;
+ICLRMetaHost *pMetaHost = NULL;
+ICLRRuntimeInfo *pRuntimeInfo = NULL;
+IUnknown *pUnk = NULL;
 
 unsigned int DotNetInjection::Launch(const char * classtoInstance, VARIANTARG FAR * args)
 {
 	HRESULT hr;
-
-	ICLRMetaHost *pMetaHost = NULL;
-	ICLRRuntimeInfo *pRuntimeInfo = NULL;
-	ICorRuntimeHost *pHost = NULL;
-	_AppDomain *appDomain = NULL;
-	IUnknown *pUnk = NULL;
-	
+			
 	//Create instance of the Common Language Runtime
-	hr = CLRCreateInstance(CLSID_CLRMetaHost, IID_PPV_ARGS(&pMetaHost));
-	
-	//Get latest runtime
-	hr = pMetaHost->GetRuntime(L"v4.0.30319", IID_PPV_ARGS(&pRuntimeInfo));
-	//pRuntimeInfo->BindAsLegacyV2Runtime();
-	//Get host interface
-	hr = pRuntimeInfo->GetInterface(CLSID_CorRuntimeHost, IID_PPV_ARGS(&pHost));
+	if (pHost == NULL)
+	{
+		hr = CLRCreateInstance(CLSID_CLRMetaHost, IID_PPV_ARGS(&pMetaHost));
 
-	//Start CLR Host
-	hr = pHost->Start();
+		//Get latest runtime
+		hr = pMetaHost->GetRuntime(L"v4.0.30319", IID_PPV_ARGS(&pRuntimeInfo));
+		//pRuntimeInfo->BindAsLegacyV2Runtime();
+		//Get host interface
+		hr = pRuntimeInfo->GetInterface(CLSID_CorRuntimeHost, IID_PPV_ARGS(&pHost));
 
-	//Get Defualt AppDomain
+		//Start CLR Host
+		hr = pHost->Start();
+	}
+	//Get Default AppDomain
 	hr = pHost->CreateDomain(L"Mr.Rogers",NULL,&pUnk);
 	hr = pUnk->QueryInterface(&appDomain);
 
@@ -69,15 +70,15 @@ unsigned int DotNetInjection::Launch(const char * classtoInstance, VARIANTARG FA
 	hr = disp->GetIDsOfNames(IID_NULL, &methodName, 1, LOCALE_SYSTEM_DEFAULT, &dispid);
 
 	//Set as dispatcher parameters
-	DISPPARAMS _disArgs = {args, NULL, 11, 0};
+	DISPPARAMS _disArgs = {args, NULL, 12, 0};
 
 	//Invoke GetPath() and pass the config path string, to the managed library.
 	hr = disp->Invoke(dispid, IID_NULL, LOCALE_SYSTEM_DEFAULT, DISPATCH_METHOD, &_disArgs, NULL, NULL, NULL);
 	disp->Release();
 	return 0;
 }
-unsigned int DotNetInjection::Reload(const char * classtoInstance)
+unsigned int DotNetInjection::Unload()
 {
-	assembly->CreateInstance(_bstr_t(classtoInstance), launcher);
+	pHost->UnloadDomain(appDomain);
 	return 0;
 }

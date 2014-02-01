@@ -246,12 +246,12 @@
                         <TextBlock HorizontalAlignment="Left" Margin="95,21,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" x:Name="percnt_txt"/>
                         <Button Background="BlanchedAlmond" Content="Donate" FontWeight="Bold" HorizontalAlignment="Left" Margin="222,573,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
                         <TextBlock HorizontalAlignment="Left" Margin="132,579,0,0" TextWrapping="Wrap" Text="Bolter© Devnull" VerticalAlignment="Top"/>
-                        <GroupBox Header="Command Center" HorizontalAlignment="Left" Margin="10,69,0,0" VerticalAlignment="Top" Height="92" Width="142">
+                        <GroupBox Header="Command Center" HorizontalAlignment="Left" Margin="10,69,0,0" VerticalAlignment="Top" Height="111" Width="142">
                             <StackPanel>
                                 <CheckBox Content="Dev Speed Window" Checked="CheckBoxHandler" Unchecked="CheckBoxHandler" Height="23"/>
                                 <CheckBox Content="Gather/Nav Window" Checked="CheckBoxHandler" Unchecked="CheckBoxHandler" Height="23"/>
                                 <CheckBox Content="Entity Window" Checked="CheckBoxHandler" Unchecked="CheckBoxHandler" Height="23"/>
-
+                                <CheckBox Content="Debug Console" IsChecked="True" Checked="CheckBoxHandler" Unchecked="CheckBoxHandler" Height="23"/>
                             </StackPanel>
                         </GroupBox>
                     </Grid>

@@ -14,5 +14,5 @@ class DotNetInjection
 public:
 	DotNetInjection();
 	unsigned int Launch(const char * classtoInstance, VARIANTARG FAR * args);
-	unsigned int Reload(const char * classtoInstance);
+	unsigned int Unload();
 };

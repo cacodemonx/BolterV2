@@ -203,8 +203,12 @@ namespace ConfigHelper
             Name = pathName;
         }
 
-        public void AddPoints(int interval, GatherWindow Gwindow)
+        unsafe public void AddPoints(int interval, GatherWindow Gwindow)
         {
+            var lastHeading = 0f;
+            // Save our current heading.
+            if (Navigation.TurnFilter)
+                lastHeading = (*Player.MasterPtr->Player)->Heading;
 
             // Loop while record flag is true.
             while (Navigation.RecordFlag)
@@ -214,15 +218,25 @@ namespace ConfigHelper
 
                 // Get last saved position, or null if there are none.
                 var lastPos = Point.LastOrDefault();
-
+            
                 // Check if this is a new entry, or if we have moved from our last position.
                 if (lastPos == null || lastPos.x != currentPos.x || lastPos.y != currentPos.y)
                 {
+                    if (Navigation.TurnFilter && (lastHeading != (*Player.MasterPtr->Player)->Heading))
+                    {
+                        Thread.Sleep(interval);
+                        continue;
+                    }
                     // Add the saved waypoint information to the log.
                     if (Gwindow != null)
-                        Gwindow.AddText(Point.Count, Player.GetZoneByID(), Name, currentPos.x, currentPos.y);
+                        Gwindow.AddTextRec(Point.Count, Player.GetZoneByID(), Name, currentPos.x, currentPos.y);
+
                     // Add the new waypoint.
                     Point.Add(new D3DXVECTOR2(currentPos.x, currentPos.y));
+
+                    // Save out last heading
+                    if (Navigation.TurnFilter)
+                        lastHeading = (*Player.MasterPtr->Player)->Heading;
                 }
                 // End if this is a single add.
                 if (interval == 0)

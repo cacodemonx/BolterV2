@@ -79,7 +79,7 @@ extern "C"
 		{
 			// Instantiate the CLR hosting class.
 			BolterBytes = new DotNetInjection();
-
+		}
 			/* Sig scan stuff. */
 			// Get base module information and save it to the global variable. The scanner threads will share this.
 			GetModuleInformation( GetCurrentProcess(), GetModuleHandleW( L"ffxiv.exe" ), &modinfo, sizeof( MODULEINFO ) );
@@ -104,23 +104,28 @@ extern "C"
 			ManagedData[0].bstrVal = _bstr_t(xmlpath);
 			ManagedData[0].vt = VT_BSTR;
 
+			int x;
 			// Sig Addresses.
-			for (int i = 0;i < 10;i++)
+			for (x = 0;x < 10;x++)
 			{
-				ManagedData[i+1].intVal = sigPoints[i];
-				ManagedData[i+1].vt = VT_INT;
+				ManagedData[x+1].intVal = sigPoints[x];
+				ManagedData[x+1].vt = VT_INT;
 			}
+			ManagedData[x+1].intVal = (int)&UnloadIt;
+			ManagedData[x+1].vt = VT_INT;
 			/*Start up the CLR and instantiate the main Bolter class 
 			(starts a new thread with the STA attribute, to satisfy WPF)*/
 			BolterBytes->Launch("Bolter_XIV.STAThread", ManagedData);
 			AllocConsole();
-		}
-		else
-			//Re-instantiate the class.
-			BolterBytes->Reload("Bolter_XIV.STAThread");
+
 	}
 }
 
+void UnloadIt()
+{
+	Sleep(2000);
+	BolterBytes->Unload();
+}
 
 bool __stdcall MaskCompare( const unsigned char* lpDataPtr, const unsigned char* lpPattern, const char* pszMask )
 {

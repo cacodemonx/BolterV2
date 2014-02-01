@@ -68,16 +68,18 @@ namespace Bolter_XIV
             }
         }
 
-        public void AddText(int N, string zonename, string pathname, float x, float y)
+        public void AddTextRec(int N, string zonename, string pathname, float x, float y)
         {
-            Dispatcher.BeginInvoke(new Action(delegate
-            {
-                RecLog.AppendText(string.Format("{0} Zone: {1} Path: {2} X: {3} Y: {4}\u2028",
-                    N, zonename, pathname, x, y));
-                RecLog.ScrollToEnd();
-            }));
+            Dispatcher.BeginInvoke(new Action(
+                () => RecLog.AppendText(string.Format("{0} Zone: {1} Path: {2} X: {3} Y: {4}\u2028",
+                    N, zonename, pathname, x, y))));
         }
-
+        public void AddTextNav(int N, string zonename, string pathname, float x, float y)
+        {
+            Dispatcher.BeginInvoke(new Action(
+                () => NavLog.AppendText(string.Format("Path: {0} X: {1} Y: {2}\u2028",
+                    pathname, x, y))));
+        }
         private void TopDrag(object sender, MouseButtonEventArgs e)
         {
             DragMove();
@@ -91,13 +93,29 @@ namespace Bolter_XIV
 
         private void CorrectionDelayHandler(object sender, RoutedEventArgs e)
         {
-            Navigation.CorDelay = ((CheckBox) e.Source).IsChecked == true;
+            switch (((CheckBox)e.Source).Content.ToString())
+            {
+                case "AI Navigation":
+                    Navigation.AICorrection = ((CheckBox)e.Source).IsChecked == true;
+                    break;
+                case "Correction delay":
+                    Navigation.CorDelay = ((CheckBox)e.Source).IsChecked == true;
+                    break;
+                case "Turn Filter":
+                    Navigation.TurnFilter = ((CheckBox)e.Source).IsChecked == true;
+                    break;
+            }
         }
 
         private void GatherWindow_OnClosing(object sender, CancelEventArgs e)
         {
             _helper = null;
             GC.Collect();
+        }
+
+        private void Log_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            ((RichTextBox)e.Source).ScrollToEnd();
         }
     }
 }

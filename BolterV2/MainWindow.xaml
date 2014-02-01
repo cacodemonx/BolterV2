@@ -133,7 +133,9 @@
                             </ListBox.ItemTemplate>
 
                         </ListBox>
-                        <Button Style="{StaticResource ButtonStyle}" Content="LAUNCH" HorizontalAlignment="Left" Margin="228,148,0,0" VerticalAlignment="Top" Width="95" Height="23" Click="Button_Click" x:Name="DebugButton"/>
+                       <Button Style="{StaticResource ButtonStyle}" Content="LAUNCH" HorizontalAlignment="Left" Margin="228,148,0,0" VerticalAlignment="Top" Width="95" Height="23" Click="Button_Click" x:Name="DebugButton"/>
+                        <Button Style="{StaticResource ButtonStyle}" Content="REFRESH" HorizontalAlignment="Left" Margin="228,118,0,0" VerticalAlignment="Top" Width="95" Height="23" Click="refreshbutt" />
+
                     </Grid>
                 </TabItem>
                 <TabItem Header="About" BorderThickness="4,4,4,4" BorderBrush="#FFFEFEFE" Background="#FFFEFEFE" Margin="-9,-2,15,0" FontSize="20" Visibility="Hidden">

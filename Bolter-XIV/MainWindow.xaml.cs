@@ -41,6 +41,8 @@ namespace Bolter_XIV
     {
         [MarshalAs(UnmanagedType.AnsiBStr, SizeConst = 200)]
         public static string ConfigPath;
+
+        public static IntPtr UnloadBolter;
     }
     unsafe public class STAThread
     {
@@ -58,9 +60,10 @@ namespace Bolter_XIV
             w = null;
             GC.Collect();
         }
-        public int PassInfo(int menuSig, int masterSig, int collisionSig, int movementSig, int playerStructSig, int hideBuffSig, int lockAxisS, int lockAxisC, int lockBuff, int zoneAddress, string path)
+        public int PassInfo(int unloadaddress, int menuSig, int masterSig, int collisionSig, int movementSig, int playerStructSig, int hideBuffSig, int lockAxisS, int lockAxisC, int lockBuff, int zoneAddress, string path)
         {
             var mainAddress = Process.GetCurrentProcess().MainModule.BaseAddress;
+            InterProcessCom.UnloadBolter = new IntPtr(unloadaddress);
             InterProcessCom.ConfigPath = path;
 
             Player.ZoneAddress = Marshal.ReadInt32(
@@ -142,6 +145,9 @@ namespace Bolter_XIV
         }
         [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
         static extern bool FreeConsole();
+
+        [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
+        static extern bool AllocConsole();
         //on Window Load
         unsafe private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -171,13 +177,22 @@ namespace Bolter_XIV
             ConfigWrapper.Load();
             RegHotKeys();
             Player.FillObjectList();
-            FreeConsole();
+            //FreeConsole();
         }
 
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr CreateThread(IntPtr SecurityAttributes = default(IntPtr), uint StackSize = 0,
+            IntPtr StartFunction = default(IntPtr), IntPtr ThreadParameter = default(IntPtr), uint CreationFlags = 0,
+            [Out] uint ThreadId = 0);
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetConsoleWindow();
         //on window close
         private void Window_Closing(object sender, CancelEventArgs e)
         {
             //Clean up
+            if (GetConsoleWindow() != IntPtr.Zero)
+                FreeConsole();
+
             Array.Clear(SetSpeed, 0, 4);
             _uchecked = false;
             Player.UndoRedirectBuffOp();
@@ -193,6 +208,8 @@ namespace Bolter_XIV
                 Marshal.FreeHGlobal((IntPtr)Player.BasePlayerAddress);
             }
             GC.Collect();
+            CreateThread(StartFunction: InterProcessCom.UnloadBolter, ThreadId: new uint[] {0}[0]);
+
         }
 
         #endregion
@@ -519,9 +536,16 @@ namespace Bolter_XIV
         //Handler for jumping
         private void Jump_Click(object sender, RoutedEventArgs e)
         {
-            Player.WriteToPos("X", StringToFloat(NewPOS_X.Text));
-            Player.WriteToPos("Y", StringToFloat(NewPOS_Y.Text));
-            Player.WriteToPos("Z", StringToFloat(NewPOS_Z.Text));
+            try
+            {
+                Player.WriteToPos("X", StringToFloat(NewPOS_X.Text));
+                Player.WriteToPos("Y", StringToFloat(NewPOS_Y.Text));
+                Player.WriteToPos("Z", StringToFloat(NewPOS_Z.Text));
+            }
+            catch
+            {
+                
+            }
         }
 
         //Handler for saving HotKeys
@@ -617,6 +641,12 @@ namespace Bolter_XIV
                         })) {ApartmentState = ApartmentState.STA}.Start();
                     else
                         GWindow.Dispatcher.BeginInvoke(new Action(() => GWindow.Close()));
+                    break;
+                case "Debug Console":
+                    if (isChecked)
+                        AllocConsole();
+                    else
+                        FreeConsole();
                     break;
                 case "XLock":
                     Player.LockAxis("X", isChecked);
