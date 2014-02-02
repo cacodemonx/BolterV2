@@ -39,7 +39,7 @@ namespace BolterV2
 
         private string log;
         //Start Button
-        private void Button_Click(object sender, RoutedEventArgs e)
+        unsafe private void Button_Click(object sender, RoutedEventArgs e)
         {
             var result = false;
             try
@@ -112,6 +112,12 @@ namespace BolterV2
                 using (var img = new PortableExecutable(Properties.Resources.Link))
                 //Map the DLL's raw data into the ffxiv process and all of it's dependencies.
                     hModule = dllInjector.Inject(img, pid);
+                if (hModule == IntPtr.Zero)
+                {
+                    MessageBox.Show("Something blocked Bolter from loading, Check any Virus Scanners, or Windows Restrictions");
+                    StartButton.IsEnabled = true;
+                    return;
+                }
                 log = string.Format("Loaded in {0}\n",hModule);
                 derpStream.Write(Encoding.Default.GetBytes(log), 0, log.Length);
             }
@@ -156,12 +162,17 @@ namespace BolterV2
             //Wait for completion or 2000ms.
             log = string.Format("Call load pointer \n");
             derpStream.Write(Encoding.Default.GetBytes(log), 0, log.Length);
-            WinAPI.WaitForSingleObject(
-                WinAPI.CreateRemoteThread(hProc, lpStartAddress: routinePtr, lpParameter: pathPtr, lpThreadId: hThread),
-                2000);
 
-            log = string.Format("Free unused memory \n");
+            var ntThread = new IntPtr();
+
+            var ntstatus = WinAPI.NtCreateThreadEx(&ntThread, 0x1FFFFF, null, hProc, routinePtr,
+                (void *)pathPtr, false, 0, null,
+                null, null);
+
+            WinAPI.WaitForSingleObject(ntThread, 2000);
+            log = string.Format("Free unused memory {0:X}\n",ntstatus);
             derpStream.Write(Encoding.Default.GetBytes(log), 0, log.Length);
+
             //Free Memory.
             WinAPI.VirtualFreeEx(hProc, pathPtr, 0, 0x8000);
             //Force Garbage Collection.

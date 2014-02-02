@@ -54,7 +54,7 @@ namespace Bolter_XIV
 
 
         protected float Distance(D3DXVECTOR2 p1, D3DXVECTOR2 p2) { return Distance(p1.y, p1.x, p2.y, p2.x); }
-        protected float Distance(float y1, float x1, float y2, float x2) { return (float)Math.Sqrt(((y1 - y2) * (y1 - y2)) + ((x1 - x2) * (x1 - x2))); }
+        public static float Distance(float y1, float x1, float y2, float x2) { return (float)Math.Sqrt(((y1 - y2) * (y1 - y2)) + ((x1 - x2) * (x1 - x2))); }
         protected int MathMod(int a, int b) { return ((a % b) + b) % b; }
         protected double PosHToDegrees(float PosH) { return MathMod((int)(((PosH * 180.0) / _pi) + 90.0), 360); }
         protected float DegreesToPosH(double Degrees) { return (MathMod((int)(((Degrees + 90) * _pi) / 180.0), (int)(2 * _pi)) - _pi); }

@@ -222,7 +222,7 @@ namespace ConfigHelper
                 // Check if this is a new entry, or if we have moved from our last position.
                 if (lastPos == null || lastPos.x != currentPos.x || lastPos.y != currentPos.y)
                 {
-                    if (Navigation.TurnFilter && (lastHeading != (*Player.MasterPtr->Player)->Heading))
+                    if (Navigation.TurnFilter && (lastHeading == (*Player.MasterPtr->Player)->Heading))
                     {
                         Thread.Sleep(interval);
                         continue;

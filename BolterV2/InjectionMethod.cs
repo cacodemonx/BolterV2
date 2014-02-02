@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Diagnostics;
 using JLibrary.PortableExecutable;
 using JLibrary.Tools;
 using JLibrary.Win32;
@@ -103,9 +104,9 @@ namespace InjectionLibrary
         public virtual IntPtr Inject(PortableExecutable image, int processId)
         {
             ClearErrors();
-            IntPtr hProcess = WinAPI.OpenProcess(0x043A, false, processId);
+            IntPtr hProcess = //WinAPI.OpenProcess(0x043A, false, processId);
+            Process.GetProcessById(processId).Handle;
             IntPtr hModule = Inject(image, hProcess);
-            WinAPI.CloseHandle(hProcess);
             return hModule;
         }
 

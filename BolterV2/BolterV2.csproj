@@ -42,7 +42,7 @@
     <OutputPath>bin\x86\Release\</OutputPath>
     <DefineConstants>
     </DefineConstants>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Icon.ico</ApplicationIcon>

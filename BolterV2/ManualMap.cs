@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Windows;
 using JLibrary.PortableExecutable;
 using JLibrary.Win32;
 using JLibrary.Tools;
@@ -67,6 +68,7 @@ namespace InjectionLibrary
             catch (Exception e)
             {
                 SetLastError(e);
+                MessageBox.Show(e.Message);
                 return IntPtr.Zero;
             }
         }
@@ -153,7 +155,7 @@ namespace InjectionLibrary
 
         #region Codebase
         // Most efficient version, this will be the work horse.
-        private static IntPtr MapModule(PortableExecutable image, IntPtr hProcess, bool preserveHeaders = false)
+        unsafe private static IntPtr MapModule(PortableExecutable image, IntPtr hProcess, bool preserveHeaders = false)
         {
             if (hProcess.IsNull() || hProcess.Compare(-1))
                 throw new ArgumentException("Invalid process handle.", "hProcess");
@@ -202,7 +204,11 @@ namespace InjectionLibrary
                     if (pStub.IsNull() || (!WinAPI.WriteProcessMemory(hProcess, pStub, stub, stub.Length, out nBytes) || nBytes != (uint)stub.Length))
                         throw new InvalidOperationException("Unable to write stub to the remote process.");
 
-                    IntPtr hStubThread = WinAPI.CreateRemoteThread(hProcess, 0, 0, pStub, (IntPtr)(hModule.Add(image.NTHeader.OptionalHeader.AddressOfEntryPoint).ToInt32()), 0, 0);
+                    IntPtr hStubThread = new IntPtr();
+                    WinAPI.NtCreateThreadEx(&hStubThread, 0x1FFFFF, null, hProcess, pStub,
+                        (void*) (hModule.Add(image.NTHeader.OptionalHeader.AddressOfEntryPoint).ToInt32()), false, 0,
+                        null, null, null);
+                        //= WinAPI.CreateRemoteThread(hProcess, 0, 0, pStub, (IntPtr)(hModule.Add(image.NTHeader.OptionalHeader.AddressOfEntryPoint).ToInt32()), 0, 0);
                     if (WinAPI.WaitForSingleObject(hStubThread, 5000) == 0x0L)
                     {
                         WinAPI.GetExitCodeThread(hStubThread, out nBytes);

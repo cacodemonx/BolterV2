@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -64,6 +65,29 @@ namespace Bolter_XIV
             
         }
 
+        private bool UpdateLoop = false;
+        private void UpdatedGatherList()
+        {
+            while (UpdateLoop)
+            {
+                Dispatcher.BeginInvoke(new Action(delegate
+                {
+                    try
+                    {
+                        NPCObjectListBox.Items.Clear();
+                    }
+                    catch
+                    {
+                    }
+                    for (var i = 0; i < 22; i++)
+                        if (new string(Player.bloop[i].NPC->Name) != "")
+                            NPCObjectListBox.Items.Add(new NPCObjectListBoxItem(new string(Player.bloop[i].NPC->Name),
+                                Player.bloop[i].NPC->X, Player.bloop[i].NPC->Y, Player.bloop[i].NPC->Z,
+                                Player.bloop[i].NPC->IsActive == 0 ? "Up " : "Down ", Player.bloop[i].NPC->ID));
+                }));
+                Thread.Sleep(500);
+            }
+        }
         private void DragWindow(object sender, MouseButtonEventArgs e)
         {
             try
@@ -297,7 +321,7 @@ namespace Bolter_XIV
             private Player.PlayerStructure* baseStructure {
                 get { return (Player.PlayerStructure*) (((int) *Player.BasePlayerAddress) + offset); }
             }
-            private int offset;
+            private readonly int offset;
             public Entity(int Offset)
             {
                 offset = Offset;
@@ -395,6 +419,18 @@ namespace Bolter_XIV
             entities.Clear();
             entities = null;
         }
+
+        private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
+        {
+            if (((CheckBox) e.Source).IsChecked == true)
+            {
+                UpdateLoop = true;
+                new Thread(UpdatedGatherList).Start();
+            }
+            else
+                UpdateLoop = false;
+
+        }
     }
     public class NPCObjectListBoxItem
     {
@@ -405,12 +441,14 @@ namespace Bolter_XIV
             IsActive = oActive;
             ID = oID.ToString("X");
             IsActiveColor = IsActive == "Up " ? new SolidColorBrush(Colors.Blue) : new SolidColorBrush(Colors.Red);
+            Distance = string.Format(" {0}",Navigation.Distance(Player.GetPos(Player.Axis.Y), Player.GetPos(Player.Axis.X), oY, oX));
         }
         public string Name { get; set; }
         public string Coords { get; set; }
         public string IsActive { get; set; }
         public string ID { get; set; }
         public SolidColorBrush IsActiveColor { get; set; }
+        public string Distance { get; set; }
     }
     public class EntityListBoxItem
     {

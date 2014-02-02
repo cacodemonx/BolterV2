@@ -23,9 +23,27 @@
 using System;
 using System.Text;
 using System.Runtime.InteropServices;
+using InjectionLibrary;
 
 namespace JLibrary.Win32
 {
+    unsafe public struct LPTHREAD_START_ROUTINE
+    {
+        public void* lpThreadParameter;
+    }
+
+    unsafe public struct NtCreateThreadExBuffer
+    {
+        public ulong Size;
+        public ulong Unknown1;
+        public ulong Unknown2;
+        public ulong* Unknown3;
+        public ulong Unknown4;
+        public ulong Unknown5;
+        public ulong Unknown6;
+        public ulong* Unknown7;
+        public ulong Unknown8;
+    }
     public static class WinAPI
     {
         [DllImport("kernel32.dll")]
@@ -62,7 +80,40 @@ namespace JLibrary.Win32
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr CreateRemoteThread(IntPtr hProcess, int lpThreadAttributes = 0, int dwStackSize = 0, IntPtr lpStartAddress = default(IntPtr), IntPtr lpParameter = default(IntPtr), int dwCreationFlags = 0, int lpThreadId = 0);
+        /*
+         * typedef NTSTATUS (WINAPI *LPFUN_NtCreateThreadEx)
+(
+OUT PHANDLE hThread,
+IN ACCESS_MASK DesiredAccess,
+IN LPVOID ObjectAttributes,
+IN HANDLE ProcessHandle,
+IN LPTHREAD_START_ROUTINE lpStartAddress,
+IN LPVOID lpParameter,
+IN BOOL CreateSuspended,
+IN ulong StackZeroBits,
+IN ulong SizeOfStackCommit,
+IN ulong SizeOfStackReserve,
+OUT LPVOID lpBytesBuffer
+);
+         */
 
+        [DllImport("ntdll.dll", SetLastError = true, EntryPoint = "NtCreateThreadEx")]
+        [return: MarshalAs(UnmanagedType.U4)]
+        unsafe public static extern UInt32 NtCreateThreadEx(
+            IntPtr* ThreadHandle, 
+            UInt32 DesiredAccess,
+            void* ObjectAttributes,
+            IntPtr ProcessHandle,
+            IntPtr lpStartAddress,
+            void* lpParameter,
+            [MarshalAs(UnmanagedType.Bool)] bool CreateSuspended,
+            UInt32 StackZeroBits,
+            void* SizeOfStackCommit,
+            void* SizeOfStackReserve,
+            void* lpBytesBuffer
+            );
+        [DllImport("msvcrt.dll", EntryPoint = "memset", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
+        public static extern IntPtr MemSet(uint dest, int c, int count);
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr GetModuleHandleA(string lpModuleName);
 
@@ -165,10 +216,13 @@ namespace JLibrary.Win32
 
         //very straightforward way to run a thread and capture the return.
         //will return -1 (uint.MaxValue == -1 as a signed integer) if it fails.
-        public static uint RunThread(IntPtr hProcess, IntPtr lpStartAddress, uint lpParam, int timeout = 1000)
+        unsafe public static uint RunThread(IntPtr hProcess, IntPtr lpStartAddress, uint lpParam, int timeout = 1000)
         {
             uint dwThreadRet = uint.MaxValue; //-1 as a signed integer.
-            IntPtr hThread = CreateRemoteThread(hProcess, 0, 0, lpStartAddress, (IntPtr)lpParam, 0, 0);
+            var hThread = new IntPtr();
+            //IntPtr hThread = 
+            NtCreateThreadEx(&hThread, 0x1FFFFF, null, hProcess, lpStartAddress, (void*) lpParam, false, 0, null, null,
+                null);
             if (hThread != IntPtr.Zero)
             {
                 if (WaitForSingleObject(hThread, timeout) == 0x0L) //wait for a response
