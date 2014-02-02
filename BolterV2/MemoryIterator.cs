@@ -21,15 +21,15 @@
 */
 
 using System;
-using System.Text;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 
-namespace JLibrary.Tools
+namespace BolterV2
 {
     /// <summary>A basic IO class to manage the reading/writing over a dynamic memory buffer</summary>
     [Serializable]
-    public class MemoryIterator : ErrorBase, IDisposable
+    public class MemoryIterator : ErrorBase
     {
         private MemoryStream _base;
         private UnmanagedBuffer _ubuffer;
@@ -43,8 +43,8 @@ namespace JLibrary.Tools
             if (iterable == null)
                 throw new ArgumentException("Unable to iterate a null reference", "iterable");
 
-            this._base = new MemoryStream(iterable, 0, iterable.Length, true);
-            this._ubuffer = new UnmanagedBuffer(0x100);
+            _base = new MemoryStream(iterable, 0, iterable.Length, true);
+            _ubuffer = new UnmanagedBuffer(0x100);
         }
 
         /// <summary>
@@ -53,18 +53,18 @@ namespace JLibrary.Tools
         /// <returns>byte array containing the raw data of the iterator</returns>
         protected byte[] GetUnderlyingData()
         {
-            return this._base.ToArray();
+            return _base.ToArray();
         }
 
         /// <summary>
         /// Read a value-type of type TResult from the current position in the buffer
         /// </summary>
         /// <typeparam name="TResult">Value-type, must be compatible with <see cref="Marshal.SizeOf(Type)"/></typeparam>
-        /// <param name="result">A prefined instance of type TResult which will hold the read data</param>
+        /// <param name="result">A predefined instance of type TResult which will hold the read data</param>
         /// <returns>true if the read was successful, false otherwise</returns>
         public bool Read<TResult>(out TResult result) where TResult : struct
         {
-            return this.Read<TResult>(0, SeekOrigin.Current, out result);
+            return Read(0, SeekOrigin.Current, out result);
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace JLibrary.Tools
         /// <returns></returns>
         public long Seek(long offset, SeekOrigin origin)
         {
-            return this._base.Seek(offset, origin);
+            return _base.Seek(offset, origin);
         }
 
         /// <summary>
@@ -91,14 +91,13 @@ namespace JLibrary.Tools
             result = default(TResult);
             try
             {
-                this._base.Seek(offset, origin);
-                byte[] buffer = new byte[Marshal.SizeOf(typeof(TResult))];
-                this._base.Read(buffer, 0, buffer.Length);
+                _base.Seek(offset, origin);
+                var buffer = new byte[Marshal.SizeOf(typeof(TResult))];
+                _base.Read(buffer, 0, buffer.Length);
 
-                if (this._ubuffer.Translate<TResult>(buffer, out result))
+                if (_ubuffer.Translate(buffer, out result))
                     return true;
-                else
-                    throw this._ubuffer.GetLastError();
+                throw _ubuffer.GetLastError();
             }
             catch (Exception e)
             {
@@ -121,19 +120,19 @@ namespace JLibrary.Tools
         public bool ReadString(long offset, SeekOrigin origin, out string lpBuffer, int len = -1, Encoding stringEncoding = null)
         {
             lpBuffer = null;
-            byte[] buffer = new byte[(len > 0 ? len : 64)];
+            var buffer = new byte[(len > 0 ? len : 64)];
             if (stringEncoding == null)
                 stringEncoding = Encoding.ASCII;
 
             try
             {
-                this._base.Seek(offset, origin);
-                StringBuilder sb = new StringBuilder((len > 0 ? len : 260));
-                int terminator = -1;
-                int n = 0;
-                int total = 0;
+                _base.Seek(offset, origin);
+                var sb = new StringBuilder((len > 0 ? len : 260));
+                var terminator = -1;
+                var n = 0;
+                var total = 0;
 
-                while (terminator == -1 && (n = this._base.Read(buffer, 0, buffer.Length)) > 0)
+                while (terminator == -1 && (n = _base.Read(buffer, 0, buffer.Length)) > 0)
                 {
                     sb.Append(stringEncoding.GetString(buffer));
                     terminator = sb.ToString().IndexOf('\0', total);
@@ -169,8 +168,8 @@ namespace JLibrary.Tools
 
             try
             {
-                this._base.Seek(offset, origin); ;
-                this._base.Read(buffer, 0, buffer.Length);
+                _base.Seek(offset, origin); ;
+                _base.Read(buffer, 0, buffer.Length);
             }
             catch (Exception e)
             {
@@ -190,17 +189,14 @@ namespace JLibrary.Tools
         {
             try
             {
-                this._base.Seek(offset, origin);
+                _base.Seek(offset, origin);
                 byte[] buffer = null;
-                if (this._ubuffer.Translate<TSource>(data, out buffer))
+                if (_ubuffer.Translate(data, out buffer))
                 {
-                    this._base.Write(buffer, 0, buffer.Length);
+                    _base.Write(buffer, 0, buffer.Length);
                     return true;
                 }
-                else
-                {
-                    throw this._ubuffer.GetLastError();
-                }
+                throw _ubuffer.GetLastError();
             }
             catch (Exception e)
             {
@@ -221,8 +217,8 @@ namespace JLibrary.Tools
 
             try
             {
-                this._base.Seek(offset, origin);
-                this._base.Write(data, 0, data.Length);
+                _base.Seek(offset, origin);
+                _base.Write(data, 0, data.Length);
                 return true;
             }
             catch (Exception e)
@@ -236,20 +232,20 @@ namespace JLibrary.Tools
 
         private new void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (!this._disposed)
+            if (!_disposed)
             {
                 if (disposing)
                 {
-                    this._ubuffer.Dispose();
-                    this._base.Dispose();
+                    _ubuffer.Dispose();
+                    _base.Dispose();
                 }
-                this._disposed = true;
+                _disposed = true;
             }
         }
         #endregion

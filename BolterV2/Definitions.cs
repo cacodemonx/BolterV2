@@ -22,8 +22,9 @@
 
 using System;
 using System.Runtime.InteropServices;
+using System.Text;
 
-namespace JLibrary.PortableExecutable
+namespace BolterV2
 {
     //The indexing of the data directories. You'll love me later.
     public enum DATA_DIRECTORIES
@@ -170,7 +171,7 @@ namespace JLibrary.PortableExecutable
 
         public override string ToString()
         {
-            string temp = System.Text.Encoding.UTF8.GetString(Name);
+            var temp = Encoding.UTF8.GetString(Name);
             if (temp.Contains("\0")) temp = temp.Substring(0, temp.IndexOf("\0"));
             return temp;
         }

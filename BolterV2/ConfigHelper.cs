@@ -14,7 +14,7 @@ namespace ConfigHelper
         {
             var xs = new XmlSerializer(typeof(T));
 
-            string dir = Path.GetDirectoryName(filename);
+            var dir = Path.GetDirectoryName(filename);
 
             if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
             {

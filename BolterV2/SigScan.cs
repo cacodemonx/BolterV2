@@ -37,7 +37,7 @@ using System.Runtime.InteropServices;
 //      IntPtr pAddr = _sigScan.FindPattern(new byte[]{ 0xFF, 0xFF, 0xFF, 0xFF, 0x51, 0x55, 0xFC, 0x11 }, "xxxx?xx?", 12);
 //
 // ----------------------------------------------------------------------------------------
-namespace SigScan
+namespace BolterV2
 {
     public class SigScan
     {
@@ -100,10 +100,10 @@ namespace SigScan
         /// </summary>
         public SigScan()
         {
-            this.m_vProcess = null;
-            this.m_vAddress = IntPtr.Zero;
-            this.m_vSize = 0;
-            this.m_vDumpedRegion = null;
+            m_vProcess = null;
+            m_vAddress = IntPtr.Zero;
+            m_vSize = 0;
+            m_vDumpedRegion = null;
         }
         /// <summary>
         /// SigScan
@@ -116,9 +116,9 @@ namespace SigScan
         /// <param name="size">The size of the dump.</param>
         public SigScan(Process proc, IntPtr addr, int size)
         {
-            this.m_vProcess = proc;
-            this.m_vAddress = addr;
-            this.m_vSize = size;
+            m_vProcess = proc;
+            m_vAddress = addr;
+            m_vSize = size;
         }
         #endregion
 
@@ -135,28 +135,28 @@ namespace SigScan
             try
             {
                 // Checks to ensure we have valid data.
-                if (this.m_vProcess == null)
+                if (m_vProcess == null)
                     return false;
-                if (this.m_vProcess.HasExited == true)
+                if (m_vProcess.HasExited == true)
                     return false;
-                if (this.m_vAddress == IntPtr.Zero)
+                if (m_vAddress == IntPtr.Zero)
                     return false;
-                if (this.m_vSize == 0)
+                if (m_vSize == 0)
                     return false;
 
                 // Create the region space to dump into.
-                this.m_vDumpedRegion = new byte[this.m_vSize];
+                m_vDumpedRegion = new byte[m_vSize];
 
-                bool bReturn = false;
-                int nBytesRead = 0;
+                var bReturn = false;
+                var nBytesRead = 0;
 
                 // Dump the memory.
                 bReturn = ReadProcessMemory(
-                    this.m_vProcess.Handle, this.m_vAddress, this.m_vDumpedRegion, this.m_vSize, out nBytesRead
+                    m_vProcess.Handle, m_vAddress, m_vDumpedRegion, m_vSize, out nBytesRead
                     );
 
                 // Validation checks.
-                if (bReturn == false || nBytesRead != this.m_vSize)
+                if (bReturn == false || nBytesRead != m_vSize)
                     return false;
                 return true;
             }
@@ -180,14 +180,14 @@ namespace SigScan
         private bool MaskCheck(int nOffset, byte[] btPattern, string strMask)
         {
             // Loop the pattern and compare to the mask and dump.
-            for (int x = 0; x < btPattern.Length; x++)
+            for (var x = 0; x < btPattern.Length; x++)
             {
                 // If the mask char is a wildcard, just continue.
                 if (strMask[x] == '?')
                     continue;
 
                 // If the mask char is not a wildcard, ensure a match is made in the pattern.
-                if ((strMask[x] == 'x') && (btPattern[x] != this.m_vDumpedRegion[nOffset + x]))
+                if ((strMask[x] == 'x') && (btPattern[x] != m_vDumpedRegion[nOffset + x]))
                     return false;
             }
 
@@ -213,9 +213,9 @@ namespace SigScan
             try
             {
                 // Dump the memory region if we have not dumped it yet.
-                if (this.m_vDumpedRegion == null || this.m_vDumpedRegion.Length == 0)
+                if (m_vDumpedRegion == null || m_vDumpedRegion.Length == 0)
                 {
-                    if (!this.DumpMemory())
+                    if (!DumpMemory())
                         return IntPtr.Zero;
                 }
 
@@ -224,12 +224,12 @@ namespace SigScan
                     return IntPtr.Zero;
 
                 // Loop the region and look for the pattern.
-                for (int x = 0; x < this.m_vDumpedRegion.Length; x++)
+                for (var x = 0; x < m_vDumpedRegion.Length; x++)
                 {
-                    if (this.MaskCheck(x, btPattern, strMask))
+                    if (MaskCheck(x, btPattern, strMask))
                     {
                         // The pattern was found, return it.
-                        return new IntPtr((int)this.m_vAddress + (x + nOffset));
+                        return new IntPtr((int)m_vAddress + (x + nOffset));
                     }
                 }
 
@@ -250,25 +250,25 @@ namespace SigScan
         /// </summary>
         public void ResetRegion()
         {
-            this.m_vDumpedRegion = null;
+            m_vDumpedRegion = null;
         }
         #endregion
 
         #region "sigScan Class Properties"
         public Process Process
         {
-            get { return this.m_vProcess; }
-            set { this.m_vProcess = value; }
+            get { return m_vProcess; }
+            set { m_vProcess = value; }
         }
         public IntPtr Address
         {
-            get { return this.m_vAddress; }
-            set { this.m_vAddress = value; }
+            get { return m_vAddress; }
+            set { m_vAddress = value; }
         }
         public Int32 Size
         {
-            get { return this.m_vSize; }
-            set { this.m_vSize = value; }
+            get { return m_vSize; }
+            set { m_vSize = value; }
         }
         #endregion
 

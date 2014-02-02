@@ -21,28 +21,62 @@
 */
 
 using System;
-using System.Text;
 using System.Runtime.InteropServices;
-using InjectionLibrary;
+using System.Text;
 
-namespace JLibrary.Win32
+namespace BolterV2
 {
-    unsafe public struct LPTHREAD_START_ROUTINE
+    /// <summary>
+    /// Service class to distribute 32-bit pointers. .NETs internal
+    /// IntPtr structure may refer to either 32 or 64 bit pointers, 
+    /// this class simply normalizes all pointers to guarantee 32-bigness
+    /// </summary>
+    public static class Win32Ptr
     {
-        public void* lpThreadParameter;
-    }
+        public static IntPtr Create(long value)
+        {
+            return new IntPtr((int)value);
+        }
 
-    unsafe public struct NtCreateThreadExBuffer
+        public static IntPtr Add(this IntPtr ptr, long val)
+        {
+            return new IntPtr((int)(ptr.ToInt32() + val));
+        }
+
+        public static IntPtr Add(this IntPtr ptr, IntPtr val)
+        {
+            return new IntPtr((int)(ptr.ToInt32() + val.ToInt32()));
+        }
+
+        public static IntPtr Subtract(this IntPtr ptr, long val)
+        {
+            return new IntPtr((int)(ptr.ToInt64() - val));
+        }
+
+        public static IntPtr Subtract(this IntPtr ptr, IntPtr val)
+        {
+            return new IntPtr((int)(ptr.ToInt64() - val.ToInt64()));
+        }
+
+        public static bool IsNull(this IntPtr ptr)
+        {
+            return ptr == IntPtr.Zero;
+        }
+
+        public static bool IsNull(this UIntPtr ptr)
+        {
+            return ptr == UIntPtr.Zero;
+        }
+
+        public static bool Compare(this IntPtr ptr, long value)
+        {
+            return (ptr.ToInt64() == value);
+        }
+    }
+    public class LPVOID
     {
-        public ulong Size;
-        public ulong Unknown1;
-        public ulong Unknown2;
-        public ulong* Unknown3;
-        public ulong Unknown4;
-        public ulong Unknown5;
-        public ulong Unknown6;
-        public ulong* Unknown7;
-        public ulong Unknown8;
+        [MarshalAs(UnmanagedType.AsAny)]
+        public IntPtr Data;
     }
     public static class WinAPI
     {
@@ -80,37 +114,21 @@ namespace JLibrary.Win32
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr CreateRemoteThread(IntPtr hProcess, int lpThreadAttributes = 0, int dwStackSize = 0, IntPtr lpStartAddress = default(IntPtr), IntPtr lpParameter = default(IntPtr), int dwCreationFlags = 0, int lpThreadId = 0);
-        /*
-         * typedef NTSTATUS (WINAPI *LPFUN_NtCreateThreadEx)
-(
-OUT PHANDLE hThread,
-IN ACCESS_MASK DesiredAccess,
-IN LPVOID ObjectAttributes,
-IN HANDLE ProcessHandle,
-IN LPTHREAD_START_ROUTINE lpStartAddress,
-IN LPVOID lpParameter,
-IN BOOL CreateSuspended,
-IN ulong StackZeroBits,
-IN ulong SizeOfStackCommit,
-IN ulong SizeOfStackReserve,
-OUT LPVOID lpBytesBuffer
-);
-         */
 
         [DllImport("ntdll.dll", SetLastError = true, EntryPoint = "NtCreateThreadEx")]
         [return: MarshalAs(UnmanagedType.U4)]
-        unsafe public static extern UInt32 NtCreateThreadEx(
-            IntPtr* ThreadHandle, 
+        public static extern UInt32 NtCreateThreadEx(
+            ref IntPtr ThreadHandle, 
             UInt32 DesiredAccess,
-            void* ObjectAttributes,
+            LPVOID ObjectAttributes,
             IntPtr ProcessHandle,
             IntPtr lpStartAddress,
-            void* lpParameter,
-            [MarshalAs(UnmanagedType.Bool)] bool CreateSuspended,
-            UInt32 StackZeroBits,
-            void* SizeOfStackCommit,
-            void* SizeOfStackReserve,
-            void* lpBytesBuffer
+            IntPtr lpParameter,
+            [MarshalAs(UnmanagedType.Bool)] bool CreateSuspended = false,
+            UInt32 StackZeroBits = 0,
+            LPVOID SizeOfStackCommit = null,
+            LPVOID SizeOfStackReserve = null,
+            LPVOID lpBytesBuffer = null
             );
         [DllImport("msvcrt.dll", EntryPoint = "memset", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
         public static extern IntPtr MemSet(uint dest, int c, int count);
@@ -201,13 +219,13 @@ OUT LPVOID lpBytesBuffer
 
         public static uint GetLastErrorEx(IntPtr hProcess)
         {
-            IntPtr fnGetLastError = WinAPI.GetProcAddress(WinAPI.GetModuleHandleA("kernel32.dll"), "GetLastError");
+            var fnGetLastError = GetProcAddress(GetModuleHandleA("kernel32.dll"), "GetLastError");
             return RunThread(hProcess, fnGetLastError, 0);
         }
 
         public static byte[] ReadRemoteMemory(IntPtr hProc, IntPtr address, uint len)
         {
-            byte[] buffer = new byte[len];
+            var buffer = new byte[len];
             uint bytes = 0;
             if (!ReadProcessMemory(hProc, address, buffer, buffer.Length, out bytes) || bytes != len)
                 buffer = null;
@@ -216,13 +234,12 @@ OUT LPVOID lpBytesBuffer
 
         //very straightforward way to run a thread and capture the return.
         //will return -1 (uint.MaxValue == -1 as a signed integer) if it fails.
-        unsafe public static uint RunThread(IntPtr hProcess, IntPtr lpStartAddress, uint lpParam, int timeout = 1000)
+        public static uint RunThread(IntPtr hProcess, IntPtr lpStartAddress, uint lpParam, int timeout = 1000)
         {
-            uint dwThreadRet = uint.MaxValue; //-1 as a signed integer.
+            var dwThreadRet = uint.MaxValue; //-1 as a signed integer.
             var hThread = new IntPtr();
             //IntPtr hThread = 
-            NtCreateThreadEx(&hThread, 0x1FFFFF, null, hProcess, lpStartAddress, (void*) lpParam, false, 0, null, null,
-                null);
+            NtCreateThreadEx(ref hThread, 0x1FFFFF, null, hProcess, lpStartAddress, (IntPtr)lpParam);
             if (hThread != IntPtr.Zero)
             {
                 if (WaitForSingleObject(hThread, timeout) == 0x0L) //wait for a response
@@ -233,7 +250,7 @@ OUT LPVOID lpBytesBuffer
 
         public static IntPtr ReadRemotePointer(IntPtr hProcess, IntPtr pData)
         {
-            IntPtr ptr = IntPtr.Zero;
+            var ptr = IntPtr.Zero;
             if (!hProcess.IsNull() && !pData.IsNull())
             {
                 byte[] mem = null;
@@ -245,12 +262,12 @@ OUT LPVOID lpBytesBuffer
 
         public static IntPtr GetModuleHandleEx(IntPtr hProcess, string lpModuleName)
         {
-            IntPtr hGMW = GetProcAddress(GetModuleHandleA("kernel32.dll"), "GetModuleHandleW");
-            IntPtr hModule = IntPtr.Zero;
+            var hGMW = GetProcAddress(GetModuleHandleA("kernel32.dll"), "GetModuleHandleW");
+            var hModule = IntPtr.Zero;
 
             if (!hGMW.IsNull())
             {
-                IntPtr hParam = CreateRemotePointer(hProcess, System.Text.Encoding.Unicode.GetBytes(lpModuleName + "\0"), 0x04);
+                var hParam = CreateRemotePointer(hProcess, Encoding.Unicode.GetBytes(lpModuleName + "\0"), 0x04);
                 if (!hParam.IsNull())
                 {
                     hModule = Win32Ptr.Create(RunThread(hProcess, hGMW, (uint)hParam.ToInt32()));
@@ -263,7 +280,7 @@ OUT LPVOID lpBytesBuffer
         //Create a pointer to memory in the remote process
         public static IntPtr CreateRemotePointer(IntPtr hProcess, byte[] pData, int flProtect)
         {
-            IntPtr pAlloc = IntPtr.Zero;
+            var pAlloc = IntPtr.Zero;
             if (pData != null && hProcess != IntPtr.Zero)
             {
                 pAlloc = VirtualAllocEx(hProcess, IntPtr.Zero, (uint)pData.Length, 0x1000 | 0x2000, flProtect);
@@ -290,34 +307,34 @@ OUT LPVOID lpBytesBuffer
          */
         public static IntPtr GetProcAddressEx(IntPtr hProc, IntPtr hModule, object lpProcName)
         {
-            IntPtr procAddress = IntPtr.Zero;
-            byte[] pDosHd = ReadRemoteMemory(hProc, hModule, 0x40); //attempt to read the DOS header from memory
+            var procAddress = IntPtr.Zero;
+            var pDosHd = ReadRemoteMemory(hProc, hModule, 0x40); //attempt to read the DOS header from memory
             if (pDosHd != null && BitConverter.ToUInt16(pDosHd, 0) == 0x5A4D) //compare the expected DOS "MZ" signature to whatever we just read
             {
-                uint e_lfanew = BitConverter.ToUInt32(pDosHd, 0x3C); //read the e_lfanew number
+                var e_lfanew = BitConverter.ToUInt32(pDosHd, 0x3C); //read the e_lfanew number
                 if (e_lfanew > 0)
                 {
-                    byte[] pNtHd = ReadRemoteMemory(hProc, hModule.Add(e_lfanew), 0x108); //read the NT_HEADERS.
+                    var pNtHd = ReadRemoteMemory(hProc, hModule.Add(e_lfanew), 0x108); //read the NT_HEADERS.
                     if (pNtHd != null && BitConverter.ToUInt32(pNtHd, 0) == 0x4550) //check the NT_HEADERS signature (PE\0\0)
                     {
-                        uint expDirPtr = BitConverter.ToUInt32(pNtHd, 0x78); //get the pointer to the export directory (first data directory)
-                        uint expDirSize = BitConverter.ToUInt32(pNtHd, 0x7C);
+                        var expDirPtr = BitConverter.ToUInt32(pNtHd, 0x78); //get the pointer to the export directory (first data directory)
+                        var expDirSize = BitConverter.ToUInt32(pNtHd, 0x7C);
                         if (expDirPtr > 0 && expDirSize > 0) //does this module even export functions?
                         {
-                            byte[] pExpDir = ReadRemoteMemory(hProc, hModule.Add(expDirPtr), 0x28); //Read the export directory from the process
-                            uint pEat = BitConverter.ToUInt32(pExpDir, 0x1C); //pointer to the export address table
-                            uint pOrd = BitConverter.ToUInt32(pExpDir, 0x24); //pointer to the ordinal table.
-                            uint nFunc = BitConverter.ToUInt32(pExpDir, 0x14);
-                            int ord = -1;
+                            var pExpDir = ReadRemoteMemory(hProc, hModule.Add(expDirPtr), 0x28); //Read the export directory from the process
+                            var pEat = BitConverter.ToUInt32(pExpDir, 0x1C); //pointer to the export address table
+                            var pOrd = BitConverter.ToUInt32(pExpDir, 0x24); //pointer to the ordinal table.
+                            var nFunc = BitConverter.ToUInt32(pExpDir, 0x14);
+                            var ord = -1;
 
                             if (pEat > 0 && pOrd > 0)
                             {
                                 if (lpProcName.GetType().Equals(typeof(string)))
                                 {
-                                    int index = SearchExports(hProc, hModule, pExpDir, (string)lpProcName); //search the exported names table for the specified function
+                                    var index = SearchExports(hProc, hModule, pExpDir, (string)lpProcName); //search the exported names table for the specified function
                                     if (index > -1) //check the function was found
                                     {
-                                        byte[] bOrd = ReadRemoteMemory(hProc, hModule.Add(pOrd + (index << 1)), 0x2); //read the ordinal number for the function from the process
+                                        var bOrd = ReadRemoteMemory(hProc, hModule.Add(pOrd + (index << 1)), 0x2); //read the ordinal number for the function from the process
                                         ord = (int)(bOrd == null ? -1 : BitConverter.ToUInt16(bOrd, 0)); //get the ordinal number for this function
                                     }
                                 }
@@ -329,13 +346,13 @@ OUT LPVOID lpBytesBuffer
                                 {
                                     //reference the Export Address Table to find the function address for our ordinal (don't forget to factor in the ordinal base)
                                     //Unlike zero-based indexing, the 'ordinal number' indexing starts at 1, so subtract 1 from the ordbase to get zero-based index
-                                    byte[] addr = ReadRemoteMemory(hProc, hModule.Add(pEat + (ord << 2)), 0x4);
+                                    var addr = ReadRemoteMemory(hProc, hModule.Add(pEat + (ord << 2)), 0x4);
                                     if (addr != null)
                                     {
-                                        uint pFunction = BitConverter.ToUInt32(addr, 0);
+                                        var pFunction = BitConverter.ToUInt32(addr, 0);
                                         if (pFunction >= expDirPtr && pFunction < (expDirPtr + expDirSize)) //forwarded.
                                         {
-                                            string forward = ReadRemoteString(hProc, hModule.Add(pFunction));
+                                            var forward = ReadRemoteString(hProc, hModule.Add(pFunction));
                                             if (!string.IsNullOrEmpty(forward) && forward.Contains("."))
                                                 procAddress = GetProcAddressEx(hProc, GetModuleHandleEx(hProc, forward.Split('.')[0]), forward.Split('.')[1]);
                                         }
@@ -356,23 +373,23 @@ OUT LPVOID lpBytesBuffer
 
         private static int SearchExports(IntPtr hProcess, IntPtr hModule, byte[] exports, string name)
         {
-            uint cntExports = BitConverter.ToUInt32(exports, 0x18); //number of named exported functions
-            uint ptrNameTable = BitConverter.ToUInt32(exports, 0x20); //pointer to the export name table
-            int rva = -1;
+            var cntExports = BitConverter.ToUInt32(exports, 0x18); //number of named exported functions
+            var ptrNameTable = BitConverter.ToUInt32(exports, 0x20); //pointer to the export name table
+            var rva = -1;
 
             if (cntExports > 0 && ptrNameTable > 0)
             {
-                byte[] rawPtrs = ReadRemoteMemory(hProcess, hModule.Add(ptrNameTable), cntExports << 2); //be lazy and read all the name pointers at once.
+                var rawPtrs = ReadRemoteMemory(hProcess, hModule.Add(ptrNameTable), cntExports << 2); //be lazy and read all the name pointers at once.
                 if (rawPtrs != null)
                 {
                     //quickly convert that series of bytes into pointer values that make sense. 
-                    uint[] namePtrs = new uint[cntExports];
-                    for (int i = 0; i < namePtrs.Length; i++)
+                    var namePtrs = new uint[cntExports];
+                    for (var i = 0; i < namePtrs.Length; i++)
                         namePtrs[i] = BitConverter.ToUInt32(rawPtrs, i << 2);
 
                     //binary search, huzzah! Part of the PE specification is that all exported functions are ordered lexicographically in a PE file.
                     int start = 0, end = namePtrs.Length - 1, middle = 0;
-                    string curvalue = string.Empty;
+                    var curvalue = string.Empty;
                     //basically just search through all the exports looking for the specified function
                     while (start >= 0 && start <= end && rva == -1)
                     {
@@ -396,7 +413,7 @@ OUT LPVOID lpBytesBuffer
                 encoding = Encoding.ASCII;
 
             var builder = new StringBuilder(); //easiest and cleanest way to build an unknown-length string.
-            byte[] buffer = new byte[256];
+            var buffer = new byte[256];
             uint nbytes = 0;
             int terminator = -1, index = 0;
 

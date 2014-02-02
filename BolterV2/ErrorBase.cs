@@ -22,7 +22,7 @@
 
 using System;
 
-namespace JLibrary.Tools
+namespace BolterV2
 {
     /// <summary>
     /// Simple error reporting, reminiscent of the WinAPI error scheme
@@ -37,13 +37,13 @@ namespace JLibrary.Tools
         /// <returns>An Exception containing information about the last error, or null if no error has been encountered since construction or the last call to ClearErrors()</returns>
         public virtual Exception GetLastError()
         {
-            return this._lasterror;
+            return _lasterror;
         }
 
         /// <summary>Clear any errors encountered by the class</summary>
         public virtual void ClearErrors()
         {
-            this._lasterror = null;
+            _lasterror = null;
         }
 
         /// <summary>Updates the last error encountered by the class</summary>
@@ -51,7 +51,7 @@ namespace JLibrary.Tools
         /// <returns>false, always. The return value is purely for syntactical sugar, allowing functions to both return a negative result and set an error in a single line</returns>
         protected virtual bool SetLastError(Exception e)
         {
-            this._lasterror = e;
+            _lasterror = e;
             return false;
         }
 
@@ -60,7 +60,7 @@ namespace JLibrary.Tools
         /// <returns>false, always. <see cref="SetLastError(Exception)"/></returns>
         protected virtual bool SetLastError(string message)
         {
-            return this.SetLastError(new Exception(message));
+            return SetLastError(new Exception(message));
         }
         private bool disposed;
 
@@ -69,7 +69,7 @@ namespace JLibrary.Tools
         /// </summary>
         ~ErrorBase()
         {
-            this.Dispose(false);
+            Dispose(false);
         }
 
         /// <summary>
@@ -77,13 +77,13 @@ namespace JLibrary.Tools
         /// </summary>
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
         /// The virtual dispose method that allows
-        /// classes inherithed from this one to dispose their resources.
+        /// classes inherited from this one to dispose their resources.
         /// </summary>
         /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)

@@ -23,10 +23,20 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using JLibrary.Tools;
 
-namespace JLibrary.PortableExecutable
+namespace BolterV2
 {
+    public static class Constants
+    {
+        public const ushort DOS_SIGNATURE = 0x5A4D;
+        public const uint NT_SIGNATURE = 0x4550;
+        public const ushort PE32_FORMAT = 0x10B; //PE32
+        public const ushort PE32P_FORMAT = 0x20B; //PE32+
+        public const uint RT_MANIFEST = 0x18;
+        public const uint CREATEPROCESS_MANIFEST_RESOURCE_ID = 0x01;
+        public const uint ISOLATIONAWARE_MANIFEST_RESOURCE_ID = 0x02;
+        public const uint ISOLATIONAWARE_NOSTATICIMPORT_MANIFEST_RESOURCE_ID = 0x03;
+    }
     [Serializable]
     public class PortableExecutable :  MemoryIterator
     {
@@ -37,7 +47,7 @@ namespace JLibrary.PortableExecutable
         public PortableExecutable(string path) 
             : this(File.ReadAllBytes(path))
         {
-            this.FileLocation = path;
+            FileLocation = path;
         }
 
         /// <summary>Construct a new instance of the PortableExecutable class using a raw data buffer</summary>
@@ -45,13 +55,13 @@ namespace JLibrary.PortableExecutable
         public PortableExecutable(byte[] data) 
             : base(data)
         {
-            string error = string.Empty;
-            IMAGE_NT_HEADER32 tempNtHd = default(IMAGE_NT_HEADER32);
-            IMAGE_DOS_HEADER tempDosHd = default(IMAGE_DOS_HEADER);
+            var error = string.Empty;
+            var tempNtHd = default(IMAGE_NT_HEADER32);
+            var tempDosHd = default(IMAGE_DOS_HEADER);
 
             if (Read(out tempDosHd) && tempDosHd.e_magic == Constants.DOS_SIGNATURE) //first check, DOS header ('MZ')
             {
-                if (Read(tempDosHd.e_lfanew, System.IO.SeekOrigin.Begin, out tempNtHd) && tempNtHd.Signature == Constants.NT_SIGNATURE) //Next, the NT header ("PE\0\0" sig)
+                if (Read(tempDosHd.e_lfanew, SeekOrigin.Begin, out tempNtHd) && tempNtHd.Signature == Constants.NT_SIGNATURE) //Next, the NT header ("PE\0\0" sig)
                 {
                     if (tempNtHd.OptionalHeader.Magic == Constants.PE32_FORMAT) //check to make sure only x86 images are allowed.
                     {
@@ -66,8 +76,8 @@ namespace JLibrary.PortableExecutable
 
             if (string.IsNullOrEmpty(error))
             {
-                this.NTHeader = tempNtHd;
-                this.DOSHeader = tempDosHd;
+                NTHeader = tempNtHd;
+                DOSHeader = tempDosHd;
             }
             else
             {
@@ -81,9 +91,9 @@ namespace JLibrary.PortableExecutable
         public IEnumerable<IMAGE_SECTION_HEADER> EnumSectionHeaders()
         {
             IMAGE_SECTION_HEADER pSecHd;
-            uint nSecs = this.NTHeader.FileHeader.NumberOfSections;
-            long pSections = this.NTHeader.FileHeader.SizeOfOptionalHeader + typeof(IMAGE_FILE_HEADER).SizeOf() + sizeof(uint) + this.DOSHeader.e_lfanew;
-            uint szSection = typeof(IMAGE_SECTION_HEADER).SizeOf();
+            uint nSecs = NTHeader.FileHeader.NumberOfSections;
+            long pSections = NTHeader.FileHeader.SizeOfOptionalHeader + typeof(IMAGE_FILE_HEADER).SizeOf() + sizeof(uint) + DOSHeader.e_lfanew;
+            var szSection = typeof(IMAGE_SECTION_HEADER).SizeOf();
 
             for (uint i = 0; i < nSecs; i++)
             {
@@ -96,11 +106,11 @@ namespace JLibrary.PortableExecutable
         /// <returns>An IEnumerable of IMAGE_IMPORT_DESCRIPTOR structures, each of which represents a single module to import</returns>
         public IEnumerable<IMAGE_IMPORT_DESCRIPTOR> EnumImports()
         {
-            IMAGE_DATA_DIRECTORY impDir = this.NTHeader.OptionalHeader.DataDirectory[(int)DATA_DIRECTORIES.ImportTable];
+            var impDir = NTHeader.OptionalHeader.DataDirectory[(int)DATA_DIRECTORIES.ImportTable];
             if (impDir.Size > 0)
             {
-                uint pDesc = GetPtrFromRVA(impDir.VirtualAddress);
-                uint szDesc = typeof(IMAGE_IMPORT_DESCRIPTOR).SizeOf();
+                var pDesc = GetPtrFromRVA(impDir.VirtualAddress);
+                var szDesc = typeof(IMAGE_IMPORT_DESCRIPTOR).SizeOf();
                 IMAGE_IMPORT_DESCRIPTOR desc;
                 while (base.Read(pDesc, SeekOrigin.Begin, out desc) && desc.OriginalFirstThunk > 0 && desc.Name > 0)
                 {
@@ -137,7 +147,7 @@ namespace JLibrary.PortableExecutable
             // fortunately, this difference is easily accounted for thanks to Matt Pietrek's genius. RawData pointers are
             // file aligned, and virtual-addresses are memory page aligned. Simply find the enclosing section and the delta 
             // between files/memory and you've got a valid file-pointer.
-            IMAGE_SECTION_HEADER pSecHd = GetEnclosingSectionHeader(rva);
+            var pSecHd = GetEnclosingSectionHeader(rva);
             return (rva - (pSecHd.VirtualAddress - pSecHd.PointerToRawData));
         }
     }

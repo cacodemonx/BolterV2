@@ -12,9 +12,6 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ConfigHelper;
-using InjectionLibrary;
-using JLibrary.PortableExecutable;
-using JLibrary.Win32;
 using Brush = System.Windows.Media.Brush;
 using Color = System.Windows.Media.Color;
 using Image = System.Windows.Controls.Image;
@@ -39,7 +36,7 @@ namespace BolterV2
 
         private string log;
         //Start Button
-        unsafe private void Button_Click(object sender, RoutedEventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
             var result = false;
             try
@@ -122,9 +119,8 @@ namespace BolterV2
                 derpStream.Write(Encoding.Default.GetBytes(log), 0, log.Length);
             }
             uint bWritten;
-            int hThread = 0;
             //Get byte array of the config.xml file path.
-            byte[] configPathBytes = new ASCIIEncoding().GetBytes(Directory.GetCurrentDirectory() + "\\config.xml");
+            var configPathBytes = new ASCIIEncoding().GetBytes(Directory.GetCurrentDirectory() + "\\config.xml");
             log = string.Format("Get path to config {0}\n",configPathBytes.Length);
             derpStream.Write(Encoding.Default.GetBytes(log), 0, log.Length);
 
@@ -139,7 +135,7 @@ namespace BolterV2
             derpStream.Write(Encoding.Default.GetBytes(log), 0, log.Length);
 
             //Get pointer for the Load Assembly function, inside our unmanaged CLR host DLL.
-            IntPtr routinePtr = WinAPI.GetProcAddressEx(hProc, hModule, "LoadIt");
+            var routinePtr = WinAPI.GetProcAddressEx(hProc, hModule, "LoadIt");
             log = string.Format("Get load pointer {0}\n",routinePtr);
             derpStream.Write(Encoding.Default.GetBytes(log), 0, log.Length);
 
@@ -165,9 +161,8 @@ namespace BolterV2
 
             var ntThread = new IntPtr();
 
-            var ntstatus = WinAPI.NtCreateThreadEx(&ntThread, 0x1FFFFF, null, hProc, routinePtr,
-                (void *)pathPtr, false, 0, null,
-                null, null);
+            var ntstatus = WinAPI.NtCreateThreadEx(ref ntThread, 0x1FFFFF, null, hProc, routinePtr,
+                pathPtr);
 
             WinAPI.WaitForSingleObject(ntThread, 2000);
             log = string.Format("Free unused memory {0:X}\n",ntstatus);
@@ -189,7 +184,7 @@ namespace BolterV2
             foreach (var process in ThePs)
             {
                 var hProc = WinAPI.OpenProcess((uint)WinAPI.ProcessAccess.AllAccess, false, process.Id);
-                var sigScam = new SigScan.SigScan(process, process.MainModule.BaseAddress + 0x119B000, 0x14B000);
+                var sigScam = new SigScan(process, process.MainModule.BaseAddress + 0x119B000, 0x14B000);
                 byte[] playerStructSig = { 0x46, 0x69, 0x72, 0x65, 0x20, 0x53, 0x68, 0x61, 0x72, 0x64, 0x02, 0x13, 0x02, 0xEC, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00 };
                 var NamePtr = sigScam.FindPattern(playerStructSig, "xxxxxxxxxxxxxxxxxxxx", -(int)process.MainModule.BaseAddress) - 0xB56;
                 playerName = Encoding.ASCII.GetString(WinAPI.ReadRemoteMemory(hProc, (IntPtr)((int)process.MainModule.BaseAddress + (int)NamePtr), 21).TakeWhile(item => item != 0).ToArray());
@@ -213,11 +208,11 @@ namespace BolterV2
                 var principal = new WindowsPrincipal(user);
                 isAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
             }
-            catch (UnauthorizedAccessException ex)
+            catch (UnauthorizedAccessException)
             {
                 isAdmin = false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 isAdmin = false;
             }
@@ -353,7 +348,7 @@ namespace BolterV2
             foreach (var process in ThePs)
             {
                 var hProc = WinAPI.OpenProcess((uint)WinAPI.ProcessAccess.AllAccess, false, process.Id);
-                var sigScam = new SigScan.SigScan(process, process.MainModule.BaseAddress + 0x119B000, 0x14B000);
+                var sigScam = new SigScan(process, process.MainModule.BaseAddress + 0x119B000, 0x14B000);
                 byte[] playerStructSig = { 0x46, 0x69, 0x72, 0x65, 0x20, 0x53, 0x68, 0x61, 0x72, 0x64, 0x02, 0x13, 0x02, 0xEC, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00 };
                 var NamePtr = sigScam.FindPattern(playerStructSig, "xxxxxxxxxxxxxxxxxxxx", -(int)process.MainModule.BaseAddress) - 0xB56;
                 playerName = Encoding.ASCII.GetString(WinAPI.ReadRemoteMemory(hProc, (IntPtr)((int)process.MainModule.BaseAddress + (int)NamePtr), 21).TakeWhile(item => item != 0).ToArray());

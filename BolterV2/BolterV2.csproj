@@ -42,7 +42,8 @@
     <OutputPath>bin\x86\Release\</OutputPath>
     <DefineConstants>
     </DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
@@ -69,18 +70,13 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ConfigHelper.cs" />
-    <Compile Include="Constants.cs" />
     <Compile Include="Definitions.cs" />
     <Compile Include="ErrorBase.cs" />
     <Compile Include="MemoryIterator.cs" />
     <Compile Include="PortableExecutable.cs" />
     <Compile Include="ResourceWalker.cs" />
     <Compile Include="SigScan.cs" />
-    <Compile Include="StandardInjectionMethod.cs" />
-    <Compile Include="ThreadHijack.cs" />
     <Compile Include="UnmanagedBuffer.cs" />
-    <Compile Include="Utils.cs" />
-    <Compile Include="Win32Ptr.cs" />
     <Compile Include="WinAPI.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -90,7 +86,6 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CRTInjection.cs" />
     <Compile Include="InjectionMethod.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -98,7 +93,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ManualMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

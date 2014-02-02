@@ -34,7 +34,7 @@ unsigned int DotNetInjection::Launch(const char * classtoInstance, VARIANTARG FA
 		//Start CLR Host
 		hr = pHost->Start();
 	}
-	//Get Default AppDomain
+	//Create AppDomain, give it a friendly name
 	hr = pHost->CreateDomain(L"Mr.Rogers",NULL,&pUnk);
 	hr = pUnk->QueryInterface(&appDomain);
 
@@ -61,18 +61,18 @@ unsigned int DotNetInjection::Launch(const char * classtoInstance, VARIANTARG FA
 	hr = assembly->CreateInstance(_bstr_t(classtoInstance), launcher);
 	
 	IDispatch *disp = NULL;
-	//Setup dispather to pass the config file path 
+	//Setup dispatcher to pass the unmanaged data
 	disp = launcher->pdispVal;
 	DISPID dispid;
 
-	//Get Id of GetPath() method.
+	//Get Id of PassInfo() method.
 	OLECHAR FAR* methodName = L"PassInfo";
 	hr = disp->GetIDsOfNames(IID_NULL, &methodName, 1, LOCALE_SYSTEM_DEFAULT, &dispid);
 
 	//Set as dispatcher parameters
 	DISPPARAMS _disArgs = {args, NULL, 12, 0};
 
-	//Invoke GetPath() and pass the config path string, to the managed library.
+	//Invoke PassInfo() and pass the unmanaged data, to the managed library.
 	hr = disp->Invoke(dispid, IID_NULL, LOCALE_SYSTEM_DEFAULT, DISPATCH_METHOD, &_disArgs, NULL, NULL, NULL);
 	disp->Release();
 	return 0;
