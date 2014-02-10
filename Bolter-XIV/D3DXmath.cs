@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Security;
-using System.Windows.Controls;
 using System.Xml.Serialization;
 
 namespace Bolter_XIV

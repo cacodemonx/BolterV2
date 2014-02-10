@@ -19,7 +19,7 @@ IUnknown *pUnk = NULL;
 unsigned int DotNetInjection::Launch(const char * classtoInstance, VARIANTARG FAR * args)
 {
 	HRESULT hr;
-			
+
 	//Create instance of the Common Language Runtime
 	if (pHost == NULL)
 	{
@@ -40,14 +40,19 @@ unsigned int DotNetInjection::Launch(const char * classtoInstance, VARIANTARG FA
 
 	// Set SafeArray bounds.
 	SAFEARRAYBOUND sabdBounds[1] = {BolterSize, 0};
+
 	// Create pointer for the SafeArray's data.
 	unsigned char *arrayData = NULL;
+
 	// Create SafeArray.
 	SAFEARRAY *BolterSA = SafeArrayCreate(VT_UI1,1,sabdBounds);
+
 	// Expose the SafeArray's data pointer.
 	SafeArrayAccessData(BolterSA,(void **)&arrayData);
+
 	// Copy the Bolter assembly, directly into the SafeArray's data.
 	memcpy(arrayData,Bolter,BolterSize);
+
 	// Close it all up.
 	SafeArrayUnaccessData(BolterSA);
 
@@ -59,7 +64,7 @@ unsigned int DotNetInjection::Launch(const char * classtoInstance, VARIANTARG FA
 
 	//Instantiate Main Bolter-XIV Class 
 	hr = assembly->CreateInstance(_bstr_t(classtoInstance), launcher);
-	
+
 	IDispatch *disp = NULL;
 	//Setup dispatcher to pass the unmanaged data
 	disp = launcher->pdispVal;
@@ -70,7 +75,7 @@ unsigned int DotNetInjection::Launch(const char * classtoInstance, VARIANTARG FA
 	hr = disp->GetIDsOfNames(IID_NULL, &methodName, 1, LOCALE_SYSTEM_DEFAULT, &dispid);
 
 	//Set as dispatcher parameters
-	DISPPARAMS _disArgs = {args, NULL, 12, 0};
+	DISPPARAMS _disArgs = {args, NULL, 13, 0};
 
 	//Invoke PassInfo() and pass the unmanaged data, to the managed library.
 	hr = disp->Invoke(dispid, IID_NULL, LOCALE_SYSTEM_DEFAULT, DISPATCH_METHOD, &_disArgs, NULL, NULL, NULL);
@@ -82,3 +87,47 @@ unsigned int DotNetInjection::Unload()
 	pHost->UnloadDomain(appDomain);
 	return 0;
 }
+
+BOOL DotNetInjection::IsDomainLoaded()
+{
+
+	if (pHost == NULL)
+		return false;
+
+	HDOMAINENUM enumHandle = new HDOMAINENUM();
+
+	pHost->EnumDomains(&enumHandle);
+
+
+
+	while (true)
+	{
+		IUnknown* dUnk = NULL;
+
+		_AppDomain *localAppDomain = NULL;
+
+		pHost->NextDomain(enumHandle,&dUnk);
+
+		if (dUnk == NULL) break;
+
+		dUnk->QueryInterface(&localAppDomain);
+
+		BSTR localDomainName = NULL;
+
+		localAppDomain->get_FriendlyName(&localDomainName);
+
+		if (0 == wcscmp(_bstr_t("Mr.Rogers"),localDomainName))
+		{
+			pHost->CloseEnum(enumHandle);
+			SysFreeString(localDomainName);
+			return true;
+		}
+
+		SysFreeString(localDomainName);
+	}
+
+	pHost->CloseEnum(enumHandle);
+
+	return false;
+}
+

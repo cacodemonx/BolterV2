@@ -133,15 +133,17 @@
     <Compile Include="EntityWindow.xaml.cs">
       <DependentUpon>EntityWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GameResources.cs" />
     <Compile Include="GatherHelper.cs" />
     <Compile Include="GatherWindow.xaml.cs">
       <DependentUpon>GatherWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="HotKey.cs" />
     <Compile Include="Input.cs" />
-    <Compile Include="KeyString.cs" />
-    <Compile Include="Player.cs" />
-    <Compile Include="SigScan.cs" />
+    <Compile Include="LinkAPI.cs" />
+    <Compile Include="NativeMethods.cs" />
+    <Compile Include="NativeStructs.cs" />
+    <Compile Include="WinAPI.cs" />
     <Compile Include="XMLWrapper.cs" />
     <Page Include="DevWindow.xaml">
       <SubType>Designer</SubType>

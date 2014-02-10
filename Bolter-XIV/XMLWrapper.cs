@@ -4,24 +4,34 @@ using System.Windows.Input;
 using System.Windows;
 using System.Windows.Controls;
 using ConfigHelper;
-using Player_Bits;
 using UnManaged;
 
 namespace Bolter_XIV
 {
     public static class ConfigWrapper
     {
+        
+        private static config Config
+        {
+            get { return MainWindow.Config; }
+            set { MainWindow.Config = value; }
+        }
+
+        private static NativeMethods Game
+        {
+            get { return InterProcessCom.Game; }
+        }
 
         //Load XML
         public static void Load()
         {
-            MainWindow.Config = XmlSerializationHelper.Deserialize<config>(InterProcessCom.ConfigPath);
+            Config = XmlSerializationHelper.Deserialize<config>(InterProcessCom.ConfigPath);
         }
 
         //Save XML
         public static void Save()
         {
-            XmlSerializationHelper.Serialize<config>(InterProcessCom.ConfigPath,MainWindow.Config);
+            XmlSerializationHelper.Serialize(InterProcessCom.ConfigPath, Config);
         }
 
         //Populates Area ComboBox
@@ -30,7 +40,7 @@ namespace Bolter_XIV
             try{areaBox.Items.Clear();}
             catch{}
 
-            var box1List = MainWindow.Config.saved_cords.Select(p => p.ZoneID).Distinct().ToList();
+            var box1List = Config.saved_cords.Select(p => p.ZoneID).Distinct().ToList();
 
             //Sort the list and add to the combo box items
             box1List.Sort();
@@ -46,7 +56,7 @@ namespace Bolter_XIV
             try{TheBox.Items.Clear();}
             catch{}
 
-            var box2List = MainWindow.Config.saved_cords
+            var box2List = Config.saved_cords
                 .Where(thenode => thenode.ZoneID == AreaBox.SelectedItem.ToString())
                 .Select(thenode => thenode.Name).ToList();
 
@@ -63,18 +73,18 @@ namespace Bolter_XIV
         {
             // Find index of selected coordinates.
             var index =
-                MainWindow.Config.saved_cords
+                Config.saved_cords
                     .FindIndex(
                         p =>
                             p.ZoneID == AreaBox.SelectedItem.ToString() &&
                             p.Name == TheBox.SelectedItem.ToString());
             
             // Set cord info to the boxes.
-            Xbox.Text = MainWindow.Config.saved_cords[index].X.ToString();
-            Ybox.Text = MainWindow.Config.saved_cords[index].Y.ToString();
-            Zbox.Text = MainWindow.Config.saved_cords[index].Z.ToString();
-            KeyZone.Text = MainWindow.Config.saved_cords[index].ZoneID;
-            KeyName.Text = MainWindow.Config.saved_cords[index].Name;
+            Xbox.Text = Config.saved_cords[index].X.ToString();
+            Ybox.Text = Config.saved_cords[index].Y.ToString();
+            Zbox.Text = Config.saved_cords[index].Z.ToString();
+            KeyZone.Text = Config.saved_cords[index].ZoneID;
+            KeyName.Text = Config.saved_cords[index].Name;
 
         }
 
@@ -82,17 +92,17 @@ namespace Bolter_XIV
         public static void SaveCord(TextBox Area, TextBox Name, Button LoadButton)
         {
             Load();
-            if (MainWindow.Config.saved_cords.Any(p => p.ZoneID == Area.Text && p.Name == Name.Text))
+            if (Config.saved_cords.Any(p => p.ZoneID == Area.Text && p.Name == Name.Text))
             {
                 MessageBox.Show("Duplicate name for this zone already exists", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            MainWindow.Config.saved_cords.Add(new Cord()
+            Config.saved_cords.Add(new Cord()
             {
                 Name = Name.Text,
-                X = Player.GetPos("X"),
-                Y = Player.GetPos("Y"),
-                Z = Player.GetPos("Z"),
+                X = Game.GetPos(Axis.X),
+                Y = Game.GetPos(Axis.Y),
+                Z = Game.GetPos(Axis.Z),
                 ZoneID = Area.Text
             });
             Save();
@@ -106,7 +116,7 @@ namespace Bolter_XIV
             try
             {
                 Load();
-                MainWindow.Config.HotKeys.POSKeys.Add(new POSKey()
+                Config.HotKeys.POSKeys.Add(new POSKey()
                 {
                     Key = (Key)Enum.Parse(typeof(Key), POSKbox.SelectedItem.ToString()),
                     KeyMod = (KeyModifier)Enum.Parse(typeof(KeyModifier), POSKmodbox.SelectedItem.ToString()),
@@ -129,7 +139,7 @@ namespace Bolter_XIV
             switch (Type)
             {
                 case KeyType.SpeedKey:
-                    MainWindow.Config.HotKeys.SpeedKeys.Add(new SpeedKey()
+                    Config.HotKeys.SpeedKeys.Add(new SpeedKey()
                     {
                         Key = (Key)Enum.Parse(typeof(Key), POSKbox.SelectedItem.ToString()),
                         KeyMod = (KeyModifier)Enum.Parse(typeof(KeyModifier), POSKmodbox.SelectedItem.ToString()),
@@ -138,7 +148,7 @@ namespace Bolter_XIV
                     });
                     break;
                 case KeyType.MoveKey:
-                    MainWindow.Config.HotKeys.MoveKeys.Add(new MoveKey()
+                    Config.HotKeys.MoveKeys.Add(new MoveKey()
                     {
                         Key = (Key)Enum.Parse(typeof(Key), POSKbox.SelectedItem.ToString()),
                         KeyMod = (KeyModifier)Enum.Parse(typeof(KeyModifier), POSKmodbox.SelectedItem.ToString()),

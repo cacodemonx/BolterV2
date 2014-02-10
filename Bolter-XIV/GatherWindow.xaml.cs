@@ -5,7 +5,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using Player_Bits;
 
 namespace Bolter_XIV
 {
@@ -14,6 +13,8 @@ namespace Bolter_XIV
     /// </summary>
     public partial class GatherWindow : Window
     {
+        private readonly static NativeMethods Game = InterProcessCom.Game;
+
         public GatherWindow()
         {
             InitializeComponent();
@@ -53,16 +54,22 @@ namespace Bolter_XIV
                     Navigation.HaltFlag = true;
                     break;
                 case "Remove":
-                    Navigation._Waypoints.Zone.First(p => p.Name == Player.GetZoneByID())
+                    Navigation._Waypoints.Zone.First(p => p.Name == Game.CurrentZone)
                         .Path.RemoveAll(i => i.Name == SaveedPathsBox.SelectedItem.ToString());
                     _helper.Reload();
                     break;
                 case "Refresh":
                     if (!SaveedPathsBox.Items.IsEmpty)
                         SaveedPathsBox.Items.Clear();
-                    Navigation._Waypoints.Zone.First(p => p.Name == Player.GetZoneByID())
+                    Navigation._Waypoints.Zone.First(p => p.Name == Game.CurrentZone)
                         .Path.ForEach(i => SaveedPathsBox.Items.Add(i.Name));
                     SaveedPathsBox.SelectedIndex = 0;
+                    break;
+                case "X":
+                    Close();
+                    break;
+                case "─":
+                    WindowState = WindowState.Minimized;
                     break;
 
             }

@@ -3,6 +3,8 @@
 #include "DotNetInjection.h"
 #include "SigScan.h"
 
+DWORD PastAllocation = NULL;
+
 DotNetInjection *BolterBytes = NULL;
 
 unsigned char lockBuff[12] = 
@@ -53,7 +55,6 @@ unsigned char menuSig[12] =
 {0x00, 0x57, 0x8B, 0xCE, 0xFF, 0xD2, 
 0x84, 0xC0, 0x74, 0x6A, 0x84, 0x1D};
 
-void render();
 
 INT APIENTRY DllMain(HMODULE hDLL, DWORD Reason, LPVOID Reserved) {
 
@@ -74,58 +75,71 @@ extern "C"
 {
 	DECLDIR void LoadIt(const char * xmlpath) //const char * xmlpath
 	{
-		//Check if this is a new instance.
 		if (BolterBytes == NULL)
 		{
 			// Instantiate the CLR hosting class.
 			BolterBytes = new DotNetInjection();
 		}
-			/* Sig scan stuff. */
-			// Get base module information and save it to the global variable. The scanner threads will share this.
-			GetModuleInformation( GetCurrentProcess(), GetModuleHandleW( L"ffxiv.exe" ), &modinfo, sizeof( MODULEINFO ) );
-			// Scan for all the sigs.
-			sigPoints[0] = FindPatternEx(zoneSig,"xxxxxxxxxxxx????x");
-			sigPoints[1] = FindPatternEx(lockBuff,"xxxxxxxxxxxx");
-			sigPoints[2] = FindPatternEx(lockAxisC,"xxxxxxxxxxxx");
-			sigPoints[3] = FindPatternEx(lockAxisS,"xxxxxxxxxxxxxxx");
-			sigPoints[4] = FindPatternEx(hideBuffSig,"xxxxxxxxxxxx");
-			sigPoints[5] = FindPatternEx(playerStructSig,"xxxxxxxxxxxxxxxxxx");
-			sigPoints[6] = FindPatternEx(movementSig,"xxxxxx????x");
-			sigPoints[7] = FindPatternEx(collision,"xxxxxxxxxxxxxxx");
-			sigPoints[8] = FindPatternEx(masterSig,"xxxxxxxxxxxxx");
-			sigPoints[9] = FindPatternEx(menuSig,"xxxxxxxxxxxx");
 
-			// Close all the handles.
-			for (int i = 0;i < THREADCOUNT;i++)
-				CloseHandle(scanThreads[i]);
+		// Is our AppDomain loaded
+		if (BolterBytes->IsDomainLoaded())
+		{
+			// Unload it, the user has tried to open 2 instances.
+			BolterBytes->Unload();
+		}
 
-			/* Setup all the data that is to be passed to our managed side. */
-			// The path to our configuration doc.
-			ManagedData[0].bstrVal = _bstr_t(xmlpath);
-			ManagedData[0].vt = VT_BSTR;
+		/* Sig scan stuff. */
+		// Get base module information and save it to the global variable. The scanner threads will share this.
+		GetModuleInformation( GetCurrentProcess(), GetModuleHandleW( L"ffxiv.exe" ), &modinfo, sizeof( MODULEINFO ) );
+		// Scan for all the sigs.
+		sigPoints[0] = FindPatternEx(zoneSig,"xxxxxxxxxxxx????x");
+		sigPoints[1] = FindPatternEx(lockBuff,"xxxxxxxxxxxx");
+		sigPoints[2] = FindPatternEx(lockAxisC,"xxxxxxxxxxxx");
+		sigPoints[3] = FindPatternEx(lockAxisS,"xxxxxxxxxxxxxxx");
+		sigPoints[4] = FindPatternEx(hideBuffSig,"xxxxxxxxxxxx");
+		sigPoints[5] = FindPatternEx(playerStructSig,"xxxxxxxxxxxxxxxxxx");
+		sigPoints[6] = FindPatternEx(movementSig,"xxxxxx????x");
+		sigPoints[7] = FindPatternEx(collision,"xxxxxxxxxxxxxxx");
+		sigPoints[8] = FindPatternEx(masterSig,"xxxxxxxxxxxxx");
+		sigPoints[9] = FindPatternEx(menuSig,"xxxxxxxxxxxx");
 
-			int x;
-			// Sig Addresses.
-			for (x = 0;x < 10;x++)
-			{
-				ManagedData[x+1].intVal = sigPoints[x];
-				ManagedData[x+1].vt = VT_INT;
-			}
-			ManagedData[x+1].intVal = (int)&UnloadIt;
+		// Close all the handles.
+		for (int i = 0;i < THREADCOUNT;i++)
+			CloseHandle(scanThreads[i]);
+
+		/* Setup all the data that is to be passed to our managed side. */
+		// The path to our configuration doc.
+		ManagedData[0].bstrVal = _bstr_t(xmlpath);
+		ManagedData[0].vt = VT_BSTR;
+
+		int x;
+		// Sig Addresses.
+		for (x = 0;x < 10;x++)
+		{
+			ManagedData[x+1].intVal = sigPoints[x];
 			ManagedData[x+1].vt = VT_INT;
-			/*Start up the CLR and instantiate the main Bolter class 
-			(starts a new thread with the STA attribute, to satisfy WPF)*/
-			BolterBytes->Launch("Bolter_XIV.STAThread", ManagedData);
-			AllocConsole();
+		}
+		ManagedData[x+1].intVal = (int)&UnloadIt;
+		ManagedData[x+1].vt = VT_INT;
+
+		ManagedData[x+2].intVal = (int)xmlpath;
+		ManagedData[x+2].vt = VT_INT;
+
+		/*Start up the CLR and instantiate the main Bolter class 
+		(starts a new thread with the STA attribute, to satisfy WPF)*/
+		BolterBytes->Launch("Bolter_XIV.STAThread", ManagedData);
+		AllocConsole();
 
 	}
+	DECLDIR	void UnloadIt()
+	{
+		Sleep(2000);
+		BolterBytes->Unload();
+	}
+
 }
 
-void UnloadIt()
-{
-	Sleep(2000);
-	BolterBytes->Unload();
-}
+
 
 bool __stdcall MaskCompare( const unsigned char* lpDataPtr, const unsigned char* lpPattern, const char* pszMask )
 {

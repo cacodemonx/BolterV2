@@ -1,9 +1,7 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using Player_Bits;
 
 namespace Bolter_XIV
 {
@@ -134,6 +132,11 @@ namespace Bolter_XIV
             }
         }
 
+        private static NativeMethods Game
+        {
+            get { return InterProcessCom.Game; }
+        }
+
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
             switch (((Button)e.Source).Content.ToString())
@@ -141,9 +144,9 @@ namespace Bolter_XIV
                 case "Get Current":
                     unsafe
                     {
-                        ForwardSlider.Value = Player.GetMovment()->ForwardSpeed;
-                        SideSlider.Value = Player.GetMovment()->LeftRightSpeed;
-                        BackSlider.Value = Player.GetMovment()->BackwardSpeed;
+                        ForwardSlider.Value = Game.MovementAdj->ForwardSpeed;
+                        SideSlider.Value = Game.MovementAdj->LeftRightSpeed;
+                        BackSlider.Value = Game.MovementAdj->BackwardSpeed;
                     }
                     break;
                 case "Sprint":
@@ -178,15 +181,15 @@ namespace Bolter_XIV
                         break;
                     case "ForwardSlider":
                         ForwardText.Text = e.NewValue.ToString("F");
-                        Player.GetMovment()->ForwardSpeed = (float)ForwardSlider.Value;
+                        Game.MovementAdj->ForwardSpeed = (float)ForwardSlider.Value;
                         break;
                     case "BackSlider":
                         BackText.Text = e.NewValue.ToString("F");
-                        Player.GetMovment()->BackwardSpeed = (float)BackSlider.Value;
+                        Game.MovementAdj->BackwardSpeed = (float)BackSlider.Value;
                         break;
                     case "SideSlider":
                         SideText.Text = e.NewValue.ToString("F");
-                        Player.GetMovment()->LeftRightSpeed = (float)SideSlider.Value;
+                        Game.MovementAdj->LeftRightSpeed = (float)SideSlider.Value;
                         break;
                 }
             }
@@ -199,7 +202,7 @@ namespace Bolter_XIV
             switch (cbox.Content.ToString())
             {
                 case "Collision Detection Off":
-                    Player.CollsionToggle(isChecked);
+                    Game.CollsionToggle(isChecked);
                     break;
             }
         }

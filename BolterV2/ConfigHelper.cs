@@ -70,10 +70,18 @@ namespace ConfigHelper
             get { return (IntPtr)_hModule; }
             set { _hModule = (int)value; }
         }
+        [XmlIgnore]
+        public IntPtr IsLoadedPtr
+        {
+            get { return (IntPtr)_IsLoadedPtr; }
+            set { _IsLoadedPtr = (int)value; }
+        }
         [XmlAttribute("ID")]
         public int ID;
         [XmlAttribute("hModule"), EditorBrowsable(EditorBrowsableState.Never)]
         public int _hModule;
+        [XmlAttribute("ComPtr"), EditorBrowsable(EditorBrowsableState.Never)]
+        public int _IsLoadedPtr;
     }
 
     [Serializable]

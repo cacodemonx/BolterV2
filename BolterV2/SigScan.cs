@@ -61,6 +61,18 @@ namespace BolterV2
             out int lpNumberOfBytesRead
             );
 
+        [DllImport("kernel32.dll", SetLastError = true)]
+        unsafe public static extern bool ReadProcessMemory(
+            IntPtr hProcess,
+            void * lpBaseAddress,
+            void * lpBuffer,
+            int dwSize,
+            out int lpNumberOfBytesRead
+            );
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, IntPtr lpBuffer, uint nSize, UIntPtr lpNumberOfBytesWritten);
+
         /// <summary>
         /// m_vDumpedRegion
         /// 

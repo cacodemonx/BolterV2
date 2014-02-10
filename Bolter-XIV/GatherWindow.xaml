@@ -61,9 +61,9 @@
     <Grid>
 
         <Rectangle Fill="DarkCyan" HorizontalAlignment="Left" Height="26" Stroke="DarkCyan" VerticalAlignment="Top" Width="352" MouseDown="TopDrag"/>
-        <Button Content="X" Style="{StaticResource MinCloseStyle}" HorizontalAlignment="Left" Margin="331,0,0,0" VerticalAlignment="Top" Width="21" Height="26" Foreground="White"/>
-        <Button Content="─" Style="{StaticResource MinCloseStyle}" HorizontalAlignment="Left" Margin="310,0,0,0" VerticalAlignment="Top" Width="21" Height="26" Foreground="White"/>
-        <TextBlock HorizontalAlignment="Left" Margin="30,2,0,0" TextWrapping="Wrap" Text="GATHER TOOL" VerticalAlignment="Top" Height="26" Width="183" Foreground="White" FontSize="16" FontWeight="Medium"/>
+        <Button Content="X" Style="{StaticResource MinCloseStyle}" HorizontalAlignment="Left" Margin="331,0,0,0" VerticalAlignment="Top" Width="21" Height="26" Foreground="White" Click="ClickHandler"/>
+        <Button Content="─" Style="{StaticResource MinCloseStyle}" HorizontalAlignment="Left" Margin="310,0,0,0" VerticalAlignment="Top" Width="21" Height="26" Foreground="White" Click="ClickHandler" />
+        <TextBlock HorizontalAlignment="Left" Margin="30,2,0,0" TextWrapping="Wrap" Text="GATHER TOOL" VerticalAlignment="Top" Height="26" Width="183" Foreground="White" FontSize="16" FontWeight="Medium" MouseDown="TopDrag"/>
         <TabControl HorizontalAlignment="Left" Height="451" Margin="0,26,0,0" VerticalAlignment="Top" Width="352">
             <TabItem Header="Gather">
                 <Grid Background="White"/>

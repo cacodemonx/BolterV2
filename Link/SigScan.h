@@ -12,7 +12,7 @@ DWORD retData[THREADCOUNT];
 
 DWORD clearData[THREADCOUNT];
 
-VARIANTARG FAR ManagedData[12];
+VARIANTARG FAR ManagedData[13];
 
 struct PatternParas
 {

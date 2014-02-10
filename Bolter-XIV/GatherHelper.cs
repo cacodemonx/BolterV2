@@ -1,18 +1,12 @@
-﻿using System;
+﻿// ReSharper disable TooWideLocalVariableScope
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using ConfigHelper;
-using Player_Bits;
 
 namespace Bolter_XIV
 {
@@ -25,6 +19,11 @@ namespace Bolter_XIV
     }
     unsafe public class Navigation : NativeDx
     {
+        private static NativeMethods Game
+        {
+            get { return InterProcessCom.Game; }
+        }
+
         /// <summary>
         /// Container for our waypoints.xml
         /// </summary>
@@ -67,17 +66,17 @@ namespace Bolter_XIV
         protected void ModelRotation(D3DXVECTOR2 pointB)
         {
             // Get new heading angle, for the given point.
-            var newHeading =
-                HeadingToRad(
-                    Player.Get2DPos(),
-                    pointB);
+            var newHeading = HeadingToRad(Game.Get2DPos(), pointB);
+
             // Get new 3D matrix Y axis vector, rotated to the given angle.
             var newVector = GetNewVector(newHeading);
+
             // Set new heading
-            (*Player.MasterPtr->Player)->Heading = newHeading;
+            Game.PCMobEntity[0].PCMob->Heading = newHeading;
+
             // Set new rotation vector.
-            (*Player.MasterPtr->Player)->subStruct->VectorX = newVector.x;
-            (*Player.MasterPtr->Player)->subStruct->VectorY = newVector.y;
+            Game.PCMobEntity[0].PCMob->subStruct->VectorX = newVector.x;
+            Game.PCMobEntity[0].PCMob->subStruct->VectorY = newVector.y;
         }
 
         private void RecordWaypoint(int interval, string pathName, GatherWindow Gwindow)
@@ -88,7 +87,7 @@ namespace Bolter_XIV
             RecordFlag = true;
 
             // Get ID of current zone.
-            var zoneId = Marshal.ReadInt32((IntPtr)Player.ZoneAddress);
+            var zoneId = Marshal.ReadInt32(NativeStructs.ZoneAddress);
 
             // Check if we need to make a new Zone entry.
             var nozones = _Waypoints.Zone.All(p => p.ID != zoneId);
@@ -98,8 +97,10 @@ namespace Bolter_XIV
             {
                 // Add new Zone entry for our current zone.
                 _Waypoints.Zone.Add(new Zones(zoneId));
+
                 // Add an empty Path entry.
                 _Waypoints.AddPathToZone(zoneId, pathName);
+
                 // This is a new entry, so grab the last Zone we added, and the first Path in that Zone,
                 // Then start adding new Point entries (at the rate of the given interval), and wait for the user to click stop.
                 _Waypoints.Zone.Last().Path.First().AddPoints(interval, Gwindow);
@@ -118,17 +119,20 @@ namespace Bolter_XIV
             if (Moving)
                 return;
             Moving = true;
-            var zoneId = Marshal.ReadInt32((IntPtr) Player.ZoneAddress);
+
+            var zoneId = Marshal.ReadInt32(NativeStructs.ZoneAddress);
+
             HaltFlag = false;
-            var heading = 0f;
-            var tobeHeading = 0f;
+            float heading;
+            float tobeHeading;
+
             foreach (
                 var waypoint in
                     RebuildList(_Waypoints.Zone.First(p => p.ID == zoneId).Path.First(i => i.Name == pathName).Point,
                         forawrd, pType, index))
             {
                 if (CorDelay)
-                    Player.GetMovment()->Status = Player.WalkingStatus.Standing;
+                    Game.MovementAdj->Status = WalkingStatus.Standing;
 
                 ModelRotation(new D3DXVECTOR2(waypoint.x, waypoint.y));
 
@@ -137,24 +141,25 @@ namespace Bolter_XIV
                 if (CorDelay)
                     Thread.Sleep(HeadToll);
 
-                var decX = (Player.GetPos(Player.Axis.X) > waypoint.x);
+                var decX = (Game.GetPos(Axis.X) > waypoint.x);
 
-                Player.GetMovment()->Status = Player.WalkingStatus.Autorun | Player.WalkingStatus.Running;
+                Game.MovementAdj->Status = WalkingStatus.Autorun | WalkingStatus.Running;
                 
                 if (decX)
                 {
-                    while (Player.GetPos(Player.Axis.X) > waypoint.x)
+                    while (Game.GetPos(Axis.X) > waypoint.x)
                     {
                         if (HaltFlag)
                         {
-                            Player.GetMovment()->Status = Player.WalkingStatus.Standing;
+                            Game.MovementAdj->Status = WalkingStatus.Standing;
                             Moving = false;
                             return;
                         }
                         if (AICorrection)
                         {
-                            heading = (*Player.MasterPtr->Player)->Heading;
-                            tobeHeading = HeadingToRad(Player.Get2DPos(), waypoint);
+                            heading = Game.PCMobEntity[0].PCMob->Heading;
+
+                            tobeHeading = HeadingToRad(Game.Get2DPos(), waypoint);
 
                             // Check if our heading is within our tolerance.
                             if (tobeHeading - heading < 0 ? tobeHeading - heading < -0.1f : tobeHeading - heading > 0.1f)
@@ -165,18 +170,18 @@ namespace Bolter_XIV
                 }
                 else
                 {
-                    while (Player.GetPos(Player.Axis.X) < waypoint.x)
+                    while (Game.GetPos(Axis.X) < waypoint.x)
                     {
                         if (HaltFlag)
                         {
-                            Player.GetMovment()->Status = Player.WalkingStatus.Standing;
+                            Game.MovementAdj->Status = WalkingStatus.Standing;
                             Moving = false;
                             return;
                         }
                         if (AICorrection)
                         {
-                            heading = (*Player.MasterPtr->Player)->Heading;
-                            tobeHeading = HeadingToRad(Player.Get2DPos(), waypoint);
+                            heading = Game.PCMobEntity[0].PCMob->Heading;
+                            tobeHeading = HeadingToRad(Game.Get2DPos(), waypoint);
 
                             // Check if our heading is within our tolerance.
                             if (tobeHeading - heading < 0 ? tobeHeading - heading < -0.1f : tobeHeading - heading > 0.1f)
@@ -188,7 +193,7 @@ namespace Bolter_XIV
                 if (Gwindow != null)
                     Gwindow.AddTextNav(0, "", pathName, waypoint.x, waypoint.y);
             }
-            Player.GetMovment()->Status = Player.WalkingStatus.Standing;
+            Game.MovementAdj->Status = WalkingStatus.Standing;
             Moving = false;
         }
 
@@ -213,7 +218,7 @@ namespace Bolter_XIV
             if (pType == Pathing.Normal)
                 localIndex = 0;
             else
-                localIndex = pType == Pathing.At_Index ? index : GetClosestIndex(rPlist, Player.Get2DPos());
+                localIndex = pType == Pathing.At_Index ? index : GetClosestIndex(rPlist, Game.Get2DPos());
 
             return rPlist.Skip(localIndex);
         }
@@ -262,8 +267,8 @@ namespace Bolter_XIV
         }
         unsafe public void test(float x, float y)
         {
-            var o = Player.Menu->SelectedItem->ID;
-            Console.WriteLine("{0} {1}",o,(uint)Player.Menu->SelectedItem);
+            var o = NativeStructs._Menu->SelectedItem->ID;
+            Console.WriteLine("{0} {1}", o, (uint)NativeStructs._Menu->SelectedItem);
         }
     }
 }

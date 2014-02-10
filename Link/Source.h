@@ -1,6 +1,7 @@
 #ifndef _SOURCE_H_
 #define _SOURCE_H_
 #include <iostream>
+#include "stdafx.h"
 
 #if defined DLL_EXPORT
 #define DECLDIR __declspec(dllexport)
@@ -11,7 +12,7 @@
 extern "C"
 {
 	DECLDIR void LoadIt(const char * xmlpath);
-	
+	DECLDIR void UnloadIt();
 }
-void UnloadIt();
+
 #endif

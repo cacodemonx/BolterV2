@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.IO;
 using ConfigHelper;
+using UnManaged;
 #pragma warning disable 0618
 using System;
 using System.Collections.Generic;
@@ -29,59 +29,58 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Player_Bits;
 using HotKey = UnManaged.HotKey;
 
 namespace Bolter_XIV
 {
     /// <summary>
-    ///     Interaction logic for MainWindow.xaml
+    /// Static class that holds various information, passed over from the unmanaged side.
     /// </summary>
     public static class InterProcessCom
     {
+        /// <summary>
+        /// Path to the configuration document
+        /// </summary>
         [MarshalAs(UnmanagedType.AnsiBStr, SizeConst = 200)]
         public static string ConfigPath;
 
-        public static IntPtr UnloadBolter;
+        /// <summary>
+        /// Public reference to the class that manages all native structure manipulation.
+        /// </summary>
+        public static NativeMethods Game;
+
     }
-    unsafe public class STAThread
+
+    /// <summary>
+    /// Class that the unmanaged side instantiates and uses as a unmanaged/managed call bridge
+    /// </summary>
+    public class STAThread
     {
 
-        public STAThread()
+        /// <summary>
+        /// Function that starts Bolter. Takes various information 
+        /// that the unmanaged side needs to pass to the managed side.
+        /// </summary>
+        public int PassInfo(int pathptr, int unloadaddress, int menuSig, int masterSig, int collisionSig, int movementSig, int playerStructSig, int hideBuffSig, int lockAxisS, int lockAxisC, int lockBuff, int zoneAddress, string cpath)
         {
-            new Thread(LoadBolter) { ApartmentState = ApartmentState.STA }.Start();
-        }
-        private Window w;
+            // Grab our configuration path
+            InterProcessCom.ConfigPath = Marshal.PtrToStringAnsi((IntPtr)pathptr);
 
-        private void LoadBolter()
-        {
-            w = new MainWindow();
-            w.ShowDialog();
-            w = null;
-            GC.Collect();
-        }
-        public int PassInfo(int unloadaddress, int menuSig, int masterSig, int collisionSig, int movementSig, int playerStructSig, int hideBuffSig, int lockAxisS, int lockAxisC, int lockBuff, int zoneAddress, string path)
-        {
-            var mainAddress = Process.GetCurrentProcess().MainModule.BaseAddress;
-            InterProcessCom.UnloadBolter = new IntPtr(unloadaddress);
-            InterProcessCom.ConfigPath = path;
+            WinAPI.VirtualFreeEx(Process.GetCurrentProcess().Handle, (IntPtr)pathptr, 0, FreeType.Release);
 
-            Player.ZoneAddress = Marshal.ReadInt32(
-                (IntPtr)zoneAddress +
-                mainAddress.ToInt32() +
-                12);
-            Player.HideBuffAddress = hideBuffSig + 3;
-            Player.LockSprintAddress = lockBuff + 6;
-            Player.ServerSideLock = lockAxisS + 36;
-            Player.ClientSideLock = lockAxisC + 11;
-            Player.BuffLoopAddress = playerStructSig + 10;
-            Player.CollisionAddress = collisionSig + 8;
-            Player.MovementAddress = Marshal.ReadInt32(
-                (IntPtr)movementSig +
-                mainAddress.ToInt32() +
-                6);
-            Player.MasterPtr = (Player.MasterPointer*)(mainAddress + masterSig + 0x30);
-            Player.Menu = (Player.MenuStruct*)Marshal.ReadInt32(mainAddress + menuSig + 0xC);
+            InterProcessCom.Game = new NativeMethods(Process.GetCurrentProcess().MainModule.BaseAddress, masterSig, zoneAddress, collisionSig, menuSig,
+                lockAxisS, lockAxisC, lockBuff, hideBuffSig, movementSig);
+
+            LinkAPI.UnloadAppDomain = LinkAPI.PtrToFunc<LinkAPI.UnloadItFunc>(unloadaddress);
+
+            new Thread(new ThreadStart(delegate
+            {
+                var w = new MainWindow();
+                w.ShowDialog();
+                LinkAPI.UnloadAppDomain();
+
+            })) { ApartmentState = ApartmentState.STA }.Start();
+
             return 1;
         }
     }
@@ -105,6 +104,8 @@ namespace Bolter_XIV
 
         #endregion
 
+        
+
         #region Open/Close
 
         public MainWindow()
@@ -120,6 +121,7 @@ namespace Bolter_XIV
         {
             DragMove();
         }
+
         //Process selection window
         public static config Config;
         public static Window w2;
@@ -143,23 +145,19 @@ namespace Bolter_XIV
                     _hotKeys.Add(new HotKey(moveKey.Key, moveKey.KeyMod, MoveOnKey));
                 }
         }
-        [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
-        static extern bool FreeConsole();
-
-        [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
-        static extern bool AllocConsole();
+        
         //on Window Load
-        unsafe private void Window_Loaded(object sender, RoutedEventArgs e)
+        private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-
-            Player.BasePlayerAddress = (Player.PlayerStructure**)Marshal.AllocHGlobal(4);
-            Player.RedirectBuffOp();
-            Thread.Sleep(2000);
+            
+            //Game.BasePlayerAddress = (Game.PlayerStructure**)Marshal.AllocHGlobal(4);
+            //Game.RedirectBuffOp();
             //Some load finishing stuff, to be cleaned.
+
             SpeedKey_Direct.ItemsSource = Speedstrings;
             MoveKey_Direct.ItemsSource = Compass;
-            POSKbox.ItemsSource = KeyString.KeyList;
-            POSKmodbox.ItemsSource = KeyString.KeyModList;
+            POSKbox.ItemsSource = Enum.GetNames(typeof (Key));
+            POSKmodbox.ItemsSource = Enum.GetNames(typeof (KeyModifier));
             POSKmodbox.SelectedIndex =
                 POSKbox.SelectedIndex =
                     SpeedKey_Direct.SelectedIndex =
@@ -175,40 +173,35 @@ namespace Bolter_XIV
             slider4.Maximum = 10;
             slider4.Value = 10;
             ConfigWrapper.Load();
+            var cProc = Process.GetCurrentProcess().Id;
+            var hModule = Config.MemInfo.First(p => p.ID == cProc).hModule;
+            Config.MemInfo.RemoveAll(p => p.ID == cProc);
+            Config.MemInfo.Add(new PastProcess { hModule = hModule, IsLoadedPtr = IntPtr.Zero, ID = cProc });
+            ConfigWrapper.Save();
             RegHotKeys();
-            Player.FillObjectList();
+            
             //FreeConsole();
         }
-
-        [DllImport("kernel32.dll")]
-        private static extern IntPtr CreateThread(IntPtr SecurityAttributes = default(IntPtr), uint StackSize = 0,
-            IntPtr StartFunction = default(IntPtr), IntPtr ThreadParameter = default(IntPtr), uint CreationFlags = 0,
-            [Out] uint ThreadId = 0);
-        [DllImport("kernel32.dll")]
-        static extern IntPtr GetConsoleWindow();
+        
         //on window close
         private void Window_Closing(object sender, CancelEventArgs e)
         {
             //Clean up
-            if (GetConsoleWindow() != IntPtr.Zero)
-                FreeConsole();
+            if (WinAPI.GetConsoleWindow() != IntPtr.Zero)
+                WinAPI.FreeConsole();
 
             Array.Clear(SetSpeed, 0, 4);
             _uchecked = false;
-            Player.UndoRedirectBuffOp();
-            Player.VirtualFreeEx(Process.GetCurrentProcess().Handle, Player.EntryPoint, 0, Player.FreeType.Release);
+
             for (var i = 0; i < _hotKeys.Count; i++)
             {
                 _hotKeys[i].Unregister();
                 _hotKeys[i].Dispose();
             }
             _hotKeys.Clear();
-            unsafe
-            {
-                Marshal.FreeHGlobal((IntPtr)Player.BasePlayerAddress);
-            }
+
             GC.Collect();
-            CreateThread(StartFunction: InterProcessCom.UnloadBolter, ThreadId: new uint[] {0}[0]);
+            
 
         }
 
@@ -228,9 +221,9 @@ namespace Bolter_XIV
                     c => c.Name == Config.HotKeys.POSKeys[keyIndex].POSName && c.ZoneID == Config.HotKeys.POSKeys[keyIndex].ZoneName);
 
             //Set the new XYZ values.
-            Player.WriteToPos("Z", Config.saved_cords[coordIndex].Z);
-            Player.WriteToPos("X", Config.saved_cords[coordIndex].X);
-            Player.WriteToPos("Y", Config.saved_cords[coordIndex].Y);
+            InterProcessCom.Game.WriteToPos(Axis.Z, Config.saved_cords[coordIndex].Z);
+            InterProcessCom.Game.WriteToPos(Axis.X, Config.saved_cords[coordIndex].X);
+            InterProcessCom.Game.WriteToPos(Axis.Y, Config.saved_cords[coordIndex].Y);
         }
 
         #endregion
@@ -282,38 +275,38 @@ namespace Bolter_XIV
             switch (Config.HotKeys.MoveKeys[keyIndex].Direction)
             {
                 case "N":
-                    Player.AddToPos("Y", distance, false);
+                    InterProcessCom.Game.AddToPos(Axis.Y, distance, false);
                     break;
                 case "NE":
-                    Player.AddToPos("X", distance, true);
-                    Player.AddToPos("Y", distance, false);
+                    InterProcessCom.Game.AddToPos(Axis.X, distance, true);
+                    InterProcessCom.Game.AddToPos(Axis.Y, distance, false);
                     break;
                 case "E":
-                    Player.AddToPos("X", distance, true);
+                    InterProcessCom.Game.AddToPos(Axis.X, distance, true);
                     break;
                 case "SE":
-                    Player.AddToPos("X", distance, true);
-                    Player.AddToPos("Y", distance, true);
+                    InterProcessCom.Game.AddToPos(Axis.X, distance, true);
+                    InterProcessCom.Game.AddToPos(Axis.Y, distance, true);
                     break;
                 case "S":
-                    Player.AddToPos("Y", distance, true);
+                    InterProcessCom.Game.AddToPos(Axis.Y, distance, true);
                     break;
                 case "SW":
-                    Player.AddToPos("X", distance, false);
-                    Player.AddToPos("X", distance, true);
+                    InterProcessCom.Game.AddToPos(Axis.X, distance, false);
+                    InterProcessCom.Game.AddToPos(Axis.X, distance, true);
                     break;
                 case "W":
-                    Player.AddToPos("X", distance, false);
+                    InterProcessCom.Game.AddToPos(Axis.X, distance, false);
                     break;
                 case "NW":
-                    Player.AddToPos("X", distance, false);
-                    Player.AddToPos("Y", distance, false);
+                    InterProcessCom.Game.AddToPos(Axis.X, distance, false);
+                    InterProcessCom.Game.AddToPos(Axis.Y, distance, false);
                     break;
                 case "Up":
-                    Player.AddToPos("Z", distance, true);
+                    InterProcessCom.Game.AddToPos(Axis.Z, distance, true);
                     break;
                 case "Down":
-                    Player.AddToPos("Z", distance, false);
+                    InterProcessCom.Game.AddToPos(Axis.Z, distance, false);
                     break;
             }
         }
@@ -327,38 +320,38 @@ namespace Bolter_XIV
             switch (((Button)e.Source).Content.ToString())
             {
                 case "Down":
-                    Player.AddToPos("Z", _buttonJumpVal, false);
+                    InterProcessCom.Game.AddToPos(Axis.Z, _buttonJumpVal, false);
                     break;
                 case "North":
-                    Player.AddToPos("Y", _buttonJumpVal, false);
+                    InterProcessCom.Game.AddToPos(Axis.Y, _buttonJumpVal, false);
                     break;
                 case "Up":
-                    Player.AddToPos("Z", _buttonJumpVal, true);
+                    InterProcessCom.Game.AddToPos(Axis.Z, _buttonJumpVal, true);
                     break;
                 case "South":
-                    Player.AddToPos("Y", _buttonJumpVal, true);
+                    InterProcessCom.Game.AddToPos(Axis.Y, _buttonJumpVal, true);
                     break;
                 case "East":
-                    Player.AddToPos("X", _buttonJumpVal, true);
+                    InterProcessCom.Game.AddToPos(Axis.X, _buttonJumpVal, true);
                     break;
                 case "West":
-                    Player.AddToPos("X", _buttonJumpVal, false);
+                    InterProcessCom.Game.AddToPos(Axis.X, _buttonJumpVal, false);
                     break;
                 case "NE":
-                    Player.AddToPos("X", _buttonJumpVal, true);
-                    Player.AddToPos("Y", _buttonJumpVal, false);
+                    InterProcessCom.Game.AddToPos(Axis.X, _buttonJumpVal, true);
+                    InterProcessCom.Game.AddToPos(Axis.Y, _buttonJumpVal, false);
                     break;
                 case "NW":
-                    Player.AddToPos("X", _buttonJumpVal, false);
-                    Player.AddToPos("Y", _buttonJumpVal, false);
+                    InterProcessCom.Game.AddToPos(Axis.X, _buttonJumpVal, false);
+                    InterProcessCom.Game.AddToPos(Axis.Y, _buttonJumpVal, false);
                     break;
                 case "SW":
-                    Player.AddToPos("X", _buttonJumpVal, false);
-                    Player.AddToPos("Y", _buttonJumpVal, true);
+                    InterProcessCom.Game.AddToPos(Axis.X, _buttonJumpVal, false);
+                    InterProcessCom.Game.AddToPos(Axis.Y, _buttonJumpVal, true);
                     break;
                 case "SE":
-                    Player.AddToPos("X", _buttonJumpVal, true);
-                    Player.AddToPos("Y", _buttonJumpVal, true);
+                    InterProcessCom.Game.AddToPos(Axis.X, _buttonJumpVal, true);
+                    InterProcessCom.Game.AddToPos(Axis.Y, _buttonJumpVal, true);
                     break;
             }
         }
@@ -372,7 +365,7 @@ namespace Bolter_XIV
         {
             if (e.OldValue == 0)
             {
-                new Thread(Player.UpdateSpeed).Start();
+                new Thread(InterProcessCom.Game.UpdateBuffDebuff).Start();
             }
             if (Math.Truncate(25.5 * e.NewValue) == 0)
             {
@@ -454,9 +447,9 @@ namespace Bolter_XIV
         //Handler for clicking the radar
         private void eclipse1_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            Player.AddToPos("Z", _radarZJump, true);
-            Player.AddToPos("X", _radarX, true);
-            Player.AddToPos("Y", _radarY, true);
+            InterProcessCom.Game.AddToPos(Axis.Z, _radarZJump, true);
+            InterProcessCom.Game.AddToPos(Axis.X, _radarX, true);
+            InterProcessCom.Game.AddToPos(Axis.Y, _radarY, true);
         }
 
         //Slider for Setting the Z value on Radar jump.
@@ -488,9 +481,9 @@ namespace Bolter_XIV
             {
                 Dispatcher.BeginInvoke(new Action(delegate
                 {
-                    textBoxX.Text = Player.GetPos("X").ToString();
-                    textBoxY.Text = Player.GetPos("Y").ToString();
-                    textBoxZ.Text = Player.GetPos("Z").ToString();
+                    textBoxX.Text = InterProcessCom.Game.GetPos(Axis.X).ToString();
+                    textBoxY.Text = InterProcessCom.Game.GetPos(Axis.Y).ToString();
+                    textBoxZ.Text = InterProcessCom.Game.GetPos(Axis.Z).ToString();
                 }));
                 Thread.Sleep(300);
             }
@@ -503,9 +496,9 @@ namespace Bolter_XIV
         //handler for updating the POS
         private void GetPos_Click(object sender, RoutedEventArgs e)
         {
-            textBoxX.Text = Player.GetPos("X").ToString(CultureInfo.InvariantCulture);
-            textBoxY.Text = Player.GetPos("Y").ToString(CultureInfo.InvariantCulture);
-            textBoxZ.Text = Player.GetPos("Z").ToString(CultureInfo.InvariantCulture);
+            textBoxX.Text = InterProcessCom.Game.GetPos(Axis.X).ToString(CultureInfo.InvariantCulture);
+            textBoxY.Text = InterProcessCom.Game.GetPos(Axis.Y).ToString(CultureInfo.InvariantCulture);
+            textBoxZ.Text = InterProcessCom.Game.GetPos(Axis.Z).ToString(CultureInfo.InvariantCulture);
         }
 
         //Handler for loading the XML
@@ -538,14 +531,11 @@ namespace Bolter_XIV
         {
             try
             {
-                Player.WriteToPos("X", StringToFloat(NewPOS_X.Text));
-                Player.WriteToPos("Y", StringToFloat(NewPOS_Y.Text));
-                Player.WriteToPos("Z", StringToFloat(NewPOS_Z.Text));
+                InterProcessCom.Game.WriteToPos(Axis.X, StringToFloat(NewPOS_X.Text));
+                InterProcessCom.Game.WriteToPos(Axis.Y, StringToFloat(NewPOS_Y.Text));
+                InterProcessCom.Game.WriteToPos(Axis.Z, StringToFloat(NewPOS_Z.Text));
             }
-            catch
-            {
-                
-            }
+            catch{}
         }
 
         //Handler for saving HotKeys
@@ -605,7 +595,7 @@ namespace Bolter_XIV
         public static EntityWindow EWindow;
         public static GatherWindow GWindow;
         public static DevWindow DWindow;
-      
+
         private void CheckBoxHandler(object sender, RoutedEventArgs e)
         {
             var cbox = (CheckBox) e.Source;
@@ -644,18 +634,18 @@ namespace Bolter_XIV
                     break;
                 case "Debug Console":
                     if (isChecked)
-                        AllocConsole();
+                        WinAPI.AllocConsole();
                     else
-                        FreeConsole();
+                        WinAPI.FreeConsole();
                     break;
                 case "XLock":
-                    Player.LockAxis("X", isChecked);
+                    InterProcessCom.Game.LockAxis(Axis.X, isChecked);
                     break;
                 case "YLock":
-                    Player.LockAxis("Y", isChecked);
+                    InterProcessCom.Game.LockAxis(Axis.Y, isChecked);
                     break;
                 case "ZLock":
-                    Player.LockAxis("Z", isChecked);
+                    InterProcessCom.Game.LockAxis(Axis.Z, isChecked);
                     break;
                 case "Auto Update":
                     if (isChecked)
@@ -667,7 +657,7 @@ namespace Bolter_XIV
                         _uchecked = false;
                     break;
                 case "Hide Sprint":
-                    Player.HideSprint(isChecked);
+                    InterProcessCom.Game.HideSprint(isChecked);
                     break;
                 case "Disable Radar":
                     HideRadarMain.Visibility = isChecked
@@ -688,12 +678,12 @@ namespace Bolter_XIV
 
         private void ZoneGetOnclick(object sender, RoutedEventArgs e)
         {
-            Area_Save.Text = Player.GetZoneByID();
+            Area_Save.Text = InterProcessCom.Game.CurrentZone;
         }
 
         private void ZoneBoxGetOnClick(object sender, RoutedEventArgs e)
         {
-            AreaPOS_Box.SelectedIndex = AreaPOS_Box.Items.Cast<string>().ToList().FindIndex(p => p == Player.GetZoneByID());
+            AreaPOS_Box.SelectedIndex = AreaPOS_Box.Items.Cast<string>().ToList().FindIndex(p => p == InterProcessCom.Game.CurrentZone);
         }
     }
 }

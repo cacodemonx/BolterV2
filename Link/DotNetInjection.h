@@ -9,10 +9,18 @@
 #pragma warning(default : 4278)
 #pragma comment(lib, "mscoree.lib")
 
+struct IsLoadedCallerData
+{
+	char name[24];
+	DWORD retData;
+};
+
+
 class DotNetInjection
 {
 public:
 	DotNetInjection();
 	unsigned int Launch(const char * classtoInstance, VARIANTARG FAR * args);
 	unsigned int Unload();
+	BOOL IsDomainLoaded();
 };
