@@ -192,9 +192,7 @@ namespace Bolter_XIV
             private fixed byte Unknown10[0x10]; //Unknown 0x10 bytes
             public uint StatusAdjust; //Has something to do with Player status. setting to 2 gives "Return" prompt
             private fixed byte Unknown11[0x44]; //Unknown 0x60 bytes
-            public float dynamicXCord; //Only updates when you are moving
-            public float dynamicZCord; //Only updates when you are moving
-            public float dynamicYCord; //Only updates when you are moving
+            public float dynamicXCord, dynamicZCord, dynamicYCord; //Only updates when you are moving
             private uint Unknown12; // Unknown value
             public uint IsMoving;
             public float dynamicHeading; //Only updates when you change heading
@@ -244,12 +242,8 @@ namespace Bolter_XIV
             private fixed byte Unknown[0x30]; //Unknown 0x2C bytes
             public float X, Z, Y;
             private fixed byte Unknown2[8];
-            public float VectorX;
-            private float VectorZ;
-            public float VectorY;
-            public float PlayerWidth;
-            public float PlayerHieght;
-            public float PlayerGirth;
+            public float VectorX, VectorZ, VectorY;
+            public float PlayerWidth, PlayerHieght, PlayerGirth;
             private fixed byte Unknown4[18]; //Unknown 0x2C bytes
 
             /// <summary>
@@ -258,9 +252,7 @@ namespace Bolter_XIV
             public uint DisplayedBody;
 
             private fixed byte Unknown5[0xA8]; //Unknown 0xA8 bytes
-            public float CliX2;
-            public float CliZ2;
-            public float CliY2;
+            public float X2, Z2, Y2;
             private fixed byte Unknown6[0x188]; //Unknown 0xA8 bytes
             public float PlayerSizeNoCam;
             public float PlayerSize;
@@ -304,9 +296,7 @@ namespace Bolter_XIV
             private float Unknown3; //Unknown float
             public float Heading; //Server Side Heading
             public float ServerHight; //Cam height?
-            private float Unknown4; //Unknown float
-            private float Unknown5; //Unknown float
-            private float Unknown6; //Unknown float
+            private float Unknown4, Unknown5, Unknown6; //Unknown float
             private fixed byte Unknown7[0x28]; //Unknown 0x28 bytes
             public SubPlayerStruct* subStruct;
             private fixed byte Unknown8[0x2C];
@@ -337,7 +327,7 @@ namespace Bolter_XIV
         public struct CollisionAsm
         {
             public byte cmpArg;
-            private fixed byte unused[8];
+            private fixed byte unused[7];
             public byte cmpArg2;
         }
 

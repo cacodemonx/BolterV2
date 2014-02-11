@@ -60,8 +60,8 @@ namespace Bolter_XIV
                     { NPCObjectListBox.Items.Clear(); }
                     catch { }
                     for (var i = 0; i < 22; i++)
-                        if (new string(Game.ObjectEntity[i].Object->Name) != "")
-                            NPCObjectListBox.Items.Add(new NPCObjectListBoxItem(new string(Game.ObjectEntity[i].Object->Name),
+                        if (Game.ObjectName(i) != "")
+                            NPCObjectListBox.Items.Add(new NPCObjectListBoxItem(Game.ObjectName(i),
                             Game.ObjectEntity[i].Object->X, Game.ObjectEntity[i].Object->Y, Game.ObjectEntity[i].Object->Z,
                             Game.ObjectEntity[i].Object->IsActive == 0 ? "Up " : "Down ", Game.ObjectEntity[i].Object->ID));
                     break;
@@ -86,8 +86,8 @@ namespace Bolter_XIV
                     {
                     }
                     for (var i = 0; i < 22; i++)
-                        if (new string(Game.ObjectEntity[i].Object->Name) != "")
-                            NPCObjectListBox.Items.Add(new NPCObjectListBoxItem(new string(Game.ObjectEntity[i].Object->Name),
+                        if (Game.ObjectName(i) != "")
+                            NPCObjectListBox.Items.Add(new NPCObjectListBoxItem(Game.ObjectName(i),
                             Game.ObjectEntity[i].Object->X, Game.ObjectEntity[i].Object->Y, Game.ObjectEntity[i].Object->Z,
                             Game.ObjectEntity[i].Object->IsActive == 0 ? "Up " : "Down ", Game.ObjectEntity[i].Object->ID));
                 }));

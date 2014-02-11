@@ -61,8 +61,15 @@ namespace Bolter_XIV
                 case "Refresh":
                     if (!SaveedPathsBox.Items.IsEmpty)
                         SaveedPathsBox.Items.Clear();
-                    Navigation._Waypoints.Zone.First(p => p.Name == Game.CurrentZone)
-                        .Path.ForEach(i => SaveedPathsBox.Items.Add(i.Name));
+                    try
+                    {
+                        Navigation._Waypoints.Zone.First(p => p.Name == Game.CurrentZone)
+                            .Path.ForEach(i => SaveedPathsBox.Items.Add(i.Name));
+                    }
+                    catch
+                    {
+                        MessageBox.Show("No paths for this zone have been saved");
+                    }
                     SaveedPathsBox.SelectedIndex = 0;
                     break;
                 case "X":

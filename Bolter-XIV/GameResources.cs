@@ -606,7 +606,8 @@ namespace Bolter_XIV
             {281, "unknown"},
             {282, "Limsa Lominsa Upper Decks"},
             {283, "Limsa Lominsa Upper Decks"},
-            {284, "Limsa Lominsa Upper Decks"}
+            {284, "Limsa Lominsa Upper Decks"},
+            {340, "Lavender Beds"}
         };
     }
 }

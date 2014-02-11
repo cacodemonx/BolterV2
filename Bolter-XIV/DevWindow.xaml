@@ -143,37 +143,37 @@
                     </Grid>
                 </TabItem>
                 <TabItem Header="About" BorderThickness="4,4,4,4" BorderBrush="#FFFEFEFE" Background="#FFFEFEFE" Margin="-9,-2,15,0" FontSize="20" Visibility="Hidden">
-                    <Grid Margin="0,-10,0,10">
+                    <Grid Margin="0,-10,0,10" x:Name="SetGrid">
                         <TextBlock HorizontalAlignment="Left" Margin="10,18,0,0" VerticalAlignment="Top" Width="90" Height="20" Text="Areial Glide" FontSize="12" />
                         <TextBox HorizontalAlignment="Left" Margin="74,14,0,0" VerticalAlignment="Top" Width="40" Height="20" FontSize="10" Text=""/>
-                        <Button Style="{StaticResource ButtonStyle}" HorizontalAlignment="Left" Margin="117,14,0,0" VerticalAlignment="Top" Width="40" Height="20" Content="SET" />
+                        <Button Style="{StaticResource ButtonStyle}" HorizontalAlignment="Left" Margin="117,14,0,0" VerticalAlignment="Top" Width="40" Height="20" Content="SET" x:Name="AreialGlide" Click="SetClick"/>
                         <TextBlock HorizontalAlignment="Left" Margin="10,44,0,0" VerticalAlignment="Top" Width="90" Height="20" Text="Areial Static" FontSize="12" />
                         <TextBox HorizontalAlignment="Left" Margin="74,40,0,0" VerticalAlignment="Top" Width="40" Height="20" FontSize="10" Text=""/>
-                        <Button Style="{StaticResource ButtonStyle}" HorizontalAlignment="Left" Margin="117,40,0,0" VerticalAlignment="Top" Width="40" Height="20" Content="SET" />
+                        <Button Style="{StaticResource ButtonStyle}" HorizontalAlignment="Left" Margin="117,40,0,0" VerticalAlignment="Top" Width="40" Height="20" Content="SET" x:Name="AreialStatic" Click="SetClick"/>
                         <TextBlock HorizontalAlignment="Left" Margin="10,70,0,0" VerticalAlignment="Top" Width="90" Height="20" Text="Status Mod" FontSize="12" />
                         <TextBox HorizontalAlignment="Left" Margin="74,66,0,0" VerticalAlignment="Top" Width="40" Height="20" FontSize="10" Text=""/>
-                        <Button Style="{StaticResource ButtonStyle}" HorizontalAlignment="Left" Margin="117,66,0,0" VerticalAlignment="Top" Width="40" Height="20" Content="SET" />
+                        <Button Style="{StaticResource ButtonStyle}" HorizontalAlignment="Left" Margin="117,66,0,0" VerticalAlignment="Top" Width="40" Height="20" Content="SET" x:Name="StatusMod" Click="SetClick"/>
                         <TextBlock HorizontalAlignment="Left" Margin="10,96,0,0" VerticalAlignment="Top" Width="90" Height="20" Text="Body Parts" FontSize="12" />
                         <TextBox HorizontalAlignment="Left" Margin="74,92,0,0" VerticalAlignment="Top" Width="40" Height="20" FontSize="10" Text=""/>
-                        <Button Style="{StaticResource ButtonStyle}" HorizontalAlignment="Left" Margin="117,92,0,0" VerticalAlignment="Top" Width="40" Height="20" Content="SET" />
+                        <Button Style="{StaticResource ButtonStyle}" HorizontalAlignment="Left" Margin="117,92,0,0" VerticalAlignment="Top" Width="40" Height="20" Content="SET" x:Name="BodyParts" Click="SetClick"/>
                         <TextBlock HorizontalAlignment="Left" Margin="10,122,0,0" VerticalAlignment="Top" Width="90" Height="20" Text="Char Height" FontSize="12" />
                         <TextBox HorizontalAlignment="Left" Margin="74,118,0,0" VerticalAlignment="Top" Width="40" Height="20" FontSize="10" Text=""/>
-                        <Button Style="{StaticResource ButtonStyle}" HorizontalAlignment="Left" Margin="117,118,0,0" VerticalAlignment="Top" Width="40" Height="20" Content="SET" />
+                        <Button Style="{StaticResource ButtonStyle}" HorizontalAlignment="Left" Margin="117,118,0,0" VerticalAlignment="Top" Width="40" Height="20" Content="SET" x:Name="CharHeight" Click="SetClick"/>
                         <TextBlock HorizontalAlignment="Left" Margin="10,148,0,0" VerticalAlignment="Top" Width="90" Height="20" Text="Char Width" FontSize="12" />
                         <TextBox HorizontalAlignment="Left" Margin="74,144,0,0" VerticalAlignment="Top" Width="40" Height="20" FontSize="10" Text=""/>
-                        <Button Style="{StaticResource ButtonStyle}" HorizontalAlignment="Left" Margin="117,144,0,0" VerticalAlignment="Top" Width="40" Height="20" Content="SET" />
+                        <Button Style="{StaticResource ButtonStyle}" HorizontalAlignment="Left" Margin="117,144,0,0" VerticalAlignment="Top" Width="40" Height="20" Content="SET" x:Name="CharWidth" Click="SetClick"/>
 
                         <TextBlock HorizontalAlignment="Left" Margin="160,18,0,0" VerticalAlignment="Top" Width="90" Height="20" Text="Char Girth" FontSize="12" />
                         <TextBox HorizontalAlignment="Left" Margin="224,14,0,0" VerticalAlignment="Top" Width="40" Height="20" FontSize="10" Text=""/>
-                        <Button Style="{StaticResource ButtonStyle}" HorizontalAlignment="Left" Margin="267,14,0,0" VerticalAlignment="Top" Width="40" Height="20" Content="SET" />
+                        <Button Style="{StaticResource ButtonStyle}" HorizontalAlignment="Left" Margin="267,14,0,0" VerticalAlignment="Top" Width="40" Height="20" Content="SET" x:Name="CharGirth" Click="SetClick"/>
                         <TextBlock HorizontalAlignment="Left" Margin="160,44,0,0" VerticalAlignment="Top" Width="90" Height="20" Text="Char Size" FontSize="12" />
                         <TextBox HorizontalAlignment="Left" Margin="224,40,0,0" VerticalAlignment="Top" Width="40" Height="20" FontSize="10" Text=""/>
                         <Image HorizontalAlignment="Left" Margin="209,73,0,0" VerticalAlignment="Top" Source="cam.ico" Width="15"/>
-                        <Button Style="{StaticResource ButtonStyle}" HorizontalAlignment="Left" Margin="267,40,0,0" VerticalAlignment="Top" Width="40" Height="20" Content="SET" />
+                        <Button Style="{StaticResource ButtonStyle}" HorizontalAlignment="Left" Margin="267,40,0,0" VerticalAlignment="Top" Width="40" Height="20" Content="SET" x:Name="CharSize" Click="SetClick"/>
                         <TextBlock HorizontalAlignment="Left" Margin="160,70,0,0" VerticalAlignment="Top" Width="90" Height="20" Text="Char Size" FontSize="12" />
                         <TextBlock HorizontalAlignment="Left" Margin="212,68,0,0" VerticalAlignment="Top" Width="90" Height="20" Text="X" FontSize="17" FontFamily="Segoe UI Light"/>
                         <TextBox HorizontalAlignment="Left" Margin="224,66,0,0" VerticalAlignment="Top" Width="40" Height="20" FontSize="10" Text=""/>
-                        <Button Style="{StaticResource ButtonStyle}" HorizontalAlignment="Left" Margin="267,66,0,0" VerticalAlignment="Top" Width="40" Height="20" Content="SET" />
+                        <Button Style="{StaticResource ButtonStyle}" HorizontalAlignment="Left" Margin="267,66,0,0" VerticalAlignment="Top" Width="40" Height="20" Content="SET" x:Name="CharSizeNoCam" Click="SetClick"/>
                         <CheckBox HorizontalAlignment="Left" Margin="167,100,0,0" VerticalAlignment="Top" Content="Collision Detection Off" FontSize="12" Checked="CheckBoxHandler" Unchecked="CheckBoxHandler"/>
                         <CheckBox HorizontalAlignment="Left" Margin="167,124,0,0" VerticalAlignment="Top" Content="N/A" FontSize="12"/>
                         <CheckBox HorizontalAlignment="Left" Margin="167,148,0,0" VerticalAlignment="Top" Content="N/A" FontSize="12"/>

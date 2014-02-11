@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System;
+using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -161,7 +163,40 @@ namespace Bolter_XIV
                     break;
             }
         }
-
+        unsafe private void SetClick(object sender, RoutedEventArgs e)
+        {
+            switch (((Button)e.Source).Name)
+            {
+                case "AreialGlide":
+                    Game.PCMobEntity[0].PCMob->CamGlide = float.Parse(SetGrid.Children.OfType<TextBox>().ElementAt(0).Text);
+                    break;
+                case "AreialStatic":
+                    Game.PCMobEntity[0].PCMob->StaticCamGlide = float.Parse(SetGrid.Children.OfType<TextBox>().ElementAt(1).Text);
+                    break;
+                case "StatusMod":
+                    Game.PCMobEntity[0].PCMob->StatusAdjust = uint.Parse(SetGrid.Children.OfType<TextBox>().ElementAt(2).Text);
+                    break;
+                case "BodyParts":
+                    Game.PCMobEntity[0].PCMob->subStruct->DisplayedBody = uint.Parse(SetGrid.Children.OfType<TextBox>().ElementAt(3).Text);
+                    Console.WriteLine(SetGrid.Children.OfType<TextBox>().ElementAt(3).Text);
+                    break;
+                case "CharHeight":
+                    Game.PCMobEntity[0].PCMob->subStruct->PlayerHieght = float.Parse(SetGrid.Children.OfType<TextBox>().ElementAt(4).Text);
+                    break;
+                case "CharWidth":
+                    Game.PCMobEntity[0].PCMob->subStruct->PlayerWidth = float.Parse(SetGrid.Children.OfType<TextBox>().ElementAt(5).Text);
+                    break;
+                case "CharGirth":
+                    Game.PCMobEntity[0].PCMob->subStruct->PlayerGirth = float.Parse(SetGrid.Children.OfType<TextBox>().ElementAt(6).Text);
+                    break;
+                case "CharSize":
+                    Game.PCMobEntity[0].PCMob->subStruct->PlayerSize = float.Parse(SetGrid.Children.OfType<TextBox>().ElementAt(7).Text);
+                    break;
+                case "CharSizeNoCam":
+                    Game.PCMobEntity[0].PCMob->subStruct->PlayerSizeNoCam = float.Parse(SetGrid.Children.OfType<TextBox>().ElementAt(8).Text);
+                    break;
+            }
+        }
         private void LockSpeed_Changed(object sender, RoutedEventArgs e)
         {
             
