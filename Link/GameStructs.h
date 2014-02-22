@@ -281,7 +281,7 @@ struct Camera
 
 };
 #pragma pack(push, 1)
-struct TargetStruct
+struct TargetStruct //not just for target. in need of a name change.
 {
 	Camera* CamPtr;
 	char Unknown[0x84];
