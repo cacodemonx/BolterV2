@@ -3,6 +3,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Text;
 using System.Windows;
@@ -15,6 +17,17 @@ using ConfigHelper;
 
 namespace BolterV2
 {
+    [StructLayout(LayoutKind.Sequential, Pack = 1, Size = 594, CharSet = CharSet.Ansi)]
+    public struct PassInfo
+    {
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
+        public string FilePath;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
+        public string DomainName;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 70)]
+        public string InterProcClass;
+        public int Raw;
+    }
     /// <summary>
     /// Launcher program for BolterV2.
     /// 
@@ -58,7 +71,7 @@ namespace BolterV2
             var pid = pidList[ProcessListBox.SelectedIndex];
 
             //Get handle for the selected ffxiv process.
-            var hProc = Process.GetProcessById(pid).Handle;
+            var hProc = _mapper.OpenHan(0x001F0FFF, pid);
 
             //Check if the CLR is already loaded into the selected process.
             if (Process.GetProcessById(pid).Modules.Cast<ProcessModule>().Any(mod => mod.ModuleName == "clr.dll"))
@@ -76,36 +89,49 @@ namespace BolterV2
                     return;
                 }
             }
-            //Get byte array of the config.xml file path.
-            var configPathBytes = new ASCIIEncoding().GetBytes(Directory.GetCurrentDirectory() + "\\config.xml");
 
-            //Allocate memory in ffxiv to hold the path.
-            var pathPtr = _mapper.AllocMem(hProc, (uint)configPathBytes.Length, 0x1000 | 0x2000, 0x04);
+            var mainNamespace = MainNamespaceOfPlugin(PluginsBox.SelectedItem.ToString());
 
-            //Write path inside allocated space.
-            var bWritten = _mapper.WriteMemory(hProc, pathPtr, configPathBytes, configPathBytes.Length);
+            var pInfo = new PassInfo
+            {
+                DomainName = mainNamespace,
+                FilePath = string.Format("{0}\\{1}.dll", Directory.GetCurrentDirectory(), PluginsBox.SelectedItem),
+                Raw = 0,
+                InterProcClass = string.Format("{0}.InterProcessCom", mainNamespace)
+            };
 
-            //Get pointer for the Load Assembly function, inside our unmanaged CLR host DLL.
+            var ppInfo = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(PassInfo)));
+
+            Marshal.StructureToPtr(pInfo, ppInfo, true);
+
+            // Allocate memory in ffxiv to hold the parameters struct.
+            var pathPtr = _mapper.AllocMem(hProc, (uint)Marshal.SizeOf(typeof(PassInfo)), 0x1000 | 0x2000, 0x04);
+
+            SigScan.WriteProcessMemory(hProc, pathPtr, ppInfo, (uint) Marshal.SizeOf(typeof(PassInfo)), new UIntPtr());
+
+            Marshal.FreeHGlobal(ppInfo);
+
+            // Get pointer for the Load Assembly function, inside our unmanaged CLR host DLL.
             var routinePtr = _mapper.GetFuncPointer(hProc, hModule, "LoadIt");
 
-            //Remove old pids
+            // Remove old pids
             eradstyle.MemInfo.RemoveAll(pe => !pidList.Contains(pe.ID) || pe.ID == pid);
 
-            //Add current pid.
+            // Add current pid.
             eradstyle.MemInfo.Add(new PastProcess {ID = pid, hModule = hModule});
 
-            //Save configuration.
+            // Save configuration.
             XmlSerializationHelper.Serialize("config.xml",eradstyle);
 
-            //Create remote thread in the selected ffxiv process starting at the Load Assembly routine.
+            // Create remote thread in the selected ffxiv process starting at the Load Assembly routine.
             var ntThread = _mapper.CreateThread(hProc, routinePtr, pathPtr);
             
-            //Wait for completion or 2000ms.
+            // Wait for completion or 2000ms.
            _mapper.WaitForEvent(ntThread, 2000);
 
-            //Close thread handle.
+            // Close handles.
             _mapper.CloseHan(ntThread);
-
+            _mapper.CloseHan(hProc);
             StartButton.IsEnabled = true;
 
         }
@@ -116,9 +142,9 @@ namespace BolterV2
             foreach (var process in ThePs)
             {
                 var hProc = process.Handle;
-                var sigScam = new SigScan(process, process.MainModule.BaseAddress + 0x119B000, 0x14B000);
+                var sigScam = new SigScan(process, process.MainModule.BaseAddress + 0xFB9000, 0x14B000);
                 byte[] playerStructSig = { 0x46, 0x69, 0x72, 0x65, 0x20, 0x53, 0x68, 0x61, 0x72, 0x64, 0x02, 0x13, 0x02, 0xEC, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00 };
-                var NamePtr = sigScam.FindPattern(playerStructSig, "xxxxxxxxxxxxxxxxxxxx", -(int)process.MainModule.BaseAddress) - 0xB56;
+                var NamePtr = sigScam.FindPattern(playerStructSig, "xxxxxxxxxxxxxxxxxxxx", -(int)process.MainModule.BaseAddress) - 0xC26;
                 playerName =
                     Encoding.ASCII.GetString(_mapper.ReadMemory(
                         hProc, process.MainModule.BaseAddress + (int)NamePtr, 21).TakeWhile(p => p != 0).ToArray());
@@ -126,6 +152,29 @@ namespace BolterV2
                 var newimg = (ImageSource)CreateBitmapSourceFromBitmap(Properties.Resources.ffxiv);
                 ProcessListBox.Items.Add(new ListImg(string.Format("{0}\nPID - {1}", playerName, process.Id), newimg));
             }
+
+            foreach (var file in Directory.EnumerateFiles(Directory.GetCurrentDirectory()).Where(file => file.EndsWith(".dll")))
+                PluginsBox.Items.Add(new string(file.Skip(Directory.GetCurrentDirectory().Length + 1).ToArray()).Replace(".dll", ""));
+            PluginsBox.SelectedIndex = 0;
+            ProcessListBox.SelectedIndex = 0;
+        }
+
+        private static string MainNamespaceOfPlugin(string pluginName)
+        {
+            var decoder = AppDomain.CreateDomain("Decode_Assembly", AppDomain.CurrentDomain.Evidence,
+                new AppDomainSetup {PrivateBinPath = Directory.GetCurrentDirectory()});
+
+            decoder.Load(pluginName);
+
+            var ns = decoder.GetAssemblies()
+                .Where(assem => assem.GetName().Name == pluginName)
+                .SelectMany(assem => assem.GetTypes().Where(type => type.Name == "InterProcessCom"))
+                .Select(type => type.Namespace)
+                .FirstOrDefault();
+
+            AppDomain.Unload(decoder);
+
+            return ns;
         }
 
         public bool IsUserAdministrator()
@@ -273,6 +322,16 @@ namespace BolterV2
             }
         }
 
+        private void Donate(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Process.Start("http://goo.gl/VbcSxW");
+            }
+            catch
+            {
+            }
+        }
     }
     public class ListImg
     {

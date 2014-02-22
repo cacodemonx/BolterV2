@@ -24,6 +24,8 @@ namespace Bolter_XIV
 
         private const int ObjectEntitySize = 22;
 
+        const int NPCEntitySize = 40;
+
         public static IntPtr ZoneAddress;
 
         public static CollisionAsm* Collision;
@@ -37,6 +39,8 @@ namespace Bolter_XIV
         public readonly PCMobHelper[] PCMobEntity = new PCMobHelper[PCMobEntitySize];
 
         public readonly ObjectHelper[] ObjectEntity = new ObjectHelper[ObjectEntitySize];
+
+        public readonly NPCHelper[] NPCEntity = new NPCHelper[NPCEntitySize];
 
         public string CurrentZone
         {
@@ -55,12 +59,17 @@ namespace Bolter_XIV
             // Occupy our proxy entity structures.
             for (var i = 0; i < PCMobEntitySize; i++)
             {
-                PCMobEntity[i] = new PCMobHelper(i * 0x3F40);
+                PCMobEntity[i] = new PCMobHelper(i*0x4100);
             }
 
             for (var i = 0; i < ObjectEntitySize; i++)
             {
-                ObjectEntity[i] = new ObjectHelper(i * 0x200);
+                ObjectEntity[i] = new ObjectHelper(i*0x200);
+            }
+            
+            for (var i = 0; i < NPCEntitySize; i++)
+            {
+                NPCEntity[i] = new NPCHelper(i * 0x3190);
             }
         }
 
@@ -90,6 +99,21 @@ namespace Bolter_XIV
             }
 
             public ObjectHelper(int pOffest)
+            {
+                _offset = pOffest;
+            }
+        }
+
+        public class NPCHelper
+        {
+            private readonly int _offset;
+
+            public NPCStruct* NPC
+            {
+                get { return (NPCStruct*)(((uint)*MasterPtr->NPC) + _offset); }
+            }
+
+            public NPCHelper(int pOffest)
             {
                 _offset = pOffest;
             }
@@ -139,7 +163,7 @@ namespace Bolter_XIV
             public fixed byte spacer12[6];
             public IntPtr unknownPtr11; //may be PtrtoPtr too.
             public fixed byte spacer13[16];
-
+            public fixed byte _spacer13[0xA];
             /* Pointer to Pointer of Player Structure */
             public PCMobStruct** Player;
 
@@ -151,7 +175,7 @@ namespace Bolter_XIV
             private IntPtr unknownPtr14;
             private fixed byte spacer17[6];
             private IntPtr unknownPtrtoPtr2;
-            private fixed byte spacer18[6];
+            private fixed byte spacer18[5];
 
             /* Pointer to Pointer of Object type NPC entities Structure */
             public ObjectStruct** NPCObject;
@@ -166,32 +190,47 @@ namespace Bolter_XIV
         }
 
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct PCMobStruct
         {
             private fixed byte Unknown[0x30]; //Unknown 0x30 bytes
             public fixed sbyte Name[0x18];
             private fixed byte Unknown1[0x2C];
             public uint ID;
-            private fixed byte Unknown2[0x28]; //Unknown 0x28 bytes
-            public float X; //Server Side X cord
-            public float Z; //Server Side Z cord
-            public float Y; //Server Side Y cord
+            public uint NPCID;
+            private fixed byte Unknown2[0xE]; //Unknown 0x28 bytes
+            public byte MobType;
+            private byte Unknown0;
+            public byte CurrentTarget;
+            public byte Distance;
+            public byte GatheringStatus;
+            private fixed byte _Unknown2[0x11];
+            public float X, Z, Y; 
             private float Unknown3; //Unknown float
             public float Heading; //Server Side Heading
             public float ServerHight; //Cam height?
             private float Unknown4; //Unknown float
             private float Unknown5; //Unknown float
             private float Unknown6; //Unknown float
-            private fixed byte Unknown7[0x28]; //Unknown 0x28 bytes
+            private fixed byte Unknown7[0x24]; //Unknown 0x28 bytes
+            public UInt16 FateId;
+            private UInt16 _Unknown0;
             public SubPlayerStruct* subStruct;
-            private fixed byte Unknown8[0x44]; //Unknown 0x44 bytes
+            private fixed byte _Unknown8[0x2C];
+            public byte GatheringInvisible;
+            private fixed byte Unknown8[0x17]; //Unknown 0x44 bytes
             public float CamGlide;
             private fixed byte Unknown9[0x3C]; //Unknown 0x3C bytes
             public float StaticCamGlide;
             private fixed byte Unknown10[0x10]; //Unknown 0x10 bytes
-            public uint StatusAdjust; //Has something to do with Player status. setting to 2 gives "Return" prompt
-            private fixed byte Unknown11[0x44]; //Unknown 0x60 bytes
+            public byte StatusAdjust; //Has something to do with Player status. setting to 2 gives "Return" prompt
+            public byte IsGM;
+            private fixed byte Unknown11[0xA]; //Unknown 0x60 bytes
+            public byte Icon;
+            public byte IsEngaged;
+            private fixed byte _Unknown11[0x3A];
+            public UInt32 EntityID;
+            private fixed byte _Unknown12[0xC];
             public float dynamicXCord, dynamicZCord, dynamicYCord; //Only updates when you are moving
             private uint Unknown12; // Unknown value
             public uint IsMoving;
@@ -207,9 +246,9 @@ namespace Bolter_XIV
             public uint IsMoving2;
             private fixed byte Unknown15[0x18]; //Unknown 0x18 bytes
             public float TimeTraveled; //Stores amount of seconds traveled since you last started moving.
-            private fixed byte Unknown16[0x2D1C]; //Unknown 0x2D1C bytes
-            public uint someCounter; // just keeps counting
-            private fixed byte Unknown17[0xA4]; //Unknown 0x2D1C bytes
+            private fixed byte _Unknown17[0x864];
+            public float TargetID;
+            private fixed byte Unknown16[0x270C]; //Unknown 0x2D1C bytes
             public BuffsAndDebuffs Buffs;
 
         }
@@ -276,11 +315,10 @@ namespace Bolter_XIV
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct TargetStruct
         {
-            private fixed byte Unknown[0x70];
+            private fixed byte Unknown[0x88];
             public uint TargetID;
-            private fixed byte Unknown2[0x40];
+            private fixed byte Unknown2[0x50];
             public uint LastTargetID;
-            private fixed byte Unknown3[0x8];
             public TargetStatus TargetStatus;
         }
 
@@ -321,6 +359,20 @@ namespace Bolter_XIV
         public struct NPCStruct
         {
             //Contains names at every 0x2FD0 offset starting at 0x30.
+            private fixed byte Unknown[0x30]; //Unknown 0x30 bytes
+            public fixed sbyte Name[0x18];
+            private fixed byte Unknown1[0x2C];
+            public uint ID;
+            private fixed byte Unknown2[0x28]; //Unknown 0x28 bytes
+            public float X, Z, Y;
+            private float Unknown3; //Unknown float
+            public float Heading; //Server Side Heading
+            public float ServerHight; //Cam height?
+            private float Unknown4, Unknown5, Unknown6; //Unknown float
+            private fixed byte Unknown7[0x28]; //Unknown 0x28 bytes
+            public SubPlayerStruct* subStruct;
+            private fixed byte Unknown8[0x2C];
+            public uint IsActive;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -366,7 +418,67 @@ namespace Bolter_XIV
             private fixed byte unused3[5];
             public fixed byte YFunc[8];
         }
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Camera
+        {
+            private fixed byte Unknown0[0x40];
+            public float UnknownCam0; //offset 0x40
+            public float UnknownCam1; //offset 0x44
+            public float UnknownCam2; //offset 0x48
+            private fixed byte Unknown3[0x24];
+            public float UnknownCam3; //offset 0x70
+            public float UnknownCam4; //offset 0x74
+            public float UnknownCam5; //offset 0x78
+            private fixed byte Unknown6[0x4];
+            public float UnknownCam6; //offset 0x80
+            public float UnknownCam7; //offset 0x84
+            public float UnknownCam8; //offset 0x88
+            private fixed byte Unknown9[0x4];
+            public float UnknownCam9; //offset 0x90
+            public float UnknownCam10; //offset 0x94
+            public float UnknownCam11; //offset 0x98
+            private fixed byte Unknown12[0x8];
+            public float UnknownCam12; //offset 0xA4
+            public float UnknownCam13; //offset 0xA8
+            private fixed byte Unknown14[0x4];
+            public float UnknownCam14; //offset 0xB0
+            public float UnknownCam15; //offset 0xB4
+            public float UnknownCam16; //offset 0xB8
+            private fixed byte Unknown17[0x4];
+            public float UnknownCam17; //offset 0xC0
+            public float UnknownCam18; //offset 0xC4
+            public float UnknownCam19; //offset 0xC8
+            private fixed byte Unknown20[0x1C];
+            public float Zoom; //offset 0xE8
+            private fixed byte Unknown21[0x14];
+            public float UnknownCam21; //offset 0x100
+            public float UnknownCam22; //offset 0x104
+            private fixed byte Unknown23[0x38];
+            public float Zoom2; //offset 0x140
+            private fixed byte Unknown24[0x1C];
+            public float UnknownCam24; //offset 0x160
+            public float UnknownCam25; //offset 0x164
+            public float UnknownCam26; //offset 0x168
+            private fixed byte Unknown27[0x4];
+            public float UnknownCam27; //offset 0x170
+            public float UnknownCam28; //offset 0x174
+            public float UnknownCam29; //offset 0x178
+            private fixed byte Unknown30[0x4];
+            public float UnknownCam30; //offset 0x180
+            public float UnknownCam31; //offset 0x184
+            public float UnknownCam32; //offset 0x188
+            private fixed byte Unknown33[0x44];
+            public float UnknownCam33; //offset 0x1D0
+            public float UnknownCam34; //offset 0x1D4
+            public float UnknownCam35; //offset 0x1D8
+            private fixed byte Unknown36[0xC];
+            public float UnknownCam36; //offset 0x1E8
+            private fixed byte Unknown37[0x44];
+            public float UnknownCam37; //offset 0x230
+            public float UnknownCam38; //offset 0x234
+            public float UnknownCam39; //offset 0x238
 
+        }
     
     }
         #endregion
@@ -401,5 +513,11 @@ namespace Bolter_XIV
         Server,
         Client
     }
+    public enum EntityType
+    {
+        PCMob,
+        Object,
+        NPC
+    };
     #endregion
 }

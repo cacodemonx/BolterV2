@@ -1,11 +1,13 @@
 #include "Source.h"
-#include "stdafx.h"
 #include "DotNetInjection.h"
 #include "SigScan.h"
+#include "GameStructs.h"
 
-DWORD PastAllocation = NULL;
+INT32 PastAllocation = NULL;
 
 DotNetInjection *BolterBytes = NULL;
+
+
 
 unsigned char lockBuff[12] = 
 {0x89, 0x55, 0xA8, 0x89, 0x4D, 0xB0
@@ -49,14 +51,14 @@ unsigned char collision[15] =
 
 unsigned char masterSig[13] = 
 {0x84, 0xC0, 0x0F, 0x95, 0xC0, 0x88, 
-0x06, 0x8B, 0x46, 0x04, 0x48, 0x75, 0x22};
+0x06, 0x8B, 0x46, 0x04, 0x48, 0x75, 0x2E};
 
 unsigned char menuSig[12] = 
 {0x00, 0x57, 0x8B, 0xCE, 0xFF, 0xD2, 
 0x84, 0xC0, 0x74, 0x6A, 0x84, 0x1D};
 
 
-INT APIENTRY DllMain(HMODULE hDLL, DWORD Reason, LPVOID Reserved) {
+INT APIENTRY DllMain(HMODULE hDLL, INT32 Reason, LPVOID Reserved) {
 
 	switch(Reason) {
 	case DLL_PROCESS_ATTACH:		
@@ -73,7 +75,7 @@ INT APIENTRY DllMain(HMODULE hDLL, DWORD Reason, LPVOID Reserved) {
 
 extern "C"
 {
-	DECLDIR void LoadIt(const char * xmlpath) //const char * xmlpath
+	DECLDIR void LoadIt(LoadParas * paras) //const char * xmlpath
 	{
 		if (BolterBytes == NULL)
 		{
@@ -82,10 +84,10 @@ extern "C"
 		}
 
 		// Is our AppDomain loaded
-		if (BolterBytes->IsDomainLoaded())
+		if (BolterBytes->IsDomainLoaded(paras->domainName))
 		{
 			// Unload it, the user has tried to open 2 instances.
-			BolterBytes->Unload();
+			BolterBytes->Unload(paras->domainName);
 		}
 
 		/* Sig scan stuff. */
@@ -107,39 +109,60 @@ extern "C"
 		for (int i = 0;i < THREADCOUNT;i++)
 			CloseHandle(scanThreads[i]);
 
+		AllocConsole();
+
 		/* Setup all the data that is to be passed to our managed side. */
 		// The path to our configuration doc.
-		ManagedData[0].bstrVal = _bstr_t(xmlpath);
-		ManagedData[0].vt = VT_BSTR;
 
-		int x;
-		// Sig Addresses.
-		for (x = 0;x < 10;x++)
-		{
-			ManagedData[x+1].intVal = sigPoints[x];
-			ManagedData[x+1].vt = VT_INT;
-		}
-		ManagedData[x+1].intVal = (int)&UnloadIt;
-		ManagedData[x+1].vt = VT_INT;
+		MasterPtr = (MasterPointer*)(sigPoints[8] + (INT32)modinfo.lpBaseOfDll + 0x3C);
 
-		ManagedData[x+2].intVal = (int)xmlpath;
-		ManagedData[x+2].vt = VT_INT;
+		MovPtr = (Movment**)(sigPoints[6] + (INT32)modinfo.lpBaseOfDll + 0x6);
+
+		PassInfo* pInfo = new PassInfo();
+		pInfo->sigs = sigPoints;
+		pInfo->pathptr = paras->pathptr;
+
+		FuncPoints[0] = &UnloadIt;
+		FuncPoints[1] = &GetPOS;
+		FuncPoints[2] = &GetName;
+		FuncPoints[3] = &SetPOS;
+		FuncPoints[4] = &SetHeading;
+		FuncPoints[5] = &GetHeading;
+		FuncPoints[6] = &Set3DVector;
+		FuncPoints[7] = &Get3DVector;
+		FuncPoints[8] = &GetBuff;
+		FuncPoints[9] = &GetMovement;
+		FuncPoints[10] = &SetMovement;
+		FuncPoints[11] = &GetMoveStatus;
+		FuncPoints[12] = &SetMoveStatus;
+		FuncPoints[13] = &GetEntityID;
+		FuncPoints[14] = &GetTargetEntityID;
+
+		pInfo->strptr = paras;
+		pInfo->Funcs = FuncPoints;
+		
+
+		ManagedData[0].intVal = (int)pInfo;
+
+		ManagedData[0].vt = VT_INT;
 
 		/*Start up the CLR and instantiate the main Bolter class 
 		(starts a new thread with the STA attribute, to satisfy WPF)*/
-		BolterBytes->Launch("Bolter_XIV.STAThread", ManagedData);
-		AllocConsole();
+		BolterBytes->Launch(paras->pathptr, paras->domainName, paras->nameSpace, ManagedData, paras->raw == 1);
+
+		
+
+		//delete pInfo;
 
 	}
-	DECLDIR	void UnloadIt()
-	{
-		Sleep(2000);
-		BolterBytes->Unload();
-	}
-
+	
 }
 
-
+void UnloadIt(const char * domainName)
+{
+	Sleep(2000);
+	BolterBytes->Unload(domainName);
+}
 
 bool __stdcall MaskCompare( const unsigned char* lpDataPtr, const unsigned char* lpPattern, const char* pszMask )
 {
@@ -151,11 +174,11 @@ bool __stdcall MaskCompare( const unsigned char* lpDataPtr, const unsigned char*
 	return (*pszMask) == NULL;
 }
 
-DWORD __stdcall FindPattern(PatternParas * paras)
+INT32 __stdcall FindPattern(PatternParas * paras)
 {
-	for (DWORD x = paras->startIndex; x < paras->stopIndex; x++)
+	for (INT32 x = paras->startIndex; x < paras->stopIndex; x++)
 	{
-		if (MaskCompare( reinterpret_cast< unsigned char* >( (DWORD)modinfo.lpBaseOfDll + x ), paras->lpPattern, paras->pszMask ))
+		if (MaskCompare( reinterpret_cast< unsigned char* >( (INT32)modinfo.lpBaseOfDll + x ), paras->lpPattern, paras->pszMask ))
 		{
 			retData[paras->sigNumber] = ( x );
 			return 0;
@@ -163,11 +186,11 @@ DWORD __stdcall FindPattern(PatternParas * paras)
 	}
 	return 0;
 }
-DWORD FindPatternEx(unsigned char * lpPattern, const char * lpMask) 
+INT32 FindPatternEx(unsigned char * lpPattern, const char * lpMask) 
 {
 	int i;
 	DWORD dwThreadID;
-	DWORD dataChuck = (modinfo.SizeOfImage / THREADCOUNT);
+	INT32 dataChuck = (modinfo.SizeOfImage / THREADCOUNT);
 
 	memcpy(retData,clearData,sizeof(retData));
 
@@ -191,7 +214,7 @@ DWORD FindPatternEx(unsigned char * lpPattern, const char * lpMask)
 
 	return GetFirstAddress();
 }
-DWORD GetFirstAddress()
+INT32 GetFirstAddress()
 {
 
 	for (int i = 0;i < THREADCOUNT;i++)
@@ -203,5 +226,4 @@ DWORD GetFirstAddress()
 	}
 	return 0;
 }
-
 

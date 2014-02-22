@@ -174,7 +174,7 @@ namespace Bolter_XIV
                     Game.PCMobEntity[0].PCMob->StaticCamGlide = float.Parse(SetGrid.Children.OfType<TextBox>().ElementAt(1).Text);
                     break;
                 case "StatusMod":
-                    Game.PCMobEntity[0].PCMob->StatusAdjust = uint.Parse(SetGrid.Children.OfType<TextBox>().ElementAt(2).Text);
+                    Game.PCMobEntity[0].PCMob->StatusAdjust = byte.Parse(SetGrid.Children.OfType<TextBox>().ElementAt(2).Text);
                     break;
                 case "BodyParts":
                     Game.PCMobEntity[0].PCMob->subStruct->DisplayedBody = uint.Parse(SetGrid.Children.OfType<TextBox>().ElementAt(3).Text);

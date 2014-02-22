@@ -15,8 +15,6 @@ namespace Bolter_XIV
     /// </summary>
     unsafe public partial class EntityWindow : Window
     {
-        //private static private static NativeMethods Game
-
         private static NativeMethods Game
         {
             get { return InterProcessCom.Game; }
@@ -66,6 +64,22 @@ namespace Bolter_XIV
                             Game.ObjectEntity[i].Object->IsActive == 0 ? "Up " : "Down ", Game.ObjectEntity[i].Object->ID));
                     break;
                 case "Face":
+                    break;
+                case "Get NPCs":
+                    try
+                    {
+                        NpcList1.Items.Clear();
+                        NpcList2.Items.Clear();
+                    }
+                    catch { }
+                    for (var i = 0; i < 40; i++)
+                    {
+                        if (Game.NPCName(i) == "") continue;
+                        if (NpcList1.Items.Count < 20)
+                            NpcList1.Items.Add(new EntityListBoxItem(Game.NPCName(i), Game.NPCEntity[i].NPC->ID));
+                        else
+                            NpcList2.Items.Add(new EntityListBoxItem(Game.NPCName(i), Game.NPCEntity[i].NPC->ID));
+                    }
                     break;
             }
 

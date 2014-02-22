@@ -34,6 +34,10 @@ namespace Bolter_XIV
             SetLastError = false)]
         public static extern unsafe IntPtr memcpy(void* dest, byte[] src, uint count);
 
+        [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl,
+            SetLastError = false)]
+        public static extern unsafe IntPtr memcpy(int[] dest, void* src, uint count);
+
         [DllImport("kernel32.dll", EntryPoint = "RtlFillMemory")]
         public static extern unsafe void FillMemory(void* destination, uint Length, byte fillValue);
 

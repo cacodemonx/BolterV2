@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:bolterXiv="clr-namespace:Bolter_XIV"
-        Title="EntityWindow" Height="347" Width="841" WindowStyle="None" AllowsTransparency="True" Loaded="EntityWindow_OnLoaded" Closing="EntityWindow_OnClosing">
+        Title="EntityWindow" Height="463" Width="841" WindowStyle="None" AllowsTransparency="True" Loaded="EntityWindow_OnLoaded" Closing="EntityWindow_OnClosing">
     <Window.Resources>
 
     </Window.Resources>
@@ -140,6 +140,25 @@
         <TextBlock HorizontalAlignment="Left" Margin="220,88,0,0" TextWrapping="Wrap" Text="Entity No Longer Valid" VerticalAlignment="Top" Foreground="Red" Visibility="Hidden" x:Name="ValidBlock"/>
         <Button Content="Face" HorizontalAlignment="Left" Margin="171,13,0,0" VerticalAlignment="Top" FontSize="9" VerticalContentAlignment="Stretch" Click="ClickHandler"/>
         <CheckBox Content="Track Distance" HorizontalAlignment="Left" Margin="737,327,0,0" VerticalAlignment="Top" Checked='ToggleButton_OnChecked' Unchecked="ToggleButton_OnChecked"/>
+        <ListBox HorizontalAlignment="Left" Height="146" Margin="10,313,0,0" VerticalAlignment="Top" Width="118" x:Name="NpcList1" >
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="{x:Type bolterXiv:EntityListBoxItem}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Name}" FontSize="10" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <ListBox HorizontalAlignment="Left" Height="146" Margin="133,313,0,0" VerticalAlignment="Top" Width="118" x:Name="NpcList2">
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="{x:Type bolterXiv:EntityListBoxItem}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Name}" FontSize="10" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Button Content="Get NPCs" HorizontalAlignment="Left" Margin="256,318,0,0" VerticalAlignment="Top" Width="75" Click="ClickHandler"/>
 
     </Grid>
 </Window>

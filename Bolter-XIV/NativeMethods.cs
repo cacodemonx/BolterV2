@@ -26,7 +26,7 @@ namespace Bolter_XIV
 
             MovementPtr = (Movment*)Marshal.ReadIntPtr(BaseAddress + movementOffset + 6);
       
-            MasterPtr = (MasterPointer*)(BaseAddress + masterOffset + 0x30);
+            MasterPtr = (MasterPointer*)(BaseAddress + masterOffset + 0x3C);
             
             _Menu = (MenuStruct*)Marshal.ReadInt32(BaseAddress + menuOffset + 0xC);
         }
@@ -214,6 +214,10 @@ namespace Bolter_XIV
             return new string(ObjectEntity[index].Object->Name);
         }
 
+        public string NPCName(int index)
+        {
+            return new string(NPCEntity[index].NPC->Name);
+        }
         
         public void UpdateBuffDebuff()
         {

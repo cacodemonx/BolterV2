@@ -111,7 +111,8 @@
       </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>"$(SolutionDir)DllToHeader.exe" "$(SolutionDir)Bolter-XIV\bin\x86\Release\Bolter-XIV.dll" "$(SolutionDir)Link\Bolter.h"</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -148,8 +149,8 @@ Copy "C:\Users\Bunny2\Documents\Visual Studio 2012\Projects\Link\Release\Bolter-
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Bolter.h" />
     <ClInclude Include="DotNetInjection.h" />
+    <ClInclude Include="GameStructs.h" />
     <ClInclude Include="SigScan.h" />
     <ClInclude Include="Source.h" />
     <ClInclude Include="stdafx.h" />

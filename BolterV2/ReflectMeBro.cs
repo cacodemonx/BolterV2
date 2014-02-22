@@ -17,6 +17,7 @@ namespace BolterV2
         private MethodInfo WaitForSingleObject { get; set; }
         private MethodInfo VirtualAllocEx { get; set; }
         private MethodInfo VirtualFreeEx { get; set; }
+        private MethodInfo OpenHandle { get; set; }
         private MethodInfo CloseHandle { get; set; }
         private MethodInfo Injector { get; set; }
         private ConstructorInfo PortableExecutable { get; set; }
@@ -37,6 +38,7 @@ namespace BolterV2
                 VirtualAllocEx = WinAPI.GetMethod("VirtualAllocEx");
                 VirtualFreeEx = WinAPI.GetMethod("VirtualFreeEx");
                 CloseHandle = WinAPI.GetMethod("CloseHandle");
+                OpenHandle = WinAPI.GetMethod("OpenProcess");
                 Injector = MapMe.GetType("ManualMapper.InjectionMethod").GetMethod("Create");
                 InjectionEnum = MapMe.GetType("ManualMapper.InjectionMethodType");
                 PortableExecutable =
@@ -134,6 +136,15 @@ namespace BolterV2
         public void CloseHan(IntPtr handle)
         {
             CloseHandle.Invoke(null, new object[] {handle});
+        }
+
+        public IntPtr OpenHan(uint dwDesiredAccess, int pid)
+        {
+            var args = new object[3];
+            args[0] = dwDesiredAccess;
+            args[1] = false;
+            args[2] = pid;
+            return (IntPtr) OpenHandle.Invoke(null, args);
         }
 
         public void WaitForEvent(IntPtr handle, int timeout)

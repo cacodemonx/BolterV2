@@ -15,16 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System.Runtime.InteropServices;
+#pragma warning disable 0618
 using ConfigHelper;
 using UnManaged;
-#pragma warning disable 0618
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -33,57 +33,6 @@ using HotKey = UnManaged.HotKey;
 
 namespace Bolter_XIV
 {
-    /// <summary>
-    /// Static class that holds various information, passed over from the unmanaged side.
-    /// </summary>
-    public static class InterProcessCom
-    {
-        /// <summary>
-        /// Path to the configuration document
-        /// </summary>
-        [MarshalAs(UnmanagedType.AnsiBStr, SizeConst = 200)]
-        public static string ConfigPath;
-
-        /// <summary>
-        /// Public reference to the class that manages all native structure manipulation.
-        /// </summary>
-        public static NativeMethods Game;
-
-    }
-
-    /// <summary>
-    /// Class that the unmanaged side instantiates and uses as a unmanaged/managed call bridge
-    /// </summary>
-    public class STAThread
-    {
-
-        /// <summary>
-        /// Function that starts Bolter. Takes various information 
-        /// that the unmanaged side needs to pass to the managed side.
-        /// </summary>
-        public int PassInfo(int pathptr, int unloadaddress, int menuSig, int masterSig, int collisionSig, int movementSig, int playerStructSig, int hideBuffSig, int lockAxisS, int lockAxisC, int lockBuff, int zoneAddress, string cpath)
-        {
-            // Grab our configuration path
-            InterProcessCom.ConfigPath = Marshal.PtrToStringAnsi((IntPtr)pathptr);
-
-            WinAPI.VirtualFreeEx(Process.GetCurrentProcess().Handle, (IntPtr)pathptr, 0, FreeType.Release);
-
-            InterProcessCom.Game = new NativeMethods(Process.GetCurrentProcess().MainModule.BaseAddress, masterSig, zoneAddress, collisionSig, menuSig,
-                lockAxisS, lockAxisC, lockBuff, hideBuffSig, movementSig);
-
-            LinkAPI.UnloadAppDomain = LinkAPI.PtrToFunc<LinkAPI.UnloadItFunc>(unloadaddress);
-
-            new Thread(new ThreadStart(delegate
-            {
-                var w = new MainWindow();
-                w.ShowDialog();
-                LinkAPI.UnloadAppDomain();
-
-            })) { ApartmentState = ApartmentState.STA }.Start();
-
-            return 1;
-        }
-    }
     public partial class MainWindow : Window
     {
         #region Fields
@@ -103,8 +52,6 @@ namespace Bolter_XIV
         private static List<HotKey> _hotKeys = new List<HotKey>();
 
         #endregion
-
-        
 
         #region Open/Close
 
@@ -531,9 +478,9 @@ namespace Bolter_XIV
         {
             try
             {
-                InterProcessCom.Game.WriteToPos(Axis.X, StringToFloat(NewPOS_X.Text));
-                InterProcessCom.Game.WriteToPos(Axis.Y, StringToFloat(NewPOS_Y.Text));
-                InterProcessCom.Game.WriteToPos(Axis.Z, StringToFloat(NewPOS_Z.Text));
+                InterProcessCom.LinkApi.PcMobEntities[0].X = StringToFloat(NewPOS_X.Text);
+                InterProcessCom.LinkApi.PcMobEntities[0].Y = StringToFloat(NewPOS_Y.Text);
+                InterProcessCom.LinkApi.PcMobEntities[0].Z = StringToFloat(NewPOS_Z.Text);
             }
             catch{}
         }
@@ -683,7 +630,32 @@ namespace Bolter_XIV
 
         private void ZoneBoxGetOnClick(object sender, RoutedEventArgs e)
         {
-            AreaPOS_Box.SelectedIndex = AreaPOS_Box.Items.Cast<string>().ToList().FindIndex(p => p == InterProcessCom.Game.CurrentZone);
+            try
+            {
+                AreaPOS_Box.SelectedIndex =
+                    AreaPOS_Box.Items.Cast<string>().ToList().FindIndex(p => p == InterProcessCom.Game.CurrentZone);
+            }
+            catch
+            {
+                MessageBox.Show("No jump points for this zone");
+            }
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            var buff = UnmanagedDelegates.Funcs.GetBuff(1, 0);
+
+            Console.WriteLine(buff.ID);
+
+            Console.WriteLine(Marshal.PtrToStringAnsi(UnmanagedDelegates.Funcs.GetName(EntityType.PCMob, 0)));
+
+            Console.WriteLine(UnmanagedDelegates.Funcs.GetHeading(EntityType.PCMob, 0));
+
+            Console.WriteLine(UnmanagedDelegates.Funcs.GetMovement(MovementEnum.ForwardSpeed));
+
+            Console.WriteLine(InterProcessCom.LinkApi.TargetEntity != null ? InterProcessCom.LinkApi.TargetEntity.Name : "");
+
+            Console.WriteLine();
         }
     }
 }

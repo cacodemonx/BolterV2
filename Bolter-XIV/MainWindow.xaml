@@ -254,6 +254,7 @@
                                 <CheckBox Content="Debug Console" IsChecked="True" Checked="CheckBoxHandler" Unchecked="CheckBoxHandler" Height="23"/>
                             </StackPanel>
                         </GroupBox>
+                        <Button Content="Debug" HorizontalAlignment="Left" Margin="20,264,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_2"/>
                     </Grid>
                 </TabItem>
             </TabControl>

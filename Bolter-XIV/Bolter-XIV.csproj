@@ -103,6 +103,7 @@
   </PropertyGroup>
   <PropertyGroup />
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -140,9 +141,11 @@
     </Compile>
     <Compile Include="HotKey.cs" />
     <Compile Include="Input.cs" />
+    <Compile Include="InterProcessCom.cs" />
     <Compile Include="LinkAPI.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="NativeStructs.cs" />
+    <Compile Include="UnmanagedDelegates.cs" />
     <Compile Include="WinAPI.cs" />
     <Compile Include="XMLWrapper.cs" />
     <Page Include="DevWindow.xaml">
@@ -246,8 +249,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>Copy "$(TargetPath)" "$(SolutionDir)BolterV2\bin\x86\Release" /Y</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "DotNetInjection.h"
-#include "Bolter.h"
+#pragma warning(disable : 4244)
 
 using namespace mscorlib;
 
@@ -16,7 +16,7 @@ ICLRMetaHost *pMetaHost = NULL;
 ICLRRuntimeInfo *pRuntimeInfo = NULL;
 IUnknown *pUnk = NULL;
 
-unsigned int DotNetInjection::Launch(const char * classtoInstance, VARIANTARG FAR * args)
+unsigned int DotNetInjection::Launch(const char * assPath, const char * domainName, const char * classtoInstance, VARIANTARG FAR * args, BOOL raw)
 {
 	HRESULT hr;
 
@@ -35,32 +35,35 @@ unsigned int DotNetInjection::Launch(const char * classtoInstance, VARIANTARG FA
 		hr = pHost->Start();
 	}
 	//Create AppDomain, give it a friendly name
-	hr = pHost->CreateDomain(L"Mr.Rogers",NULL,&pUnk);
+	hr = pHost->CreateDomain(_bstr_t(domainName),NULL,&pUnk);
 	hr = pUnk->QueryInterface(&appDomain);
 
+
+	std::vector<char> UserAssembly = ReadAllBytes(assPath);
+
 	// Set SafeArray bounds.
-	SAFEARRAYBOUND sabdBounds[1] = {BolterSize, 0};
+	SAFEARRAYBOUND sabdBounds[1] = {UserAssembly.size(), 0};
 
 	// Create pointer for the SafeArray's data.
 	unsigned char *arrayData = NULL;
 
 	// Create SafeArray.
-	SAFEARRAY *BolterSA = SafeArrayCreate(VT_UI1,1,sabdBounds);
+	SAFEARRAY *UserAssemblySA = SafeArrayCreate(VT_UI1,1,sabdBounds);
 
 	// Expose the SafeArray's data pointer.
-	SafeArrayAccessData(BolterSA,(void **)&arrayData);
+	SafeArrayAccessData(UserAssemblySA,(void **)&arrayData);
 
 	// Copy the Bolter assembly, directly into the SafeArray's data.
-	memcpy(arrayData,Bolter,BolterSize);
+	memcpy(arrayData,UserAssembly.data(),UserAssembly.size());
 
 	// Close it all up.
-	SafeArrayUnaccessData(BolterSA);
+	SafeArrayUnaccessData(UserAssemblySA);
 
 	// Load raw assembly data into the AppDomain
-	hr = appDomain->Load_3(BolterSA, &assembly);
+	hr = appDomain->Load_3(UserAssemblySA, &assembly);
 
 	// Destroy SafeArray
-	SafeArrayDestroy(BolterSA);
+	SafeArrayDestroy(UserAssemblySA);
 
 	//Instantiate Main Bolter-XIV Class 
 	hr = assembly->CreateInstance(_bstr_t(classtoInstance), launcher);
@@ -75,20 +78,67 @@ unsigned int DotNetInjection::Launch(const char * classtoInstance, VARIANTARG FA
 	hr = disp->GetIDsOfNames(IID_NULL, &methodName, 1, LOCALE_SYSTEM_DEFAULT, &dispid);
 
 	//Set as dispatcher parameters
-	DISPPARAMS _disArgs = {args, NULL, 13, 0};
+	DISPPARAMS _disArgs = {args, NULL, 1, 0};
 
 	//Invoke PassInfo() and pass the unmanaged data, to the managed library.
 	hr = disp->Invoke(dispid, IID_NULL, LOCALE_SYSTEM_DEFAULT, DISPATCH_METHOD, &_disArgs, NULL, NULL, NULL);
 	disp->Release();
 	return 0;
 }
-unsigned int DotNetInjection::Unload()
+unsigned int DotNetInjection::Unload(const char * domainName)
 {
-	pHost->UnloadDomain(appDomain);
+	HDOMAINENUM enumHandle = new HDOMAINENUM();
+
+	pHost->EnumDomains(&enumHandle);
+
+	while (true)
+	{
+		IUnknown* dUnk = NULL;
+
+		_AppDomain *localAppDomain = NULL;
+
+		pHost->NextDomain(enumHandle,&dUnk);
+
+		if (dUnk == NULL) break;
+
+		dUnk->QueryInterface(&localAppDomain);
+
+		BSTR localDomainName = NULL;
+
+		localAppDomain->get_FriendlyName(&localDomainName);
+
+		if (0 == wcscmp(_bstr_t(domainName),localDomainName))
+		{
+			pHost->UnloadDomain(localAppDomain);
+			pHost->CloseEnum(enumHandle);
+			SysFreeString(localDomainName);
+			return 0;
+		}
+
+		SysFreeString(localDomainName);
+	}
+
+	pHost->CloseEnum(enumHandle);
+
 	return 0;
 }
 
-BOOL DotNetInjection::IsDomainLoaded()
+using namespace std;
+
+vector<char> DotNetInjection::ReadAllBytes(char const* filename)
+{
+	ifstream ifs(filename, ios::binary|ios::ate);
+	ifstream::pos_type pos = ifs.tellg();
+
+	vector<char>  result(pos);
+
+	ifs.seekg(0, ios::beg);
+	ifs.read(&result[0], pos);
+
+	return result;
+}
+
+BOOL DotNetInjection::IsDomainLoaded(const char * domainName)
 {
 
 	if (pHost == NULL)
@@ -116,7 +166,7 @@ BOOL DotNetInjection::IsDomainLoaded()
 
 		localAppDomain->get_FriendlyName(&localDomainName);
 
-		if (0 == wcscmp(_bstr_t("Mr.Rogers"),localDomainName))
+		if (0 == wcscmp(_bstr_t(domainName),localDomainName))
 		{
 			pHost->CloseEnum(enumHandle);
 			SysFreeString(localDomainName);
